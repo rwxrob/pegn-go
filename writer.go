@@ -1,15 +1,27 @@
 package pegen
 
 import (
+	"bytes"
 	"fmt"
-	"io"
 	"strings"
 )
 
 type writer struct {
-	io.Writer
+	*bytes.Buffer
 
 	prefix string
+}
+
+func newW() *writer {
+	w, _ := newBW()
+	return w
+}
+
+func newBW() (*writer, *bytes.Buffer) {
+	b := new(bytes.Buffer)
+	return &writer{
+		Buffer: b,
+	}, b
 }
 
 func (w *writer) write(p []byte) (int, error) {
@@ -41,14 +53,14 @@ func (w *writer) c(comment string) {
 
 func (w *writer) indent() *writer {
 	return &writer{
-		Writer: w.Writer,
+		Buffer: w.Buffer,
 		prefix: w.prefix + "\t",
 	}
 }
 
 func (w *writer) noIndent() *writer {
 	return &writer{
-		Writer: w.Writer,
+		Buffer: w.Buffer,
 	}
 }
 

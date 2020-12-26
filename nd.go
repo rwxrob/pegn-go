@@ -1,7 +1,7 @@
 package pegen
 
 func (g *Generator) generateTypes() {
-	w := g.writer
+	w := g.writers["nd"]
 
 	w.c("Node Types")
 	w.wln("const (")

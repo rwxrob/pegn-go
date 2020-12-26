@@ -1,6 +1,546 @@
 // Do not edit. This file is auto-generated.
 package pegn
 
+var Alpha = alpha{}
+
+type alpha struct{}
+
+func (alpha) Ident() string { 
+	return "alpha"
+}
+
+func (alpha) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (alpha) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (alpha) Check(r rune) bool  { 
+	return false
+}
+
+var Alphanum = alphanum{}
+
+type alphanum struct{}
+
+func (alphanum) Ident() string { 
+	return "alphanum"
+}
+
+func (alphanum) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (alphanum) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (alphanum) Check(r rune) bool  { 
+	return false
+}
+
+var Any = any{}
+
+type any struct{}
+
+func (any) Ident() string { 
+	return "any"
+}
+
+func (any) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (any) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (any) Check(r rune) bool  { 
+	return false
+}
+
+var Unipoint = unipoint{}
+
+type unipoint struct{}
+
+func (unipoint) Ident() string { 
+	return "unipoint"
+}
+
+func (unipoint) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (unipoint) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (unipoint) Check(r rune) bool  { 
+	return false
+}
+
+var Bindig = bindig{}
+
+type bindig struct{}
+
+func (bindig) Ident() string { 
+	return "bindig"
+}
+
+func (bindig) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (bindig) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (bindig) Check(r rune) bool  { 
+	return false
+}
+
+var Control = control{}
+
+type control struct{}
+
+func (control) Ident() string { 
+	return "control"
+}
+
+func (control) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (control) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (control) Check(r rune) bool  { 
+	return false
+}
+
+var Digit = digit{}
+
+type digit struct{}
+
+func (digit) Ident() string { 
+	return "digit"
+}
+
+func (digit) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (digit) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (digit) Check(r rune) bool  { 
+	return false
+}
+
+var Hexdig = hexdig{}
+
+type hexdig struct{}
+
+func (hexdig) Ident() string { 
+	return "hexdig"
+}
+
+func (hexdig) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (hexdig) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (hexdig) Check(r rune) bool  { 
+	return false
+}
+
+var Lowerhex = lowerhex{}
+
+type lowerhex struct{}
+
+func (lowerhex) Ident() string { 
+	return "lowerhex"
+}
+
+func (lowerhex) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (lowerhex) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (lowerhex) Check(r rune) bool  { 
+	return false
+}
+
+var Lower = lower{}
+
+type lower struct{}
+
+func (lower) Ident() string { 
+	return "lower"
+}
+
+func (lower) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (lower) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (lower) Check(r rune) bool  { 
+	return false
+}
+
+var Octdig = octdig{}
+
+type octdig struct{}
+
+func (octdig) Ident() string { 
+	return "octdig"
+}
+
+func (octdig) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (octdig) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (octdig) Check(r rune) bool  { 
+	return false
+}
+
+var Punct = punct{}
+
+type punct struct{}
+
+func (punct) Ident() string { 
+	return "punct"
+}
+
+func (punct) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (punct) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (punct) Check(r rune) bool  { 
+	return false
+}
+
+var Quotable = quotable{}
+
+type quotable struct{}
+
+func (quotable) Ident() string { 
+	return "quotable"
+}
+
+func (quotable) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (quotable) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (quotable) Check(r rune) bool  { 
+	return false
+}
+
+var Sign = sign{}
+
+type sign struct{}
+
+func (sign) Ident() string { 
+	return "sign"
+}
+
+func (sign) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (sign) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (sign) Check(r rune) bool  { 
+	return false
+}
+
+var Uphex = uphex{}
+
+type uphex struct{}
+
+func (uphex) Ident() string { 
+	return "uphex"
+}
+
+func (uphex) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (uphex) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (uphex) Check(r rune) bool  { 
+	return false
+}
+
+var Upper = upper{}
+
+type upper struct{}
+
+func (upper) Ident() string { 
+	return "upper"
+}
+
+func (upper) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (upper) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (upper) Check(r rune) bool  { 
+	return false
+}
+
+var Visible = visible{}
+
+type visible struct{}
+
+func (visible) Ident() string { 
+	return "visible"
+}
+
+func (visible) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (visible) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (visible) Check(r rune) bool  { 
+	return false
+}
+
+var Ws = ws{}
+
+type ws struct{}
+
+func (ws) Ident() string { 
+	return "ws"
+}
+
+func (ws) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (ws) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (ws) Check(r rune) bool  { 
+	return false
+}
+
+var Alnum = alnum{}
+
+type alnum struct{}
+
+func (alnum) Ident() string { 
+	return "alnum"
+}
+
+func (alnum) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (alnum) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (alnum) Check(r rune) bool  { 
+	return false
+}
+
+var Ascii = ascii{}
+
+type ascii struct{}
+
+func (ascii) Ident() string { 
+	return "ascii"
+}
+
+func (ascii) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (ascii) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (ascii) Check(r rune) bool  { 
+	return false
+}
+
+var Blank = blank{}
+
+type blank struct{}
+
+func (blank) Ident() string { 
+	return "blank"
+}
+
+func (blank) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (blank) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (blank) Check(r rune) bool  { 
+	return false
+}
+
+var Cntrl = cntrl{}
+
+type cntrl struct{}
+
+func (cntrl) Ident() string { 
+	return "cntrl"
+}
+
+func (cntrl) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (cntrl) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (cntrl) Check(r rune) bool  { 
+	return false
+}
+
+var Graph = graph{}
+
+type graph struct{}
+
+func (graph) Ident() string { 
+	return "graph"
+}
+
+func (graph) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (graph) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (graph) Check(r rune) bool  { 
+	return false
+}
+
+var Print = print{}
+
+type print struct{}
+
+func (print) Ident() string { 
+	return "print"
+}
+
+func (print) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (print) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (print) Check(r rune) bool  { 
+	return false
+}
+
+var Space = space{}
+
+type space struct{}
+
+func (space) Ident() string { 
+	return "space"
+}
+
+func (space) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (space) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (space) Check(r rune) bool  { 
+	return false
+}
+
+var Word = word{}
+
+type word struct{}
+
+func (word) Ident() string { 
+	return "word"
+}
+
+func (word) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (word) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (word) Check(r rune) bool  { 
+	return false
+}
+
+var Xdigit = xdigit{}
+
+type xdigit struct{}
+
+func (xdigit) Ident() string { 
+	return "xdigit"
+}
+
+func (xdigit) PEGN() string  { 
+	return "PEGN: unavailable"
+}
+
+func (xdigit) Desc() string  { 
+	return "DESC: unavailable"
+}
+
+func (xdigit) Check(r rune) bool  { 
+	return false
+}
+
 // Token Definitions
 const (
 	TAB      = '\u0009' // "\t"

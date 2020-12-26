@@ -16,16 +16,24 @@ type token struct {
 	values  []byte
 }
 
+// TokenDef <-- TokenId SP+ '<-' SP+
+//              TokenVal (Spacing TokenVal)*
+//              ComEndLine
 func (g *Generator) parseToken(n *pegn.Node) {
 	var token token
 	for _, n := range n.Children() {
 		switch n.Type {
 		case nd.Comment:
+			// ComEndLine
 			token.comment = n.Value
 		case nd.EndLine:
 			// Ignore this.
+
 		case nd.TokenId:
-			// Reserved token identifier.
+			// TokenId <-- ResTokenId / upper (upper / UNDER upper)+
+			// ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / etc...
+
+			// 1. Reserved token identifier.
 			if len(n.Children()) != 0 {
 				if !g.config.IgnoreReserved {
 					g.errors = append(g.errors, errors.New("redefining reserved token identifier"))
@@ -33,8 +41,11 @@ func (g *Generator) parseToken(n *pegn.Node) {
 				token.name = n.Children()[0].Value
 				break
 			}
+			// 2. Normal token identifier.
 			token.name = n.Value
 
+		// TokenVal (Spacing TokenVal)*
+		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
 		case nd.Unicode, nd.Hexadec:
 			hexValue := n.Value[1:]
 			if len(hexValue)%2 != 0 {
@@ -57,14 +68,14 @@ func (g *Generator) parseToken(n *pegn.Node) {
 		case nd.String:
 			token.value = n.Value
 		default:
-			g.errors = append(g.errors, errors.New("unknown token type"))
+			g.errors = append(g.errors, errors.New("unknown token child"))
 		}
 	}
 	g.tokens = append(g.tokens, token)
 }
 
 func (g *Generator) generateTokens() {
-	w := g.writer
+	w := g.writers["tk"]
 
 	w.c("Token Definitions")
 	w.wln("const (")
