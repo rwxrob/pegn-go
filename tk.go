@@ -38,11 +38,11 @@ func (g *Generator) parseToken(n *pegn.Node) {
 				if !g.config.IgnoreReserved {
 					g.errors = append(g.errors, errors.New("redefining reserved token identifier"))
 				}
-				token.name = n.Children()[0].Value
+				token.name = g.tokenName(n.Children()[0].Value)
 				break
 			}
 			// 2. Normal token identifier.
-			token.name = n.Value
+			token.name = g.tokenName(n.Value)
 
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ

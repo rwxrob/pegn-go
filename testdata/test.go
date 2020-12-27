@@ -1,6 +1,248 @@
 // Do not edit. This file is auto-generated.
 package pegn
 
+import "gitlab.com/pegn/pegn-go"
+
+func Grammar(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Meta(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Copyright(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Licensed(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ComEndLine(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Definition(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Language(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Version(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Home(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Comment(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func NodeDef(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ScanDef(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ClassDef(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func TokenDef(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Identifier(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Lang(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func LangExt(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func MajorVer(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func MinorVer(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func PatchVer(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func PreVer(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func CheckId(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ClassId(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func TokenId(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Expression(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ClassExpr(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Simple(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Spacing(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Sequence(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Rule(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Plain(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func PosLook(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func NegLook(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Primary(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Quant(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Optional(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func MinZero(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func MinOne(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func MinMax(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Min(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Max(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Count(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Range(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func UniRange(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func AlphaRange(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func IntRange(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func BinRange(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func HexRange(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func OctRange(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func String(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Letter(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Unicode(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Integer(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Binary(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Hexadec(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func Octal(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func EndLine(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
+func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
+	return nil, nil
+}
+
 var Alpha = alpha{}
 
 type alpha struct{}
@@ -607,54 +849,54 @@ const (
 const (
 	Unknown = iota
 
-	Grammar
-	Meta
-	Copyright
-	Licensed
-	Home
-	Comment
-	NodeDef
-	ScanDef
-	ClassDef
-	TokenDef
-	Lang
-	LangExt
-	MajorVer
-	MinorVer
-	PatchVer
-	PreVer
-	CheckId
-	ClassId
-	TokenId
-	Expression
-	ClassExpr
-	Sequence
-	Plain
-	PosLook
-	NegLook
-	Optional
-	MinZero
-	MinOne
-	MinMax
-	Min
-	Max
-	Count
-	UniRange
-	AlphaRange
-	IntRange
-	BinRange
-	HexRange
-	OctRange
-	String
-	Letter
-	Unicode
-	Integer
-	Binary
-	Hexadec
-	Octal
-	EndLine
-	ResClassId
-	ResTokenId
+	GrammarType
+	MetaType
+	CopyrightType
+	LicensedType
+	HomeType
+	CommentType
+	NodeDefType
+	ScanDefType
+	ClassDefType
+	TokenDefType
+	LangType
+	LangExtType
+	MajorVerType
+	MinorVerType
+	PatchVerType
+	PreVerType
+	CheckIdType
+	ClassIdType
+	TokenIdType
+	ExpressionType
+	ClassExprType
+	SequenceType
+	PlainType
+	PosLookType
+	NegLookType
+	OptionalType
+	MinZeroType
+	MinOneType
+	MinMaxType
+	MinType
+	MaxType
+	CountType
+	UniRangeType
+	AlphaRangeType
+	IntRangeType
+	BinRangeType
+	HexRangeType
+	OctRangeType
+	StringType
+	LetterType
+	UnicodeType
+	IntegerType
+	BinaryType
+	HexadecType
+	OctalType
+	EndLineType
+	ResClassIdType
+	ResTokenIdType
 )
 
 var NodeTypes = [...]string{

@@ -34,10 +34,6 @@ func (g *Generator) parseClass(n *pegn.Node) {
 			class.name = n.Value
 		case nd.ClassExpr:
 			// ClassExpr <-- Simple (Spacing '/' SP+ Simple)*
-			// Simple <- Unicode / Binary / Hexadec / Octal /
-			//           ClassId / TokenId / Range / SQ String SQ
-			// Range <- AlphaRange / IntRange / UniRange /
-			//          BinRange / HexRange / OctRange
 			class.expression = n.Children()
 		default:
 			g.errors = append(g.errors, errors.New("unknown class child"))
@@ -72,6 +68,10 @@ func (g *Generator) generateClasses() {
 
 		w.wlnf("func (%s) Check(r rune) bool  { ", class.name)
 		for _, n := range class.expression {
+			// Simple <- Unicode / Binary / Hexadec / Octal /
+			//           ClassId / TokenId / Range / SQ String SQ
+			// Range <- AlphaRange / IntRange / UniRange /
+			//          BinRange / HexRange / OctRange
 			switch n.Type {
 			case nd.Comment, nd.EndLine:
 				// Ignore these.

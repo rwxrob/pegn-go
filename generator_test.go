@@ -15,6 +15,7 @@ func Test(t *testing.T) {
 
 	g, err := New(grammar, "testdata", Config{
 		IgnoreReserved: true,
+		TypeSuffix:     "Type",
 	})
 	if err != nil {
 		t.Error(err)
@@ -27,6 +28,10 @@ func Test(t *testing.T) {
 
 	w, b := newBW()
 	g.generateHeader(w)
+	w.wlnf("import %q", "gitlab.com/pegn/pegn-go")
+	w.ln()
+	w.w(g.writers["ast"].String())
+	w.ln()
 	w.w(g.writers["is"].String())
 	w.ln()
 	w.w(g.writers["tk"].String())

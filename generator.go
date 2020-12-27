@@ -17,6 +17,32 @@ type Config struct {
 	// tries to generate a reserved class/token. False by default, you should
 	// not overwrite reserved classes or tokens.
 	IgnoreReserved bool
+	// TokenPrefix represents the prefix before a token name. No prefix is added
+	// when the value is an empty string. An underscore is added in between.
+	// e.g. 'SP' with prefix 'TK' results in 'TK_SP'.
+	TokenPrefix string
+	// TypePrefix / TypeSuffix represent the pre- or suffix before a class name.
+	// Recommended. Type names are the same as there corresponding parse
+	// functions. e.g. 'Grammar' with suffix 'Type' results in 'GrammarType'.
+	TypePrefix, TypeSuffix string
+}
+
+func (g *Generator) tokenName(s string) string {
+	if prefix := g.config.TokenPrefix; prefix != "" {
+		prefix := strings.ToUpper(prefix)
+		return fmt.Sprintf("%s_%s", prefix, s)
+	}
+	return s
+}
+
+func (g *Generator) typeName(s string) string {
+	if prefix := g.config.TypePrefix; prefix != "" {
+		s = fmt.Sprintf("%s%s", prefix, s)
+	}
+	if suffix := g.config.TypeSuffix; suffix != "" {
+		s = fmt.Sprintf("%s%s", s, suffix)
+	}
+	return s
 }
 
 type Generator struct {
@@ -38,7 +64,6 @@ type Generator struct {
 	license   string
 
 	nodes   []node
-	scans   []scan
 	classes []class
 	tokens  []token
 }
@@ -135,13 +160,10 @@ func (g *Generator) Generate() {
 		}
 	}
 
-	g.generate()
-}
-
-func (g *Generator) generate() {
 	g.generateTokens()
 	g.generateTypes()
 	g.generateClasses()
+	g.generateNodes()
 }
 
 func (g *Generator) generateHeader(w *writer) {
