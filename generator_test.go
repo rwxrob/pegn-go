@@ -28,7 +28,13 @@ func Test(t *testing.T) {
 
 	w, b := newBW()
 	g.generateHeader(w)
-	w.wlnf("import %q", "gitlab.com/pegn/pegn-go")
+	w.wln("import (")
+	{
+		w := w.indent()
+		w.wln("\"fmt\"")
+		w.wln("\"gitlab.com/pegn/pegn-go\"")
+	}
+	w.wln(")")
 	w.ln()
 	w.w(g.writers["ast"].String())
 	w.ln()
@@ -37,5 +43,5 @@ func Test(t *testing.T) {
 	w.w(g.writers["tk"].String())
 	w.ln()
 	w.w(g.writers["nd"].String())
-	_ = ioutil.WriteFile("./testdata/test.go", b.Bytes(), os.ModePerm)
+	_ = ioutil.WriteFile("./testdata/grammar.go", b.Bytes(), os.ModePerm)
 }

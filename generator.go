@@ -46,7 +46,7 @@ type Generator struct {
 	copyright string
 	license   string
 
-	nodes   []node
+	nodes   nodes
 	classes []class
 	tokens  tokens
 }
