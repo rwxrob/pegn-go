@@ -1,5 +1,17 @@
 package pegen
 
+import "fmt"
+
+func (g *Generator) typeName(s string) string {
+	if prefix := g.config.TypePrefix; prefix != "" {
+		s = fmt.Sprintf("%s%s", prefix, s)
+	}
+	if suffix := g.config.TypeSuffix; suffix != "" {
+		s = fmt.Sprintf("%s%s", s, suffix)
+	}
+	return s
+}
+
 func (g *Generator) generateTypes() {
 	w := g.writers["nd"]
 

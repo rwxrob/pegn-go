@@ -1,7 +1,6 @@
 package pegen
 
 import (
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"gitlab.com/pegn/pegn-go"
@@ -9,11 +8,34 @@ import (
 	"strings"
 )
 
+type tokens []token
+
+func (ts tokens) get(id string) token {
+	for _, tk := range ts {
+		if tk.name == id {
+			return tk
+		}
+	}
+	return token{}
+}
+
 type token struct {
-	comment string
-	name    string
-	value   string
-	values  []byte
+	comment  string // comment after the token.
+	name     string // name of the token.
+	value    string // value of the token if it is a string.
+	hexValue string // hex value of token if it is a rune.
+}
+
+func (t *token) isString() bool {
+	return t.value != "" && t.hexValue == ""
+}
+
+func (g *Generator) tokenName(s string) string {
+	if prefix := g.config.TokenPrefix; prefix != "" {
+		prefix := strings.ToUpper(prefix)
+		return fmt.Sprintf("%s_%s", prefix, s)
+	}
+	return s
 }
 
 // TokenDef <-- TokenId SP+ '<-' SP+
@@ -32,39 +54,31 @@ func (g *Generator) parseToken(n *pegn.Node) {
 		case nd.TokenId:
 			// TokenId <-- ResTokenId / upper (upper / UNDER upper)+
 			// ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / etc...
-
-			// 1. Reserved token identifier.
-			if len(n.Children()) != 0 {
-				if !g.config.IgnoreReserved {
-					g.errors = append(g.errors, errors.New("redefining reserved token identifier"))
-				}
-				token.name = g.tokenName(n.Children()[0].Value)
-				break
-			}
-			// 2. Normal token identifier.
-			token.name = g.tokenName(n.Value)
+			token.name = g.tokenName(g.GetID(n))
 
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
 		case nd.Unicode, nd.Hexadec:
-			hexValue := n.Value[1:]
-			if len(hexValue)%2 != 0 {
-				hexValue = fmt.Sprintf("0%s", hexValue)
-			}
-			v, err := hex.DecodeString(hexValue)
+			hex, err := ConvertToHex(n.Value[1:], 16)
 			if err != nil {
-				panic(err)
-			}
-
-			// Go does not support unicode escapes bigger than two bytes.
-			if 2 < len(v) {
+				g.errors = append(g.errors, err)
 				return
 			}
-			token.values = append(token.values, v...)
+			token.hexValue = hex
 		case nd.Binary:
-			g.errors = append(g.errors, errors.New("binary token value not supported"))
+			hex, err := ConvertToHex(n.Value[1:], 2)
+			if err != nil {
+				g.errors = append(g.errors, err)
+				return
+			}
+			token.hexValue = hex
 		case nd.Octal:
-			g.errors = append(g.errors, errors.New("octal token value not supported"))
+			hex, err := ConvertToHex(n.Value[1:], 8)
+			if err != nil {
+				g.errors = append(g.errors, err)
+				return
+			}
+			token.hexValue = hex
 		case nd.String:
 			token.value = n.Value
 		default:
@@ -84,18 +98,11 @@ func (g *Generator) generateTokens() {
 		longestName := g.longestTokenName()
 		for _, token := range g.tokens {
 			var value string
-			if token.value != "" {
+			if token.isString() {
 				// Strings: "value"
 				value = fmt.Sprintf("%q", token.value)
 			} else {
-				// Hex: (00)07
-				value = strings.ToUpper(hex.EncodeToString(token.values))
-				if len(value) == 2 {
-					// Add zeros if not present.
-					value = fmt.Sprintf("00%s", value)
-				}
-				// Runes: '\u0000'
-				value = fmt.Sprintf("'\\u%s'", value)
+				value, _ = ConvertToRuneString(token.hexValue, 16)
 			}
 			w.wf("%s = %s", fillRight(token.name, longestName), value)
 			{

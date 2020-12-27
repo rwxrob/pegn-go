@@ -260,6 +260,12 @@ func (alpha) Desc() string  {
 }
 
 func (alpha) Check(r rune) bool  { 
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
 	return false
 }
 
@@ -280,6 +286,15 @@ func (alphanum) Desc() string  {
 }
 
 func (alphanum) Check(r rune) bool  { 
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
+	if '0' <= r && r <= '9' {
+		return true
+	}
 	return false
 }
 
@@ -300,6 +315,9 @@ func (any) Desc() string  {
 }
 
 func (any) Check(r rune) bool  { 
+	if '\u0000' <= r && r <= '\u00FF' {
+		return true
+	}
 	return false
 }
 
@@ -320,6 +338,9 @@ func (unipoint) Desc() string  {
 }
 
 func (unipoint) Check(r rune) bool  { 
+	if '\u0000' <= r && r <= '\U0010FFFF' {
+		return true
+	}
 	return false
 }
 
@@ -340,6 +361,9 @@ func (bindig) Desc() string  {
 }
 
 func (bindig) Check(r rune) bool  { 
+	if '0' <= r && r <= '1' {
+		return true
+	}
 	return false
 }
 
@@ -360,6 +384,12 @@ func (control) Desc() string  {
 }
 
 func (control) Check(r rune) bool  { 
+	if '\u0000' <= r && r <= '\u001F' {
+		return true
+	}
+	if '\u007F' <= r && r <= '\u009F' {
+		return true
+	}
 	return false
 }
 
@@ -380,6 +410,9 @@ func (digit) Desc() string  {
 }
 
 func (digit) Check(r rune) bool  { 
+	if '0' <= r && r <= '9' {
+		return true
+	}
 	return false
 }
 
@@ -400,6 +433,15 @@ func (hexdig) Desc() string  {
 }
 
 func (hexdig) Check(r rune) bool  { 
+	if '0' <= r && r <= '9' {
+		return true
+	}
+	if 'a' <= r && r <= 'f' {
+		return true
+	}
+	if 'A' <= r && r <= 'F' {
+		return true
+	}
 	return false
 }
 
@@ -420,6 +462,12 @@ func (lowerhex) Desc() string  {
 }
 
 func (lowerhex) Check(r rune) bool  { 
+	if '0' <= r && r <= '9' {
+		return true
+	}
+	if 'a' <= r && r <= 'f' {
+		return true
+	}
 	return false
 }
 
@@ -440,6 +488,9 @@ func (lower) Desc() string  {
 }
 
 func (lower) Check(r rune) bool  { 
+	if 'a' <= r && r <= 'z' {
+		return true
+	}
 	return false
 }
 
@@ -460,6 +511,9 @@ func (octdig) Desc() string  {
 }
 
 func (octdig) Check(r rune) bool  { 
+	if '0' <= r && r <= '7' {
+		return true
+	}
 	return false
 }
 
@@ -480,6 +534,18 @@ func (punct) Desc() string  {
 }
 
 func (punct) Check(r rune) bool  { 
+	if '\u0021' <= r && r <= '\u002F' {
+		return true
+	}
+	if '\u003A' <= r && r <= '\u0040' {
+		return true
+	}
+	if '\u005B' <= r && r <= '\u0060' {
+		return true
+	}
+	if '\u007B' <= r && r <= '\u007E' {
+		return true
+	}
 	return false
 }
 
@@ -500,6 +566,24 @@ func (quotable) Desc() string  {
 }
 
 func (quotable) Check(r rune) bool  { 
+	if Alphanum.Check(r) {
+		return true
+	}
+	if '\u0020' <= r && r <= '\u0026' {
+		return true
+	}
+	if '\u0028' <= r && r <= '\u002F' {
+		return true
+	}
+	if '\u003A' <= r && r <= '\u0040' {
+		return true
+	}
+	if '\u005B' <= r && r <= '\u0060' {
+		return true
+	}
+	if '\u007B' <= r && r <= '\u007E' {
+		return true
+	}
 	return false
 }
 
@@ -520,6 +604,12 @@ func (sign) Desc() string  {
 }
 
 func (sign) Check(r rune) bool  { 
+	if r == PLUS {
+		return true
+	}
+	if r == MINUS {
+		return true
+	}
 	return false
 }
 
@@ -540,6 +630,12 @@ func (uphex) Desc() string  {
 }
 
 func (uphex) Check(r rune) bool  { 
+	if '0' <= r && r <= '9' {
+		return true
+	}
+	if 'A' <= r && r <= 'F' {
+		return true
+	}
 	return false
 }
 
@@ -560,6 +656,9 @@ func (upper) Desc() string  {
 }
 
 func (upper) Check(r rune) bool  { 
+	if 'A' <= r && r <= 'Z' {
+		return true
+	}
 	return false
 }
 
@@ -580,6 +679,12 @@ func (visible) Desc() string  {
 }
 
 func (visible) Check(r rune) bool  { 
+	if Alphanum.Check(r) {
+		return true
+	}
+	if Punct.Check(r) {
+		return true
+	}
 	return false
 }
 
@@ -600,6 +705,18 @@ func (ws) Desc() string  {
 }
 
 func (ws) Check(r rune) bool  { 
+	if r == SP {
+		return true
+	}
+	if r == TAB {
+		return true
+	}
+	if r == CR {
+		return true
+	}
+	if r == LF {
+		return true
+	}
 	return false
 }
 
@@ -620,6 +737,9 @@ func (alnum) Desc() string  {
 }
 
 func (alnum) Check(r rune) bool  { 
+	if Alphanum.Check(r) {
+		return true
+	}
 	return false
 }
 
@@ -640,6 +760,9 @@ func (ascii) Desc() string  {
 }
 
 func (ascii) Check(r rune) bool  { 
+	if '\u0000' <= r && r <= '\u007F' {
+		return true
+	}
 	return false
 }
 
@@ -660,6 +783,12 @@ func (blank) Desc() string  {
 }
 
 func (blank) Check(r rune) bool  { 
+	if r == SP {
+		return true
+	}
+	if r == TAB {
+		return true
+	}
 	return false
 }
 
@@ -680,6 +809,9 @@ func (cntrl) Desc() string  {
 }
 
 func (cntrl) Check(r rune) bool  { 
+	if Control.Check(r) {
+		return true
+	}
 	return false
 }
 
@@ -700,6 +832,9 @@ func (graph) Desc() string  {
 }
 
 func (graph) Check(r rune) bool  { 
+	if '\u0021' <= r && r <= '\u007E' {
+		return true
+	}
 	return false
 }
 
@@ -720,6 +855,9 @@ func (print) Desc() string  {
 }
 
 func (print) Check(r rune) bool  { 
+	if '\u0020' <= r && r <= '\u007E' {
+		return true
+	}
 	return false
 }
 
@@ -740,6 +878,15 @@ func (space) Desc() string  {
 }
 
 func (space) Check(r rune) bool  { 
+	if Ws.Check(r) {
+		return true
+	}
+	if r == VT {
+		return true
+	}
+	if r == FF {
+		return true
+	}
 	return false
 }
 
@@ -760,6 +907,18 @@ func (word) Desc() string  {
 }
 
 func (word) Check(r rune) bool  { 
+	if Upper.Check(r) {
+		return true
+	}
+	if Lower.Check(r) {
+		return true
+	}
+	if Digit.Check(r) {
+		return true
+	}
+	if r == UNDER {
+		return true
+	}
 	return false
 }
 
@@ -780,69 +939,74 @@ func (xdigit) Desc() string  {
 }
 
 func (xdigit) Check(r rune) bool  { 
+	if Hexdig.Check(r) {
+		return true
+	}
 	return false
 }
 
 // Token Definitions
 const (
-	TAB      = '\u0009' // "\t"
-	LF       = '\u000A' // "\n" (line feed)
-	CR       = '\u000D' // "\r" (carriage return)
-	CRLF     = '\u0D0A' // "\r\n"
-	SP       = '\u0020' // " "
-	VT       = '\u000B' // "\v" (vertical tab)
-	FF       = '\u000C' // "\f" (form feed)
-	NOT      = '\u0021' // !
-	BANG     = '\u0021' // !
-	DQ       = '\u0022' // "
-	HASH     = '\u0023' // #
-	DOLLAR   = '\u0024' // $
-	PERCENT  = '\u0025' // %
-	AND      = '\u0026' // &
-	SQ       = '\u0027' // '
-	LPAREN   = '\u0028' // (
-	RPAREN   = '\u0029' // )
-	STAR     = '\u002A' // *
-	PLUS     = '\u002B' // +
-	COMMA    = '\u002C' // ,
-	DASH     = '\u002D' // -
-	MINUS    = '\u002D' // -
-	DOT      = '\u002E' // .
-	SLASH    = '\u002F' // /
-	COLON    = '\u003A' // :
-	SEMI     = '\u003B' // ;
-	LT       = '\u003C' // <
-	EQ       = '\u003D' // =
-	GT       = '\u003E' // >
-	QUERY    = '\u003F' // ?
-	QUESTION = '\u003F' // ?
-	AT       = '\u0040' // @
-	LBRAKT   = '\u005B' // [
-	BKSLASH  = '\u005C' // \
-	RBRAKT   = '\u005D' // ]
-	CARET    = '\u005E' // ^
-	UNDER    = '\u005F' // _
-	BKTICK   = '\u0060' // `
-	LCURLY   = '\u007B' // {
-	LBRACE   = '\u007B' // {
-	BAR      = '\u007C' // |
-	PIPE     = '\u007C' // |
-	RCURLY   = '\u007D' // }
-	RBRACE   = '\u007D' // }
-	TILDE    = '\u007E' // ~
-	UNKNOWN  = '\uFFFD'
-	REPLACE  = '\uFFFD'
-	MAXASCII = '\u007F'
-	MAXLATIN = '\u00FF'
-	RARROWF  = "=>"
-	LARROWF  = "<="
-	LARROW   = "<-"
-	RARROW   = "->"
-	LLARROW  = "<--"
-	RLARROW  = "-->"
-	LFAT     = "<="
-	RFAT     = "=>"
-	WALRUS   = ":="
+	TAB       = '\u0009' // "\t"
+	LF        = '\u000A' // "\n" (line feed)
+	CR        = '\u000D' // "\r" (carriage return)
+	CRLF      = '\u000A' // "\r\n"
+	SP        = '\u0020' // " "
+	VT        = '\u000B' // "\v" (vertical tab)
+	FF        = '\u000C' // "\f" (form feed)
+	NOT       = '\u0021' // !
+	BANG      = '\u0021' // !
+	DQ        = '\u0022' // "
+	HASH      = '\u0023' // #
+	DOLLAR    = '\u0024' // $
+	PERCENT   = '\u0025' // %
+	AND       = '\u0026' // &
+	SQ        = '\u0027' // '
+	LPAREN    = '\u0028' // (
+	RPAREN    = '\u0029' // )
+	STAR      = '\u002A' // *
+	PLUS      = '\u002B' // +
+	COMMA     = '\u002C' // ,
+	DASH      = '\u002D' // -
+	MINUS     = '\u002D' // -
+	DOT       = '\u002E' // .
+	SLASH     = '\u002F' // /
+	COLON     = '\u003A' // :
+	SEMI      = '\u003B' // ;
+	LT        = '\u003C' // <
+	EQ        = '\u003D' // =
+	GT        = '\u003E' // >
+	QUERY     = '\u003F' // ?
+	QUESTION  = '\u003F' // ?
+	AT        = '\u0040' // @
+	LBRAKT    = '\u005B' // [
+	BKSLASH   = '\u005C' // \
+	RBRAKT    = '\u005D' // ]
+	CARET     = '\u005E' // ^
+	UNDER     = '\u005F' // _
+	BKTICK    = '\u0060' // `
+	LCURLY    = '\u007B' // {
+	LBRACE    = '\u007B' // {
+	BAR       = '\u007C' // |
+	PIPE      = '\u007C' // |
+	RCURLY    = '\u007D' // }
+	RBRACE    = '\u007D' // }
+	TILDE     = '\u007E' // ~
+	UNKNOWN   = '\uFFFD'
+	REPLACE   = '\uFFFD'
+	MAXRUNE   = '\U0010FFFF'
+	ENDOFDATA = 134217727 // largest int32
+	MAXASCII  = '\u007F'
+	MAXLATIN  = '\u00FF'
+	RARROWF   = "=>"
+	LARROWF   = "<="
+	LARROW    = "<-"
+	RARROW    = "->"
+	LLARROW   = "<--"
+	RLARROW   = "-->"
+	LFAT      = "<="
+	RFAT      = "=>"
+	WALRUS    = ":="
 )
 
 // Node Types
