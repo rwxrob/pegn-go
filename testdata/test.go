@@ -247,702 +247,567 @@ var Alpha = alpha{}
 
 type alpha struct{}
 
-func (alpha) Ident() string { 
+func (alpha) Ident() string {
 	return "alpha"
 }
 
-func (alpha) PEGN() string  { 
+func (alpha) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (alpha) Desc() string  { 
+func (alpha) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (alpha) Check(r rune) bool  { 
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-	return false
+func (alpha) Check(r rune) bool {
+	return 'A' <= r && r <= 'Z' ||
+		'a' <= r && r <= 'z'
 }
 
 var Alphanum = alphanum{}
 
 type alphanum struct{}
 
-func (alphanum) Ident() string { 
+func (alphanum) Ident() string {
 	return "alphanum"
 }
 
-func (alphanum) PEGN() string  { 
+func (alphanum) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (alphanum) Desc() string  { 
+func (alphanum) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (alphanum) Check(r rune) bool  { 
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-	if '0' <= r && r <= '9' {
-		return true
-	}
-	return false
+func (alphanum) Check(r rune) bool {
+	return 'A' <= r && r <= 'Z' ||
+		'a' <= r && r <= 'z' ||
+		'0' <= r && r <= '9'
 }
 
 var Any = any{}
 
 type any struct{}
 
-func (any) Ident() string { 
+func (any) Ident() string {
 	return "any"
 }
 
-func (any) PEGN() string  { 
+func (any) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (any) Desc() string  { 
+func (any) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (any) Check(r rune) bool  { 
-	if '\u0000' <= r && r <= '\u00FF' {
-		return true
-	}
-	return false
+func (any) Check(r rune) bool {
+	return '\u0000' <= r && r <= '\u00FF'
 }
 
 var Unipoint = unipoint{}
 
 type unipoint struct{}
 
-func (unipoint) Ident() string { 
+func (unipoint) Ident() string {
 	return "unipoint"
 }
 
-func (unipoint) PEGN() string  { 
+func (unipoint) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (unipoint) Desc() string  { 
+func (unipoint) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (unipoint) Check(r rune) bool  { 
-	if '\u0000' <= r && r <= '\U0010FFFF' {
-		return true
-	}
-	return false
+func (unipoint) Check(r rune) bool {
+	return '\u0000' <= r && r <= '\U0010FFFF'
 }
 
 var Bindig = bindig{}
 
 type bindig struct{}
 
-func (bindig) Ident() string { 
+func (bindig) Ident() string {
 	return "bindig"
 }
 
-func (bindig) PEGN() string  { 
+func (bindig) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (bindig) Desc() string  { 
+func (bindig) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (bindig) Check(r rune) bool  { 
-	if '0' <= r && r <= '1' {
-		return true
-	}
-	return false
+func (bindig) Check(r rune) bool {
+	return '0' <= r && r <= '1'
 }
 
 var Control = control{}
 
 type control struct{}
 
-func (control) Ident() string { 
+func (control) Ident() string {
 	return "control"
 }
 
-func (control) PEGN() string  { 
+func (control) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (control) Desc() string  { 
+func (control) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (control) Check(r rune) bool  { 
-	if '\u0000' <= r && r <= '\u001F' {
-		return true
-	}
-	if '\u007F' <= r && r <= '\u009F' {
-		return true
-	}
-	return false
+func (control) Check(r rune) bool {
+	return '\u0000' <= r && r <= '\u001F' ||
+		'\u007F' <= r && r <= '\u009F'
 }
 
 var Digit = digit{}
 
 type digit struct{}
 
-func (digit) Ident() string { 
+func (digit) Ident() string {
 	return "digit"
 }
 
-func (digit) PEGN() string  { 
+func (digit) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (digit) Desc() string  { 
+func (digit) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (digit) Check(r rune) bool  { 
-	if '0' <= r && r <= '9' {
-		return true
-	}
-	return false
+func (digit) Check(r rune) bool {
+	return '0' <= r && r <= '9'
 }
 
 var Hexdig = hexdig{}
 
 type hexdig struct{}
 
-func (hexdig) Ident() string { 
+func (hexdig) Ident() string {
 	return "hexdig"
 }
 
-func (hexdig) PEGN() string  { 
+func (hexdig) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (hexdig) Desc() string  { 
+func (hexdig) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (hexdig) Check(r rune) bool  { 
-	if '0' <= r && r <= '9' {
-		return true
-	}
-	if 'a' <= r && r <= 'f' {
-		return true
-	}
-	if 'A' <= r && r <= 'F' {
-		return true
-	}
-	return false
+func (hexdig) Check(r rune) bool {
+	return '0' <= r && r <= '9' ||
+		'a' <= r && r <= 'f' ||
+		'A' <= r && r <= 'F'
 }
 
 var Lowerhex = lowerhex{}
 
 type lowerhex struct{}
 
-func (lowerhex) Ident() string { 
+func (lowerhex) Ident() string {
 	return "lowerhex"
 }
 
-func (lowerhex) PEGN() string  { 
+func (lowerhex) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (lowerhex) Desc() string  { 
+func (lowerhex) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (lowerhex) Check(r rune) bool  { 
-	if '0' <= r && r <= '9' {
-		return true
-	}
-	if 'a' <= r && r <= 'f' {
-		return true
-	}
-	return false
+func (lowerhex) Check(r rune) bool {
+	return '0' <= r && r <= '9' ||
+		'a' <= r && r <= 'f'
 }
 
 var Lower = lower{}
 
 type lower struct{}
 
-func (lower) Ident() string { 
+func (lower) Ident() string {
 	return "lower"
 }
 
-func (lower) PEGN() string  { 
+func (lower) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (lower) Desc() string  { 
+func (lower) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (lower) Check(r rune) bool  { 
-	if 'a' <= r && r <= 'z' {
-		return true
-	}
-	return false
+func (lower) Check(r rune) bool {
+	return 'a' <= r && r <= 'z'
 }
 
 var Octdig = octdig{}
 
 type octdig struct{}
 
-func (octdig) Ident() string { 
+func (octdig) Ident() string {
 	return "octdig"
 }
 
-func (octdig) PEGN() string  { 
+func (octdig) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (octdig) Desc() string  { 
+func (octdig) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (octdig) Check(r rune) bool  { 
-	if '0' <= r && r <= '7' {
-		return true
-	}
-	return false
+func (octdig) Check(r rune) bool {
+	return '0' <= r && r <= '7'
 }
 
 var Punct = punct{}
 
 type punct struct{}
 
-func (punct) Ident() string { 
+func (punct) Ident() string {
 	return "punct"
 }
 
-func (punct) PEGN() string  { 
+func (punct) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (punct) Desc() string  { 
+func (punct) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (punct) Check(r rune) bool  { 
-	if '\u0021' <= r && r <= '\u002F' {
-		return true
-	}
-	if '\u003A' <= r && r <= '\u0040' {
-		return true
-	}
-	if '\u005B' <= r && r <= '\u0060' {
-		return true
-	}
-	if '\u007B' <= r && r <= '\u007E' {
-		return true
-	}
-	return false
+func (punct) Check(r rune) bool {
+	return '\u0021' <= r && r <= '\u002F' ||
+		'\u003A' <= r && r <= '\u0040' ||
+		'\u005B' <= r && r <= '\u0060' ||
+		'\u007B' <= r && r <= '\u007E'
 }
 
 var Quotable = quotable{}
 
 type quotable struct{}
 
-func (quotable) Ident() string { 
+func (quotable) Ident() string {
 	return "quotable"
 }
 
-func (quotable) PEGN() string  { 
+func (quotable) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (quotable) Desc() string  { 
+func (quotable) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (quotable) Check(r rune) bool  { 
-	if Alphanum.Check(r) {
-		return true
-	}
-	if '\u0020' <= r && r <= '\u0026' {
-		return true
-	}
-	if '\u0028' <= r && r <= '\u002F' {
-		return true
-	}
-	if '\u003A' <= r && r <= '\u0040' {
-		return true
-	}
-	if '\u005B' <= r && r <= '\u0060' {
-		return true
-	}
-	if '\u007B' <= r && r <= '\u007E' {
-		return true
-	}
-	return false
+func (quotable) Check(r rune) bool {
+	return Alphanum.Check(r) ||
+		'\u0020' <= r && r <= '\u0026' ||
+		'\u0028' <= r && r <= '\u002F' ||
+		'\u003A' <= r && r <= '\u0040' ||
+		'\u005B' <= r && r <= '\u0060' ||
+		'\u007B' <= r && r <= '\u007E'
 }
 
 var Sign = sign{}
 
 type sign struct{}
 
-func (sign) Ident() string { 
+func (sign) Ident() string {
 	return "sign"
 }
 
-func (sign) PEGN() string  { 
+func (sign) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (sign) Desc() string  { 
+func (sign) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (sign) Check(r rune) bool  { 
-	if r == PLUS {
-		return true
-	}
-	if r == MINUS {
-		return true
-	}
-	return false
+func (sign) Check(r rune) bool {
+	return r == PLUS ||
+		r == MINUS
 }
 
 var Uphex = uphex{}
 
 type uphex struct{}
 
-func (uphex) Ident() string { 
+func (uphex) Ident() string {
 	return "uphex"
 }
 
-func (uphex) PEGN() string  { 
+func (uphex) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (uphex) Desc() string  { 
+func (uphex) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (uphex) Check(r rune) bool  { 
-	if '0' <= r && r <= '9' {
-		return true
-	}
-	if 'A' <= r && r <= 'F' {
-		return true
-	}
-	return false
+func (uphex) Check(r rune) bool {
+	return '0' <= r && r <= '9' ||
+		'A' <= r && r <= 'F'
 }
 
 var Upper = upper{}
 
 type upper struct{}
 
-func (upper) Ident() string { 
+func (upper) Ident() string {
 	return "upper"
 }
 
-func (upper) PEGN() string  { 
+func (upper) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (upper) Desc() string  { 
+func (upper) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (upper) Check(r rune) bool  { 
-	if 'A' <= r && r <= 'Z' {
-		return true
-	}
-	return false
+func (upper) Check(r rune) bool {
+	return 'A' <= r && r <= 'Z'
 }
 
 var Visible = visible{}
 
 type visible struct{}
 
-func (visible) Ident() string { 
+func (visible) Ident() string {
 	return "visible"
 }
 
-func (visible) PEGN() string  { 
+func (visible) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (visible) Desc() string  { 
+func (visible) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (visible) Check(r rune) bool  { 
-	if Alphanum.Check(r) {
-		return true
-	}
-	if Punct.Check(r) {
-		return true
-	}
-	return false
+func (visible) Check(r rune) bool {
+	return Alphanum.Check(r) ||
+		Punct.Check(r)
 }
 
 var Ws = ws{}
 
 type ws struct{}
 
-func (ws) Ident() string { 
+func (ws) Ident() string {
 	return "ws"
 }
 
-func (ws) PEGN() string  { 
+func (ws) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (ws) Desc() string  { 
+func (ws) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (ws) Check(r rune) bool  { 
-	if r == SP {
-		return true
-	}
-	if r == TAB {
-		return true
-	}
-	if r == CR {
-		return true
-	}
-	if r == LF {
-		return true
-	}
-	return false
+func (ws) Check(r rune) bool {
+	return r == SP ||
+		r == TAB ||
+		r == CR ||
+		r == LF
 }
 
 var Alnum = alnum{}
 
 type alnum struct{}
 
-func (alnum) Ident() string { 
+func (alnum) Ident() string {
 	return "alnum"
 }
 
-func (alnum) PEGN() string  { 
+func (alnum) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (alnum) Desc() string  { 
+func (alnum) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (alnum) Check(r rune) bool  { 
-	if Alphanum.Check(r) {
-		return true
-	}
-	return false
+func (alnum) Check(r rune) bool {
+	return Alphanum.Check(r)
 }
 
 var Ascii = ascii{}
 
 type ascii struct{}
 
-func (ascii) Ident() string { 
+func (ascii) Ident() string {
 	return "ascii"
 }
 
-func (ascii) PEGN() string  { 
+func (ascii) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (ascii) Desc() string  { 
+func (ascii) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (ascii) Check(r rune) bool  { 
-	if '\u0000' <= r && r <= '\u007F' {
-		return true
-	}
-	return false
+func (ascii) Check(r rune) bool {
+	return '\u0000' <= r && r <= '\u007F'
 }
 
 var Blank = blank{}
 
 type blank struct{}
 
-func (blank) Ident() string { 
+func (blank) Ident() string {
 	return "blank"
 }
 
-func (blank) PEGN() string  { 
+func (blank) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (blank) Desc() string  { 
+func (blank) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (blank) Check(r rune) bool  { 
-	if r == SP {
-		return true
-	}
-	if r == TAB {
-		return true
-	}
-	return false
+func (blank) Check(r rune) bool {
+	return r == SP ||
+		r == TAB
 }
 
 var Cntrl = cntrl{}
 
 type cntrl struct{}
 
-func (cntrl) Ident() string { 
+func (cntrl) Ident() string {
 	return "cntrl"
 }
 
-func (cntrl) PEGN() string  { 
+func (cntrl) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (cntrl) Desc() string  { 
+func (cntrl) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (cntrl) Check(r rune) bool  { 
-	if Control.Check(r) {
-		return true
-	}
-	return false
+func (cntrl) Check(r rune) bool {
+	return Control.Check(r)
 }
 
 var Graph = graph{}
 
 type graph struct{}
 
-func (graph) Ident() string { 
+func (graph) Ident() string {
 	return "graph"
 }
 
-func (graph) PEGN() string  { 
+func (graph) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (graph) Desc() string  { 
+func (graph) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (graph) Check(r rune) bool  { 
-	if '\u0021' <= r && r <= '\u007E' {
-		return true
-	}
-	return false
+func (graph) Check(r rune) bool {
+	return '\u0021' <= r && r <= '\u007E'
 }
 
 var Print = print{}
 
 type print struct{}
 
-func (print) Ident() string { 
+func (print) Ident() string {
 	return "print"
 }
 
-func (print) PEGN() string  { 
+func (print) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (print) Desc() string  { 
+func (print) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (print) Check(r rune) bool  { 
-	if '\u0020' <= r && r <= '\u007E' {
-		return true
-	}
-	return false
+func (print) Check(r rune) bool {
+	return '\u0020' <= r && r <= '\u007E'
 }
 
 var Space = space{}
 
 type space struct{}
 
-func (space) Ident() string { 
+func (space) Ident() string {
 	return "space"
 }
 
-func (space) PEGN() string  { 
+func (space) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (space) Desc() string  { 
+func (space) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (space) Check(r rune) bool  { 
-	if Ws.Check(r) {
-		return true
-	}
-	if r == VT {
-		return true
-	}
-	if r == FF {
-		return true
-	}
-	return false
+func (space) Check(r rune) bool {
+	return Ws.Check(r) ||
+		r == VT ||
+		r == FF
 }
 
 var Word = word{}
 
 type word struct{}
 
-func (word) Ident() string { 
+func (word) Ident() string {
 	return "word"
 }
 
-func (word) PEGN() string  { 
+func (word) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (word) Desc() string  { 
+func (word) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (word) Check(r rune) bool  { 
-	if Upper.Check(r) {
-		return true
-	}
-	if Lower.Check(r) {
-		return true
-	}
-	if Digit.Check(r) {
-		return true
-	}
-	if r == UNDER {
-		return true
-	}
-	return false
+func (word) Check(r rune) bool {
+	return Upper.Check(r) ||
+		Lower.Check(r) ||
+		Digit.Check(r) ||
+		r == UNDER
 }
 
 var Xdigit = xdigit{}
 
 type xdigit struct{}
 
-func (xdigit) Ident() string { 
+func (xdigit) Ident() string {
 	return "xdigit"
 }
 
-func (xdigit) PEGN() string  { 
+func (xdigit) PEGN() string {
 	return "PEGN: unavailable"
 }
 
-func (xdigit) Desc() string  { 
+func (xdigit) Desc() string {
 	return "DESC: unavailable"
 }
 
-func (xdigit) Check(r rune) bool  { 
-	if Hexdig.Check(r) {
-		return true
-	}
-	return false
+func (xdigit) Check(r rune) bool {
+	return Hexdig.Check(r)
 }
 
 // Token Definitions
