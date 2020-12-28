@@ -51,6 +51,10 @@ func (w *writer) c(comment string) {
 	w.wlnf("// %s", comment)
 }
 
+func (w *writer) cf(comment string, args ...interface{}) {
+	w.wlnf(fmt.Sprintf("// %s", comment), args...)
+}
+
 func (w *writer) indent() *writer {
 	return &writer{
 		Buffer: w.Buffer,

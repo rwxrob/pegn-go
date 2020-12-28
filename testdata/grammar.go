@@ -7,27 +7,50 @@ import (
 )
 
 func Grammar(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(GrammarType, NodeTypes)
 	var (
+		node = pegn.NewNode(GrammarType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
 	_ = err
 	_ = n
 
+	// Meta?
+	n, err = Meta(p)
+	if err == nil {
+		node.AppendChild(n)
+	}
 
+	// Copyright?
+	n, err = Copyright(p)
+	if err == nil {
+		node.AppendChild(n)
+	}
 
+	// Licensed?
+	n, err = Licensed(p)
+	if err == nil {
+		node.AppendChild(n)
+	}
 
-
-
+	// ComEndLine*
+	for {
+		n, err = ComEndLine(p)
+		if err == nil {
+			break
+		}
+		node.AdoptFrom(n)
+	}
 
 
 	return node, nil
 }
 
 func Meta(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MetaType, NodeTypes)
 	var (
+		node = pegn.NewNode(MetaType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -74,8 +97,9 @@ func Meta(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Copyright(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(CopyrightType, NodeTypes)
 	var (
+		node = pegn.NewNode(CopyrightType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -102,8 +126,9 @@ func Copyright(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Licensed(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(LicensedType, NodeTypes)
 	var (
+		node = pegn.NewNode(LicensedType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -130,8 +155,9 @@ func Licensed(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func ComEndLine(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ComEndLineType, NodeTypes)
 	var (
+		node = pegn.NewNode(ComEndLineType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -150,8 +176,16 @@ func ComEndLine(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Definition(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(DefinitionType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(DefinitionType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(DefinitionType, NodeTypes)
 
@@ -168,12 +202,13 @@ func Definition(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(DefinitionType, NodeTypes)
 
@@ -190,12 +225,13 @@ func Definition(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(DefinitionType, NodeTypes)
 
@@ -212,12 +248,13 @@ func Definition(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(DefinitionType, NodeTypes)
 
@@ -234,17 +271,19 @@ func Definition(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Language(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(LanguageType, NodeTypes)
 	var (
+		node = pegn.NewNode(LanguageType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -262,8 +301,9 @@ func Language(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Version(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(VersionType, NodeTypes)
 	var (
+		node = pegn.NewNode(VersionType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -305,8 +345,9 @@ func Version(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Home(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(HomeType, NodeTypes)
 	var (
+		node = pegn.NewNode(HomeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -318,8 +359,9 @@ func Home(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Comment(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(CommentType, NodeTypes)
 	var (
+		node = pegn.NewNode(CommentType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -331,8 +373,9 @@ func Comment(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func NodeDef(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(NodeDefType, NodeTypes)
 	var (
+		node = pegn.NewNode(NodeDefType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -361,8 +404,9 @@ func NodeDef(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func ScanDef(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ScanDefType, NodeTypes)
 	var (
+		node = pegn.NewNode(ScanDefType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -391,8 +435,9 @@ func ScanDef(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func ClassDef(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ClassDefType, NodeTypes)
 	var (
+		node = pegn.NewNode(ClassDefType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -421,8 +466,9 @@ func ClassDef(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func TokenDef(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(TokenDefType, NodeTypes)
 	var (
+		node = pegn.NewNode(TokenDefType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -441,13 +487,11 @@ func TokenDef(p *pegn.Parser) (*pegn.Node, error) {
 	}
 
 
-
 	n, err = TokenVal(p)
 	if err != nil {
 		return expected("TokenVal", p)
 	}
 	node.AdoptFrom(n)
-
 
 
 	n, err = ComEndLine(p)
@@ -460,8 +504,16 @@ func TokenDef(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Identifier(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(IdentifierType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(IdentifierType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(IdentifierType, NodeTypes)
 
@@ -478,12 +530,13 @@ func Identifier(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(IdentifierType, NodeTypes)
 
@@ -500,12 +553,13 @@ func Identifier(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(IdentifierType, NodeTypes)
 
@@ -522,17 +576,26 @@ func Identifier(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(TokenValType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(TokenValType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenValType, NodeTypes)
 
@@ -549,12 +612,13 @@ func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenValType, NodeTypes)
 
@@ -571,12 +635,13 @@ func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenValType, NodeTypes)
 
@@ -593,12 +658,13 @@ func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenValType, NodeTypes)
 
@@ -615,12 +681,13 @@ func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenValType, NodeTypes)
 
@@ -645,17 +712,19 @@ func TokenVal(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Lang(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(LangType, NodeTypes)
 	var (
+		node = pegn.NewNode(LangType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -667,8 +736,9 @@ func Lang(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func LangExt(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(LangExtType, NodeTypes)
 	var (
+		node = pegn.NewNode(LangExtType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -680,8 +750,9 @@ func LangExt(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func MajorVer(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MajorVerType, NodeTypes)
 	var (
+		node = pegn.NewNode(MajorVerType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -693,8 +764,9 @@ func MajorVer(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func MinorVer(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MinorVerType, NodeTypes)
 	var (
+		node = pegn.NewNode(MinorVerType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -706,8 +778,9 @@ func MinorVer(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func PatchVer(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(PatchVerType, NodeTypes)
 	var (
+		node = pegn.NewNode(PatchVerType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -719,8 +792,9 @@ func PatchVer(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func PreVer(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(PreVerType, NodeTypes)
 	var (
+		node = pegn.NewNode(PreVerType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -733,8 +807,9 @@ func PreVer(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func CheckId(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(CheckIdType, NodeTypes)
 	var (
+		node = pegn.NewNode(CheckIdType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -746,8 +821,16 @@ func CheckId(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func ClassId(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ClassIdType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(ClassIdType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ClassIdType, NodeTypes)
 
@@ -764,12 +847,13 @@ func ClassId(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ClassIdType, NodeTypes)
 
@@ -785,17 +869,26 @@ func ClassId(p *pegn.Parser) (*pegn.Node, error) {
 
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func TokenId(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(TokenIdType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(TokenIdType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenIdType, NodeTypes)
 
@@ -812,12 +905,13 @@ func TokenId(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(TokenIdType, NodeTypes)
 
@@ -833,17 +927,19 @@ func TokenId(p *pegn.Parser) (*pegn.Node, error) {
 
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Expression(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ExpressionType, NodeTypes)
 	var (
+		node = pegn.NewNode(ExpressionType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -861,8 +957,9 @@ func Expression(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func ClassExpr(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ClassExprType, NodeTypes)
 	var (
+		node = pegn.NewNode(ClassExprType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -880,8 +977,16 @@ func ClassExpr(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Simple(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(SimpleType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(SimpleType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -898,12 +1003,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -920,12 +1026,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -942,12 +1049,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -964,12 +1072,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -986,12 +1095,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -1008,12 +1118,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -1030,12 +1141,13 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		node.AdoptFrom(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(SimpleType, NodeTypes)
 
@@ -1060,31 +1172,39 @@ func Simple(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Spacing(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(SpacingType, NodeTypes)
 	var (
+		node = pegn.NewNode(SpacingType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
 	_ = err
 	_ = n
 
+	// ComEndLine?
+	n, err = ComEndLine(p)
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 
 	return node, nil
 }
 
 func Sequence(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(SequenceType, NodeTypes)
 	var (
+		node = pegn.NewNode(SequenceType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1102,8 +1222,16 @@ func Sequence(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Rule(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(RuleType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(RuleType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RuleType, NodeTypes)
 
@@ -1120,12 +1248,13 @@ func Rule(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RuleType, NodeTypes)
 
@@ -1142,12 +1271,13 @@ func Rule(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RuleType, NodeTypes)
 
@@ -1164,17 +1294,19 @@ func Rule(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Plain(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(PlainType, NodeTypes)
 	var (
+		node = pegn.NewNode(PlainType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1187,13 +1319,19 @@ func Plain(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AdoptFrom(n)
 
+	// Quant?
+	n, err = Quant(p)
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 	return node, nil
 }
 
 func PosLook(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(PosLookType, NodeTypes)
 	var (
+		node = pegn.NewNode(PosLookType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1210,13 +1348,19 @@ func PosLook(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AdoptFrom(n)
 
+	// Quant?
+	n, err = Quant(p)
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 	return node, nil
 }
 
 func NegLook(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(NegLookType, NodeTypes)
 	var (
+		node = pegn.NewNode(NegLookType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1233,13 +1377,26 @@ func NegLook(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AdoptFrom(n)
 
+	// Quant?
+	n, err = Quant(p)
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 	return node, nil
 }
 
 func Primary(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(PrimaryType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(PrimaryType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(PrimaryType, NodeTypes)
 
@@ -1256,12 +1413,13 @@ func Primary(p *pegn.Parser) (*pegn.Node, error) {
 		node.AdoptFrom(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(PrimaryType, NodeTypes)
 
@@ -1278,12 +1436,13 @@ func Primary(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(PrimaryType, NodeTypes)
 
@@ -1308,17 +1467,26 @@ func Primary(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Quant(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(QuantType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(QuantType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(QuantType, NodeTypes)
 
@@ -1335,12 +1503,13 @@ func Quant(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(QuantType, NodeTypes)
 
@@ -1357,12 +1526,13 @@ func Quant(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(QuantType, NodeTypes)
 
@@ -1379,12 +1549,13 @@ func Quant(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(QuantType, NodeTypes)
 
@@ -1401,12 +1572,13 @@ func Quant(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(QuantType, NodeTypes)
 
@@ -1423,17 +1595,19 @@ func Quant(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func Optional(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(OptionalType, NodeTypes)
 	var (
+		node = pegn.NewNode(OptionalType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1448,8 +1622,9 @@ func Optional(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func MinZero(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MinZeroType, NodeTypes)
 	var (
+		node = pegn.NewNode(MinZeroType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1464,8 +1639,9 @@ func MinZero(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func MinOne(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MinOneType, NodeTypes)
 	var (
+		node = pegn.NewNode(MinOneType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1480,8 +1656,9 @@ func MinOne(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func MinMax(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MinMaxType, NodeTypes)
 	var (
+		node = pegn.NewNode(MinMaxType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1502,6 +1679,11 @@ func MinMax(p *pegn.Parser) (*pegn.Node, error) {
 		return expected(",", p)
 	}
 
+	// Max?
+	n, err = Max(p)
+	if err == nil {
+		node.AppendChild(n)
+	}
 
 	if _, err = p.Expect("}"); err != nil {
 		return expected("}", p)
@@ -1511,8 +1693,9 @@ func MinMax(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Min(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MinType, NodeTypes)
 	var (
+		node = pegn.NewNode(MinType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1524,8 +1707,9 @@ func Min(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Max(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(MaxType, NodeTypes)
 	var (
+		node = pegn.NewNode(MaxType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1537,8 +1721,9 @@ func Max(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Count(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(CountType, NodeTypes)
 	var (
+		node = pegn.NewNode(CountType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1558,8 +1743,16 @@ func Count(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Range(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(RangeType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(RangeType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RangeType, NodeTypes)
 
@@ -1576,12 +1769,13 @@ func Range(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RangeType, NodeTypes)
 
@@ -1598,12 +1792,13 @@ func Range(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RangeType, NodeTypes)
 
@@ -1620,12 +1815,13 @@ func Range(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RangeType, NodeTypes)
 
@@ -1642,12 +1838,13 @@ func Range(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RangeType, NodeTypes)
 
@@ -1664,12 +1861,13 @@ func Range(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(RangeType, NodeTypes)
 
@@ -1686,17 +1884,19 @@ func Range(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func UniRange(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(UniRangeType, NodeTypes)
 	var (
+		node = pegn.NewNode(UniRangeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1731,8 +1931,9 @@ func UniRange(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func AlphaRange(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(AlphaRangeType, NodeTypes)
 	var (
+		node = pegn.NewNode(AlphaRangeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1767,8 +1968,9 @@ func AlphaRange(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func IntRange(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(IntRangeType, NodeTypes)
 	var (
+		node = pegn.NewNode(IntRangeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1803,8 +2005,9 @@ func IntRange(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func BinRange(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(BinRangeType, NodeTypes)
 	var (
+		node = pegn.NewNode(BinRangeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1839,8 +2042,9 @@ func BinRange(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func HexRange(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(HexRangeType, NodeTypes)
 	var (
+		node = pegn.NewNode(HexRangeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1875,8 +2079,9 @@ func HexRange(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func OctRange(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(OctRangeType, NodeTypes)
 	var (
+		node = pegn.NewNode(OctRangeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1911,8 +2116,9 @@ func OctRange(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func String(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(StringType, NodeTypes)
 	var (
+		node = pegn.NewNode(StringType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1924,8 +2130,9 @@ func String(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Letter(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(LetterType, NodeTypes)
 	var (
+		node = pegn.NewNode(LetterType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1940,8 +2147,9 @@ func Letter(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Unicode(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(UnicodeType, NodeTypes)
 	var (
+		node = pegn.NewNode(UnicodeType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1952,13 +2160,54 @@ func Unicode(p *pegn.Parser) (*pegn.Node, error) {
 		return expected("u", p)
 	}
 
+	n, err = func() (*pegn.Node, error) {
+		var (
+			node = pegn.NewNode(UnicodeType, NodeTypes)
+
+			err error
+			n   *pegn.Node
+		)
+		_ = err
+		_ = n
+
+
+		return node, nil
+	}()
+	if err == nil {
+		node.AdoptFrom(n)
+		return node, nil
+	}
+
+	n, err = func() (*pegn.Node, error) {
+		var (
+			node = pegn.NewNode(UnicodeType, NodeTypes)
+
+			err error
+			n   *pegn.Node
+		)
+		_ = err
+		_ = n
+
+		if _, err = p.Expect("10"); err != nil {
+			return expected("10", p)
+		}
+
+
+		return node, nil
+	}()
+	if err == nil {
+		node.AdoptFrom(n)
+		return node, nil
+	}
+
 
 	return node, nil
 }
 
 func Integer(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(IntegerType, NodeTypes)
 	var (
+		node = pegn.NewNode(IntegerType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1970,8 +2219,9 @@ func Integer(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Binary(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(BinaryType, NodeTypes)
 	var (
+		node = pegn.NewNode(BinaryType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -1987,8 +2237,9 @@ func Binary(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Hexadec(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(HexadecType, NodeTypes)
 	var (
+		node = pegn.NewNode(HexadecType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -2004,8 +2255,9 @@ func Hexadec(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func Octal(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(OctalType, NodeTypes)
 	var (
+		node = pegn.NewNode(OctalType, NodeTypes)
+
 		err error
 		n   *pegn.Node
 	)
@@ -2021,8 +2273,16 @@ func Octal(p *pegn.Parser) (*pegn.Node, error) {
 }
 
 func EndLine(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(EndLineType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(EndLineType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(EndLineType, NodeTypes)
 
@@ -2037,12 +2297,13 @@ func EndLine(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(EndLineType, NodeTypes)
 
@@ -2057,12 +2318,13 @@ func EndLine(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(EndLineType, NodeTypes)
 
@@ -2077,17 +2339,26 @@ func EndLine(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ResClassIdType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(ResClassIdType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2102,12 +2373,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2122,12 +2394,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2142,12 +2415,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2162,12 +2436,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2182,12 +2457,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2202,12 +2478,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2222,12 +2499,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2242,12 +2520,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2262,12 +2541,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2282,12 +2562,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2302,12 +2583,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2322,12 +2604,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2342,12 +2625,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2362,12 +2646,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2382,12 +2667,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2402,12 +2688,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2422,12 +2709,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2442,12 +2730,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2462,12 +2751,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2482,12 +2772,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2502,12 +2793,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2522,12 +2814,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2542,12 +2835,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2562,12 +2856,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2582,12 +2877,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2602,12 +2898,13 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResClassIdType, NodeTypes)
 
@@ -2622,17 +2919,26 @@ func ResClassId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
-	node := pegn.NewNode(ResTokenIdType, NodeTypes)
-	if n, err := func() (*pegn.Node, error) {
+	var (
+		node = pegn.NewNode(ResTokenIdType, NodeTypes)
+
+		err error
+		n   *pegn.Node
+	)
+	_ = err
+	_ = n
+
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2647,12 +2953,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2667,12 +2974,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2687,12 +2995,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2707,12 +3016,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2727,12 +3037,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2747,12 +3058,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2767,12 +3079,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2787,12 +3100,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2807,12 +3121,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2827,12 +3142,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2847,12 +3163,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2867,12 +3184,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2887,12 +3205,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2907,12 +3226,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2927,12 +3247,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2947,12 +3268,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2967,12 +3289,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -2987,12 +3310,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3007,12 +3331,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3027,12 +3352,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3047,12 +3373,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3067,12 +3394,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3087,12 +3415,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3107,12 +3436,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3127,12 +3457,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3147,12 +3478,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3167,12 +3499,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3187,12 +3520,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3207,12 +3541,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3227,12 +3562,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3247,12 +3583,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3267,12 +3604,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3287,12 +3625,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3307,12 +3646,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3327,12 +3667,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3347,12 +3688,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3367,12 +3709,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3387,12 +3730,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3407,12 +3751,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3427,12 +3772,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3447,12 +3793,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3467,12 +3814,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3487,12 +3835,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3507,12 +3856,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3527,12 +3877,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3547,12 +3898,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3567,12 +3919,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3587,12 +3940,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3607,12 +3961,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3627,12 +3982,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3647,12 +4003,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3667,12 +4024,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3687,12 +4045,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3707,12 +4066,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3727,12 +4087,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3747,12 +4108,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3767,12 +4129,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3787,12 +4150,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3807,12 +4171,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	if n, err := func() (*pegn.Node, error) {
+	n, err = func() (*pegn.Node, error) {
 		var (
 			node = pegn.NewNode(ResTokenIdType, NodeTypes)
 
@@ -3827,12 +4192,13 @@ func ResTokenId(p *pegn.Parser) (*pegn.Node, error) {
 		}
 
 		return node, nil
-	}(); err == nil {
+	}()
+	if err == nil {
 		node.AdoptFrom(n)
 		return node, nil
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 func expected(value string, p *pegn.Parser) (*pegn.Node, error) {
