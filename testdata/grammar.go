@@ -34,15 +34,62 @@ func Grammar(p *pegn.Parser) (*pegn.Node, error) {
 		node.AppendChild(n)
 	}
 
-	// ComEndLine*
-	for {
-		n, err = ComEndLine(p)
-		if err == nil {
-			break
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			n, err = ComEndLine(p)
+			if err == nil {
+				p.Goto(beg)
+				break
+			}
+			node.AdoptFrom(n)
 		}
-		node.AdoptFrom(n)
 	}
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(GrammarType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			n, err = Definition(p)
+			if err != nil {
+				return expected("Definition", p)
+			}
+			node.AdoptFrom(n)
+
+			{
+				var count int
+				for beg := p.Mark(); ; count++ {
+					n, err = ComEndLine(p)
+					if err == nil {
+						p.Goto(beg)
+						break
+					}
+					node.AdoptFrom(n)
+				}
+			}
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -164,7 +211,39 @@ func ComEndLine(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+	}
 
+	_, err = func() (*pegn.Node, error) {
+		var (
+			node = pegn.NewNode(ComEndLineType, NodeTypes)
+
+			err error
+			n   *pegn.Node
+		)
+
+		if _, err = p.Expect("# "); err != nil {
+			return expected("# ", p)
+		}
+
+		n, err = Comment(p)
+		if err != nil {
+			return expected("Comment", p)
+		}
+		node.AppendChild(n)
+
+		return node, nil
+	}()
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 	n, err = EndLine(p)
 	if err != nil {
@@ -296,6 +375,29 @@ func Language(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	_, err = func() (*pegn.Node, error) {
+		var (
+			node = pegn.NewNode(LanguageType, NodeTypes)
+
+			err error
+			n   *pegn.Node
+		)
+
+		if _, err = p.Expect("-"); err != nil {
+			return expected("-", p)
+		}
+
+		n, err = LangExt(p)
+		if err != nil {
+			return expected("LangExt", p)
+		}
+		node.AppendChild(n)
+
+		return node, nil
+	}()
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 	return node, nil
 }
@@ -340,6 +442,29 @@ func Version(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	_, err = func() (*pegn.Node, error) {
+		var (
+			node = pegn.NewNode(VersionType, NodeTypes)
+
+			err error
+			n   *pegn.Node
+		)
+
+		if _, err = p.Expect("-"); err != nil {
+			return expected("-", p)
+		}
+
+		n, err = PreVer(p)
+		if err != nil {
+			return expected("PreVer", p)
+		}
+		node.AppendChild(n)
+
+		return node, nil
+	}()
+	if err == nil {
+		node.AdoptFrom(n)
+	}
 
 	return node, nil
 }
@@ -354,6 +479,36 @@ func Home(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(HomeType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			if _, err = p.Expect(Unipoint); err != nil {
+				return expected("unipoint", p)
+			}
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -368,6 +523,46 @@ func Comment(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(CommentType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			{
+				var count int
+				for beg := p.Mark(); ; count++ {
+					if _, err = p.Expect(Unipoint); err != nil {
+						p.Goto(beg)
+						break
+					}
+				}
+				if count < 1 {
+					// TODO
+					return expected("", p)
+				}
+			}
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -388,11 +583,37 @@ func NodeDef(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	if _, err = p.Expect("<--"); err != nil {
 		return expected("<--", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	n, err = Expression(p)
 	if err != nil {
@@ -419,11 +640,37 @@ func ScanDef(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	if _, err = p.Expect("<-"); err != nil {
 		return expected("<-", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	n, err = Expression(p)
 	if err != nil {
@@ -450,11 +697,37 @@ func ClassDef(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	if _, err = p.Expect("<-"); err != nil {
 		return expected("<-", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	n, err = ClassExpr(p)
 	if err != nil {
@@ -481,11 +754,37 @@ func TokenDef(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	if _, err = p.Expect("<-"); err != nil {
 		return expected("<-", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	n, err = TokenVal(p)
 	if err != nil {
@@ -493,6 +792,40 @@ func TokenDef(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AdoptFrom(n)
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(TokenDefType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			n, err = Spacing(p)
+			if err != nil {
+				return expected("Spacing", p)
+			}
+			node.AdoptFrom(n)
+
+			n, err = TokenVal(p)
+			if err != nil {
+				return expected("TokenVal", p)
+			}
+			node.AdoptFrom(n)
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+	}
 
 	n, err = ComEndLine(p)
 	if err != nil {
@@ -731,6 +1064,19 @@ func Lang(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Upper); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 2 || 12 < count {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -745,6 +1091,19 @@ func LangExt(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Visible); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 || 20 < count {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -759,6 +1118,19 @@ func MajorVer(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -773,6 +1145,19 @@ func MinorVer(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -787,6 +1172,19 @@ func PatchVer(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -801,7 +1199,170 @@ func PreVer(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(PreVerType, NodeTypes)
 
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			n, err = func() (*pegn.Node, error) {
+				var (
+					node = pegn.NewNode(PreVerType, NodeTypes)
+
+					err error
+					n   *pegn.Node
+				)
+				_ = err
+				_ = n
+
+				if _, err = p.Expect(Word); err != nil {
+					return expected("word", p)
+				}
+
+				return node, nil
+			}()
+			if err == nil {
+				node.AdoptFrom(n)
+				return node, nil
+			}
+
+			n, err = func() (*pegn.Node, error) {
+				var (
+					node = pegn.NewNode(PreVerType, NodeTypes)
+
+					err error
+					n   *pegn.Node
+				)
+				_ = err
+				_ = n
+
+				if _, err = p.Expect(DASH); err != nil {
+					return expected("DASH", p)
+				}
+
+				return node, nil
+			}()
+			if err == nil {
+				node.AdoptFrom(n)
+				return node, nil
+			}
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
+
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(PreVerType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			if _, err = p.Expect("."); err != nil {
+				return expected(".", p)
+			}
+
+			{
+				var count int
+				exp := func() (*pegn.Node, error) {
+					var (
+						node = pegn.NewNode(PreVerType, NodeTypes)
+
+						err error
+						n   *pegn.Node
+					)
+					_ = err
+					_ = n
+
+					n, err = func() (*pegn.Node, error) {
+						var (
+							node = pegn.NewNode(PreVerType, NodeTypes)
+
+							err error
+							n   *pegn.Node
+						)
+						_ = err
+						_ = n
+
+						if _, err = p.Expect(Word); err != nil {
+							return expected("word", p)
+						}
+
+						return node, nil
+					}()
+					if err == nil {
+						node.AdoptFrom(n)
+						return node, nil
+					}
+
+					n, err = func() (*pegn.Node, error) {
+						var (
+							node = pegn.NewNode(PreVerType, NodeTypes)
+
+							err error
+							n   *pegn.Node
+						)
+						_ = err
+						_ = n
+
+						if _, err = p.Expect(DASH); err != nil {
+							return expected("DASH", p)
+						}
+
+						return node, nil
+					}()
+					if err == nil {
+						node.AdoptFrom(n)
+						return node, nil
+					}
+
+					return node, nil
+				}
+				for beg := p.Mark(); ; count++ {
+					n, err = exp()
+					if err != nil {
+						p.Goto(beg)
+						break
+					}
+				}
+				if count < 1 {
+					// TODO
+					return expected("", p)
+				}
+			}
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+	}
 
 	return node, nil
 }
@@ -816,6 +1377,50 @@ func CheckId(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(CheckIdType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			if _, err = p.Expect(Upper); err != nil {
+				return expected("upper", p)
+			}
+
+			{
+				var count int
+				for beg := p.Mark(); ; count++ {
+					if _, err = p.Expect(Lower); err != nil {
+						p.Goto(beg)
+						break
+					}
+				}
+				if count < 1 {
+					// TODO
+					return expected("", p)
+				}
+			}
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -867,6 +1472,78 @@ func ClassId(p *pegn.Parser) (*pegn.Node, error) {
 			return expected("lower", p)
 		}
 
+		{
+			var count int
+			exp := func() (*pegn.Node, error) {
+				var (
+					node = pegn.NewNode(ClassIdType, NodeTypes)
+
+					err error
+					n   *pegn.Node
+				)
+				_ = err
+				_ = n
+
+				n, err = func() (*pegn.Node, error) {
+					var (
+						node = pegn.NewNode(ClassIdType, NodeTypes)
+
+						err error
+						n   *pegn.Node
+					)
+					_ = err
+					_ = n
+
+					if _, err = p.Expect(Lower); err != nil {
+						return expected("lower", p)
+					}
+
+					return node, nil
+				}()
+				if err == nil {
+					node.AdoptFrom(n)
+					return node, nil
+				}
+
+				n, err = func() (*pegn.Node, error) {
+					var (
+						node = pegn.NewNode(ClassIdType, NodeTypes)
+
+						err error
+						n   *pegn.Node
+					)
+					_ = err
+					_ = n
+
+					if _, err = p.Expect(UNDER); err != nil {
+						return expected("UNDER", p)
+					}
+
+					if _, err = p.Expect(Lower); err != nil {
+						return expected("lower", p)
+					}
+
+					return node, nil
+				}()
+				if err == nil {
+					node.AdoptFrom(n)
+					return node, nil
+				}
+
+				return node, nil
+			}
+			for beg := p.Mark(); ; count++ {
+				n, err = exp()
+				if err != nil {
+					p.Goto(beg)
+					break
+				}
+			}
+			if count < 1 {
+				// TODO
+				return expected("", p)
+			}
+		}
 
 		return node, nil
 	}()
@@ -925,6 +1602,78 @@ func TokenId(p *pegn.Parser) (*pegn.Node, error) {
 			return expected("upper", p)
 		}
 
+		{
+			var count int
+			exp := func() (*pegn.Node, error) {
+				var (
+					node = pegn.NewNode(TokenIdType, NodeTypes)
+
+					err error
+					n   *pegn.Node
+				)
+				_ = err
+				_ = n
+
+				n, err = func() (*pegn.Node, error) {
+					var (
+						node = pegn.NewNode(TokenIdType, NodeTypes)
+
+						err error
+						n   *pegn.Node
+					)
+					_ = err
+					_ = n
+
+					if _, err = p.Expect(Upper); err != nil {
+						return expected("upper", p)
+					}
+
+					return node, nil
+				}()
+				if err == nil {
+					node.AdoptFrom(n)
+					return node, nil
+				}
+
+				n, err = func() (*pegn.Node, error) {
+					var (
+						node = pegn.NewNode(TokenIdType, NodeTypes)
+
+						err error
+						n   *pegn.Node
+					)
+					_ = err
+					_ = n
+
+					if _, err = p.Expect(UNDER); err != nil {
+						return expected("UNDER", p)
+					}
+
+					if _, err = p.Expect(Upper); err != nil {
+						return expected("upper", p)
+					}
+
+					return node, nil
+				}()
+				if err == nil {
+					node.AdoptFrom(n)
+					return node, nil
+				}
+
+				return node, nil
+			}
+			for beg := p.Mark(); ; count++ {
+				n, err = exp()
+				if err != nil {
+					p.Goto(beg)
+					break
+				}
+			}
+			if count < 1 {
+				// TODO
+				return expected("", p)
+			}
+		}
 
 		return node, nil
 	}()
@@ -952,6 +1701,58 @@ func Expression(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AppendChild(n)
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(ExpressionType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			n, err = Spacing(p)
+			if err != nil {
+				return expected("Spacing", p)
+			}
+			node.AdoptFrom(n)
+
+			if _, err = p.Expect("/"); err != nil {
+				return expected("/", p)
+			}
+
+			{
+				var count int
+				for beg := p.Mark(); ; count++ {
+					if _, err = p.Expect(SP); err != nil {
+						p.Goto(beg)
+						break
+					}
+				}
+				if count < 1 {
+					// TODO
+					return expected("", p)
+				}
+			}
+
+			n, err = Sequence(p)
+			if err != nil {
+				return expected("Sequence", p)
+			}
+			node.AppendChild(n)
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+	}
 
 	return node, nil
 }
@@ -972,6 +1773,58 @@ func ClassExpr(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AdoptFrom(n)
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(ClassExprType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			n, err = Spacing(p)
+			if err != nil {
+				return expected("Spacing", p)
+			}
+			node.AdoptFrom(n)
+
+			if _, err = p.Expect("/"); err != nil {
+				return expected("/", p)
+			}
+
+			{
+				var count int
+				for beg := p.Mark(); ; count++ {
+					if _, err = p.Expect(SP); err != nil {
+						p.Goto(beg)
+						break
+					}
+				}
+				if count < 1 {
+					// TODO
+					return expected("", p)
+				}
+			}
+
+			n, err = Simple(p)
+			if err != nil {
+				return expected("Simple", p)
+			}
+			node.AdoptFrom(n)
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+	}
 
 	return node, nil
 }
@@ -1197,6 +2050,19 @@ func Spacing(p *pegn.Parser) (*pegn.Node, error) {
 		node.AdoptFrom(n)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(SP); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -1217,6 +2083,40 @@ func Sequence(p *pegn.Parser) (*pegn.Node, error) {
 	}
 	node.AdoptFrom(n)
 
+	{
+		var count int
+		exp := func() (*pegn.Node, error) {
+			var (
+				node = pegn.NewNode(SequenceType, NodeTypes)
+
+				err error
+				n   *pegn.Node
+			)
+			_ = err
+			_ = n
+
+			n, err = Spacing(p)
+			if err != nil {
+				return expected("Spacing", p)
+			}
+			node.AdoptFrom(n)
+
+			n, err = Rule(p)
+			if err != nil {
+				return expected("Rule", p)
+			}
+			node.AdoptFrom(n)
+
+			return node, nil
+		}
+		for beg := p.Mark(); ; count++ {
+			n, err = exp()
+			if err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+	}
 
 	return node, nil
 }
@@ -1702,6 +2602,19 @@ func Min(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -1716,6 +2629,19 @@ func Max(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -1734,6 +2660,19 @@ func Count(p *pegn.Parser) (*pegn.Node, error) {
 		return expected("{", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	if _, err = p.Expect("}"); err != nil {
 		return expected("}", p)
@@ -2125,6 +3064,19 @@ func String(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Quotable); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -2170,6 +3122,19 @@ func Unicode(p *pegn.Parser) (*pegn.Node, error) {
 		_ = err
 		_ = n
 
+		{
+			var count int
+			for beg := p.Mark(); ; count++ {
+				if _, err = p.Expect(Uphex); err != nil {
+					p.Goto(beg)
+					break
+				}
+			}
+			if count < 4 || 5 < count {
+				// TODO
+				return expected("", p)
+			}
+		}
 
 		return node, nil
 	}()
@@ -2192,6 +3157,19 @@ func Unicode(p *pegn.Parser) (*pegn.Node, error) {
 			return expected("10", p)
 		}
 
+		{
+			var count int
+			for beg := p.Mark(); count < 4; count++ {
+				if _, err = p.Expect(Uphex); err != nil {
+					p.Goto(beg)
+					break
+				}
+			}
+			if count != 4 {
+				// TODO
+				return expected("", p)
+			}
+		}
 
 		return node, nil
 	}()
@@ -2214,6 +3192,19 @@ func Integer(p *pegn.Parser) (*pegn.Node, error) {
 	_ = err
 	_ = n
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Digit); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -2232,6 +3223,19 @@ func Binary(p *pegn.Parser) (*pegn.Node, error) {
 		return expected("b", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Bindig); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -2250,6 +3254,19 @@ func Hexadec(p *pegn.Parser) (*pegn.Node, error) {
 		return expected("x", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Uphex); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
@@ -2268,6 +3285,19 @@ func Octal(p *pegn.Parser) (*pegn.Node, error) {
 		return expected("o", p)
 	}
 
+	{
+		var count int
+		for beg := p.Mark(); ; count++ {
+			if _, err = p.Expect(Octdig); err != nil {
+				p.Goto(beg)
+				break
+			}
+		}
+		if count < 1 {
+			// TODO
+			return expected("", p)
+		}
+	}
 
 	return node, nil
 }
