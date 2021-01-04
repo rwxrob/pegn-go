@@ -16,6 +16,17 @@ func Test(t *testing.T) {
 	g, err := New(grammar, "testdata", Config{
 		IgnoreReserved: true,
 		TypeSuffix:     "Type",
+		ClassAliases: map[string]string{
+			"alphanum": "AlphaNum",
+			"unipoint": "UniPoint",
+			"bindig":   "BinDig",
+			"hexdig":   "HexDig",
+			"lowerhex": "LowerHex",
+			"octdig":   "OctDig",
+			"uphex":    "UpHex",
+			"ws":       "Whitespace",
+			"ascii":    "ASCII",
+		},
 	})
 	if err != nil {
 		t.Error(err)
@@ -31,8 +42,8 @@ func Test(t *testing.T) {
 	w.wln("import (")
 	{
 		w := w.indent()
-		w.wln("\"fmt\"")
-		w.wln("\"gitlab.com/pegn/pegn-go\"")
+		w.wln("\"github.com/di-wu/parser\"")
+		w.wln("\"github.com/di-wu/parser/op\"")
 	}
 	w.wln(")")
 	w.ln()

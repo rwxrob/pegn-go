@@ -26,6 +26,9 @@ type Config struct {
 	// Recommended. Type names are the same as there corresponding parse
 	// functions. e.g. 'Grammar' with suffix 'Type' results in 'GrammarType'.
 	TypePrefix, TypeSuffix string
+	// ClassAliases is a map of original class names to an alias.
+	// e.g. map[alphanum: AlphaNum]
+	ClassAliases map[string]string
 }
 
 type Generator struct {
