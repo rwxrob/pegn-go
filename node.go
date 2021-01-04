@@ -239,13 +239,7 @@ func (g *Generator) generatePrimary(w *writer, n *pegn.Node) {
 	case nd.ClassId:
 		w.w(g.className(g.GetID(n)))
 	case nd.TokenId:
-		id := g.tokenName(g.GetID(n))
-		tk := g.tokens.get(id)
-		if tk.isString() {
-			g.errors = append(g.errors, errors.New("token value is a string"))
-			break
-		}
-		w.w(id)
+		w.w(g.tokenName(g.GetID(n)))
 	case nd.AlphaRange:
 		// AlphaRange <-- '[' Letter '-' Letter ']'
 		min := n.Children()[0].Value

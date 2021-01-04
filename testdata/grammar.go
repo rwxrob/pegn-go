@@ -1203,7 +1203,7 @@ const (
 	TAB       = '\u0009' // "\t"
 	LF        = '\u000A' // "\n" (line feed)
 	CR        = '\u000D' // "\r" (carriage return)
-	CRLF      = '\u000A' // "\r\n"
+	CRLF      = "\r\n" // "\r\n"
 	SP        = '\u0020' // " "
 	VT        = '\u000B' // "\v" (vertical tab)
 	FF        = '\u000C' // "\f" (form feed)

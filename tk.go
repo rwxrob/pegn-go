@@ -20,13 +20,17 @@ func (ts tokens) get(id string) token {
 }
 
 type token struct {
-	comment  string // comment after the token.
-	name     string // name of the token.
+	comment string // comment after the token.
+	name    string // name of the token.
+	values  []tokenValue
+}
+
+type tokenValue struct {
 	value    string // value of the token if it is a string.
 	hexValue string // hex value of token if it is a rune.
 }
 
-func (t *token) isString() bool {
+func (t *tokenValue) isString() bool {
 	return t.value != "" && t.hexValue == ""
 }
 
@@ -64,23 +68,31 @@ func (g *Generator) parseToken(n *pegn.Node) {
 				g.errors = append(g.errors, err)
 				return
 			}
-			token.hexValue = hex
+			token.values = append(token.values, tokenValue{
+				hexValue: hex,
+			})
 		case nd.Binary:
 			hex, err := ConvertToHex(n.Value[1:], 2)
 			if err != nil {
 				g.errors = append(g.errors, err)
 				return
 			}
-			token.hexValue = hex
+			token.values = append(token.values, tokenValue{
+				hexValue: hex,
+			})
 		case nd.Octal:
 			hex, err := ConvertToHex(n.Value[1:], 8)
 			if err != nil {
 				g.errors = append(g.errors, err)
 				return
 			}
-			token.hexValue = hex
+			token.values = append(token.values, tokenValue{
+				hexValue: hex,
+			})
 		case nd.String:
-			token.value = n.Value
+			token.values = append(token.values, tokenValue{
+				value: n.Value,
+			})
 		default:
 			g.errors = append(g.errors, errors.New("unknown token child"))
 		}
@@ -98,11 +110,24 @@ func (g *Generator) generateTokens() {
 		longestName := g.longestTokenName()
 		for _, token := range g.tokens {
 			var value string
-			if token.isString() {
-				// Strings: "value"
-				value = fmt.Sprintf("%q", token.value)
+			if len(token.values) == 1 {
+				tk := token.values[0]
+				if tk.isString() {
+					// Strings: "value"
+					value = fmt.Sprintf("%q", tk.value)
+				} else {
+					value, _ = ConvertToRuneString(tk.hexValue, 16)
+				}
 			} else {
-				value, _ = ConvertToRuneString(token.hexValue, 16)
+				for _, tk := range token.values {
+					if tk.isString() {
+						value += tk.value
+					} else {
+						v, _ := ConvertToInt(tk.hexValue, 16)
+						value += string(rune(v))
+					}
+				}
+				value = fmt.Sprintf("%q", value)
 			}
 			w.wf("%s = %s", fillRight(token.name, longestName), value)
 			{
