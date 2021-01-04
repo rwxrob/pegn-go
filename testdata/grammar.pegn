@@ -1,8 +1,4 @@
 # PEGN (v1.0.0-alpha) gitlab.com/pegn/spec
-# Copyright 2020 Robert S Muhlestein (rwx@robs.io)
-# Licensed under Apache-2, CC-BY-4.0
-
-# NOTE: assumes scanning by at least one byte at a time
 
 Grammar    <-- Meta? Copyright? Licensed?
                ComEndLine*
@@ -18,7 +14,7 @@ Language    <- Lang ('-' LangExt)?
 Version     <- 'v' MajorVer '.' MinorVer '.' PatchVer ('-' PreVer)?
 Home       <-- (!ws unipoint)+
 
-Comment    <-- (!EndLine unipoint+)+
+Comment    <-- (!EndLine unipoint)+
 
 NodeDef    <-- CheckId SP+ '<--' SP+ Expression   # significant
 ScanDef    <-- CheckId SP+ '<-'  SP+ Expression   # convenient
@@ -80,7 +76,7 @@ OctRange   <-- '[' Octal '-' Octal ']'      # [o20-o37]
 
 String     <-- quotable+
 Letter     <-- alpha
-Unicode    <-- 'u' (uphex{4,5} / '10' uphex{4})
+Unicode    <-- 'u' ('10' uphex{4} / uphex{4,5})
 Integer    <-- digit+
 Binary     <-- 'b' bindig+  # b1 == b00000001 (0 pad to closest byte)
 Hexadec    <-- 'x' uphex+

@@ -1,7 +1,9 @@
 package pegn
 
 import (
+	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
+	"github.com/di-wu/parser/op"
 	"io/ioutil"
 	"testing"
 )
@@ -19,13 +21,10 @@ func TestGrammar(t *testing.T) {
 		return
 	}
 
-	if 	_, err := p.Expect(Meta); err != nil {
-		t.Error(err)
-	}
-	if 	_, err := p.Expect(Copyright); err != nil {
-		t.Error(err)
-	}
-	if 	_, err := p.Expect(Licensed); err != nil {
+	if _, err := p.Expect(op.And{
+		Grammar,
+		parser.EOD,
+	}); err != nil {
 		t.Error(err)
 	}
 }

@@ -172,9 +172,7 @@ func Comment(p *ast.Parser) (*ast.Node, error) {
 					op.Not{
 						EndLine,
 					},
-					op.MinOne(
-						UniPoint,
-					),
+					UniPoint,
 				},
 			),
 		},
@@ -851,15 +849,15 @@ func Unicode(p *ast.Parser) (*ast.Node, error) {
 			op.And{
 				"u",
 				op.Or{
-					op.MinMax(4, 5,
-						UpHex,
-					),
 					op.And{
 						"10",
 						op.Repeat(4,
 							UpHex,
 						),
 					},
+					op.MinMax(4, 5,
+						UpHex,
+					),
 				},
 			},
 		},
