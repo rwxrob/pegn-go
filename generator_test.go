@@ -27,6 +27,9 @@ func Test(t *testing.T) {
 			"ws":       "Whitespace",
 			"ascii":    "ASCII",
 		},
+		NodeAliases: map[string]string{
+			"Hexadec": "Hexadecimal",
+		},
 	})
 	if err != nil {
 		t.Error(err)
@@ -43,6 +46,7 @@ func Test(t *testing.T) {
 	{
 		w := w.indent()
 		w.wln("\"github.com/di-wu/parser\"")
+		w.wln("\"github.com/di-wu/parser/ast\"")
 		w.wln("\"github.com/di-wu/parser/op\"")
 	}
 	w.wln(")")

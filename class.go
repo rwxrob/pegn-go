@@ -85,15 +85,13 @@ func (g *Generator) generateClasses() {
 					tk := g.tokens.get(id)
 					if tk.isString() {
 						g.errors = append(g.errors, errors.New("token value is a string"))
-						break
+						continue
 					}
-
 					w.w(id)
 				case nd.AlphaRange:
 					// AlphaRange <-- '[' Letter '-' Letter ']'
 					min := n.Children()[0].Value
 					max := n.Children()[1].Value
-
 					w.wf("parser.CheckRuneRange('%s', '%s')", min, max)
 				case nd.IntRange:
 					// IntRange <-- '[' Integer '-' Integer ']'
@@ -111,29 +109,25 @@ func (g *Generator) generateClasses() {
 						g.errors = append(g.errors, fmt.Errorf("int range too large: [%v-%v]", min, max))
 						continue
 					}
-
 					w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
 				case nd.UniRange, nd.HexRange:
 					// UniRange <-- '[' Unicode '-' Unicode ']'
 					// HexRange <-- '[' Hexadec '-' Hexadec ']'
 					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 16)
 					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 16)
-
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.BinRange:
 					// BinRange <-- '[' Binary '-' Binary ']'
 					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 2)
 					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 2)
-
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.OctRange:
 					// OctRange <-- '[' Octal '-' Octal ']'
 					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 8)
 					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 8)
-
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.String:
-					w.wlnf("%q", n.Value)
+					w.wf("%q", n.Value)
 				default:
 					g.errors = append(g.errors, fmt.Errorf("unknown class child: %v", n.Types[n.Type]))
 					continue

@@ -29,6 +29,9 @@ type Config struct {
 	// ClassAliases is a map of original class names to an alias.
 	// e.g. map[alphanum: AlphaNum]
 	ClassAliases map[string]string
+	// NodeAliases is a map of original node names to an alias.
+	// e.g. map[Hexadec: Hexadecimal]
+	NodeAliases  map[string]string
 }
 
 type Generator struct {

@@ -3,10 +3,856 @@ package pegn
 
 import (
 	"github.com/di-wu/parser"
+	"github.com/di-wu/parser/ast"
 	"github.com/di-wu/parser/op"
 )
 
-// TODO: nodes
+func Grammar(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			op.Optional(
+				Meta,
+			),
+			op.Optional(
+				Copyright,
+			),
+			op.Optional(
+				Licensed,
+			),
+			op.MinZero(
+				ComEndLine,
+			),
+			op.MinOne(
+				op.And{
+					Definition,
+					op.MinZero(
+						ComEndLine,
+					),
+				},
+			),
+		},
+	)
+}
+
+func Meta(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"# ",
+			Language,
+			" (",
+			Version,
+			") ",
+			Home,
+			EndLine,
+		},
+	)
+}
+
+func Copyright(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"# Copyright ",
+			Comment,
+			EndLine,
+		},
+	)
+}
+
+func Licensed(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"# Licensed under ",
+			Comment,
+			EndLine,
+		},
+	)
+}
+
+func ComEndLine(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			op.MinZero(
+				SP,
+			),
+			op.Optional(
+				op.And{
+					"# ",
+					Comment,
+				},
+			),
+			EndLine,
+		},
+	)
+}
+
+func Definition(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			NodeDef,
+			ScanDef,
+			ClassDef,
+			TokenDef,
+		},
+	)
+}
+
+func Language(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			Lang,
+			op.Optional(
+				op.And{
+					"-",
+					LangExt,
+				},
+			),
+		},
+	)
+}
+
+func Version(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"v",
+			MajorVer,
+			".",
+			MinorVer,
+			".",
+			PatchVer,
+			op.Optional(
+				op.And{
+					"-",
+					PreVer,
+				},
+			),
+		},
+	)
+}
+
+func Home(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			op.And{
+				op.Not{
+					Whitespace,
+				},
+				UniPoint,
+			},
+		),
+	)
+}
+
+func Comment(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			op.And{
+				op.Not{
+					EndLine,
+				},
+				op.MinOne(
+					UniPoint,
+				),
+			},
+		),
+	)
+}
+
+func NodeDef(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			CheckId,
+			op.MinOne(
+				SP,
+			),
+			"<--",
+			op.MinOne(
+				SP,
+			),
+			Expression,
+		},
+	)
+}
+
+func ScanDef(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			CheckId,
+			op.MinOne(
+				SP,
+			),
+			"<-",
+			op.MinOne(
+				SP,
+			),
+			Expression,
+		},
+	)
+}
+
+func ClassDef(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			ClassId,
+			op.MinOne(
+				SP,
+			),
+			"<-",
+			op.MinOne(
+				SP,
+			),
+			ClassExpr,
+		},
+	)
+}
+
+func TokenDef(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			TokenId,
+			op.MinOne(
+				SP,
+			),
+			"<-",
+			op.MinOne(
+				SP,
+			),
+			TokenVal,
+			op.MinZero(
+				op.And{
+					Spacing,
+					TokenVal,
+				},
+			),
+			ComEndLine,
+		},
+	)
+}
+
+func Identifier(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			CheckId,
+			ClassId,
+			TokenId,
+		},
+	)
+}
+
+func TokenVal(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			Unicode,
+			Binary,
+			Hexadecimal,
+			Octal,
+			op.And{
+				SQ,
+				String,
+				SQ,
+			},
+		},
+	)
+}
+
+func Lang(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinMax(2, 12,
+			Upper,
+		),
+	)
+}
+
+func LangExt(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinMax(1, 20,
+			Visible,
+		),
+	)
+}
+
+func MajorVer(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Digit,
+		),
+	)
+}
+
+func MinorVer(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Digit,
+		),
+	)
+}
+
+func PatchVer(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Digit,
+		),
+	)
+}
+
+func PreVer(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			op.MinOne(
+				op.Or{
+					Word,
+					DASH,
+				},
+			),
+			op.MinZero(
+				op.And{
+					".",
+					op.MinOne(
+						op.Or{
+							Word,
+							DASH,
+						},
+					),
+				},
+			),
+		},
+	)
+}
+
+func CheckId(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			op.And{
+				Upper,
+				op.MinOne(
+					Lower,
+				),
+			},
+		),
+	)
+}
+
+func ClassId(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			ResClassId,
+			op.And{
+				Lower,
+				op.MinOne(
+					op.Or{
+						Lower,
+						op.And{
+							UNDER,
+							Lower,
+						},
+					},
+				),
+			},
+		},
+	)
+}
+
+func TokenId(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			ResTokenId,
+			op.And{
+				Upper,
+				op.MinOne(
+					op.Or{
+						Upper,
+						op.And{
+							UNDER,
+							Upper,
+						},
+					},
+				),
+			},
+		},
+	)
+}
+
+func Expression(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			Sequence,
+			op.MinZero(
+				op.And{
+					Spacing,
+					"/",
+					op.MinOne(
+						SP,
+					),
+					Sequence,
+				},
+			),
+		},
+	)
+}
+
+func ClassExpr(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			Simple,
+			op.MinZero(
+				op.And{
+					Spacing,
+					"/",
+					op.MinOne(
+						SP,
+					),
+					Simple,
+				},
+			),
+		},
+	)
+}
+
+func Simple(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			Unicode,
+			Binary,
+			Hexadecimal,
+			Octal,
+			ClassId,
+			TokenId,
+			Range,
+			op.And{
+				SQ,
+				String,
+				SQ,
+			},
+		},
+	)
+}
+
+func Spacing(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			op.Optional(
+				ComEndLine,
+			),
+			op.MinOne(
+				SP,
+			),
+		},
+	)
+}
+
+func Sequence(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			Rule,
+			op.MinZero(
+				op.And{
+					Spacing,
+					Rule,
+				},
+			),
+		},
+	)
+}
+
+func Rule(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			PosLook,
+			NegLook,
+			Plain,
+		},
+	)
+}
+
+func Plain(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			Primary,
+			op.Optional(
+				Quant,
+			),
+		},
+	)
+}
+
+func PosLook(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"&",
+			Primary,
+			op.Optional(
+				Quant,
+			),
+		},
+	)
+}
+
+func NegLook(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"!",
+			Primary,
+			op.Optional(
+				Quant,
+			),
+		},
+	)
+}
+
+func Primary(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			Simple,
+			CheckId,
+			op.And{
+				"(",
+				Expression,
+				")",
+			},
+		},
+	)
+}
+
+func Quant(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			Optional,
+			MinZero,
+			MinOne,
+			MinMax,
+			Count,
+		},
+	)
+}
+
+func Optional(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		"?",
+	)
+}
+
+func MinZero(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		"*",
+	)
+}
+
+func MinOne(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		"+",
+	)
+}
+
+func MinMax(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"{",
+			Min,
+			",",
+			op.Optional(
+				Max,
+			),
+			"}",
+		},
+	)
+}
+
+func Min(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Digit,
+		),
+	)
+}
+
+func Max(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Digit,
+		),
+	)
+}
+
+func Count(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"{",
+			op.MinOne(
+				Digit,
+			),
+			"}",
+		},
+	)
+}
+
+func Range(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			AlphaRange,
+			IntRange,
+			UniRange,
+			BinRange,
+			HexRange,
+			OctRange,
+		},
+	)
+}
+
+func UniRange(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"[",
+			Unicode,
+			"-",
+			Unicode,
+			"]",
+		},
+	)
+}
+
+func AlphaRange(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"[",
+			Letter,
+			"-",
+			Letter,
+			"]",
+		},
+	)
+}
+
+func IntRange(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"[",
+			Integer,
+			"-",
+			Integer,
+			"]",
+		},
+	)
+}
+
+func BinRange(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"[",
+			Binary,
+			"-",
+			Binary,
+			"]",
+		},
+	)
+}
+
+func HexRange(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"[",
+			Hexadecimal,
+			"-",
+			Hexadecimal,
+			"]",
+		},
+	)
+}
+
+func OctRange(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"[",
+			Octal,
+			"-",
+			Octal,
+			"]",
+		},
+	)
+}
+
+func String(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Quotable,
+		),
+	)
+}
+
+func Letter(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		Alpha,
+	)
+}
+
+func Unicode(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"u",
+			op.Or{
+				op.MinMax(4, 5,
+					UpHex,
+				),
+				op.And{
+					"10",
+					op.Repeat(4,
+						UpHex,
+					),
+				},
+			},
+		},
+	)
+}
+
+func Integer(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.MinOne(
+			Digit,
+		),
+	)
+}
+
+func Binary(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"b",
+			op.MinOne(
+				BinDig,
+			),
+		},
+	)
+}
+
+func Hexadecimal(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"x",
+			op.MinOne(
+				UpHex,
+			),
+		},
+	)
+}
+
+func Octal(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.And{
+			"o",
+			op.MinOne(
+				OctDig,
+			),
+		},
+	)
+}
+
+func EndLine(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			LF,
+			CRLF,
+			CR,
+		},
+	)
+}
+
+func ResClassId(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			"alphanum",
+			"alpha",
+			"any",
+			"bindig",
+			"control",
+			"digit",
+			"hexdig",
+			"lowerhex",
+			"lower",
+			"octdig",
+			"punct",
+			"quotable",
+			"sign",
+			"uphex",
+			"upper",
+			"visible",
+			"ws",
+			"alnum",
+			"ascii",
+			"blank",
+			"cntrl",
+			"graph",
+			"print",
+			"space",
+			"word",
+			"xdigit",
+			"unipoint",
+		},
+	)
+}
+
+func ResTokenId(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		op.Or{
+			"TAB",
+			"CRLF",
+			"CR",
+			"LFAT",
+			"SP",
+			"VT",
+			"FF",
+			"NOT",
+			"BANG",
+			"DQ",
+			"HASH",
+			"DOLLAR",
+			"PERCENT",
+			"AND",
+			"SQ",
+			"LPAREN",
+			"RPAREN",
+			"STAR",
+			"PLUS",
+			"COMMA",
+			"DASH",
+			"MINUS",
+			"DOT",
+			"SLASH",
+			"COLON",
+			"SEMI",
+			"LT",
+			"EQ",
+			"GT",
+			"QUERY",
+			"QUESTION",
+			"AT",
+			"LBRAKT",
+			"BKSLASH",
+			"RBRAKT",
+			"CARET",
+			"UNDER",
+			"BKTICK",
+			"LCURLY",
+			"LBRACE",
+			"BAR",
+			"PIPE",
+			"RCURLY",
+			"RBRACE",
+			"TILDE",
+			"UNKNOWN",
+			"REPLACE",
+			"MAXRUNE",
+			"MAXASCII",
+			"MAXLATIN",
+			"LARROWF",
+			"RARROWF",
+			"LLARROW",
+			"RLARROW",
+			"LARROW",
+			"LF",
+			"RARROW",
+			"RFAT",
+			"WALRUS",
+			"ENDOFDATA",
+		},
+	)
+}
 
 func Alpha(p *parser.Parser) (*parser.Cursor, bool) {
 	return p.Check(op.Or{
