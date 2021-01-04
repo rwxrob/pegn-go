@@ -22,7 +22,7 @@ func (g *Generator) generateTypes() {
 		w.wln("Unknown = iota")
 		w.ln()
 		for _, node := range g.nodes {
-			w.wln(g.typeName(node.name))
+			w.wln(g.typeName(g.nodeName(node.name)))
 		}
 	}
 	w.wln(")")
@@ -32,7 +32,7 @@ func (g *Generator) generateTypes() {
 		w := w.indent()
 		w.wln("\"UNKNOWN\",")
 		for _, node := range g.nodes {
-			w.wlnf("%q,", node.name)
+			w.wlnf("%q,", g.nodeName(node.name))
 		}
 	}
 	w.wln("}")

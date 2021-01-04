@@ -82,7 +82,21 @@ func (g *Generator) generateNodes() {
 		{
 			w := w.indent()
 			w.wln("return p.Expect(")
-			g.generateExpression(w.indent(), node.expression)
+			if node.scan {
+				g.generateExpression(w.indent(), node.expression)
+			} else {
+				{
+					w := w.indent()
+					w.wln("ast.Capture{")
+					{
+						w := w.indent()
+						w.wlnf("Type: %s,", g.typeName(g.nodeName(node.name)))
+						w.wln("Value: ")
+						g.generateExpression(w, node.expression)
+					}
+					w.wln("},")
+				}
+			}
 			w.wln(")")
 		}
 		w.wlnf("}")
