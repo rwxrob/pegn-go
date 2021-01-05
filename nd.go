@@ -12,7 +12,7 @@ func (g *Generator) typeName(s string) string {
 	return s
 }
 
-func (g *Generator) generateTypes() {
+func (g *Generator) generateTypes() error {
 	w := g.writers["nd"]
 
 	w.c("Node Types")
@@ -36,4 +36,5 @@ func (g *Generator) generateTypes() {
 		}
 	}
 	w.wln("}")
+	return nil
 }

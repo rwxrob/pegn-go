@@ -45,7 +45,7 @@ func (g *Generator) tokenName(s string) string {
 // TokenDef <-- TokenId SP+ '<-' SP+
 //              TokenVal (Spacing TokenVal)*
 //              ComEndLine
-func (g *Generator) parseToken(n *pegn.Node) {
+func (g *Generator) parseToken(n *pegn.Node) error {
 	var token token
 	for _, n := range n.Children() {
 		switch n.Type {
@@ -58,15 +58,18 @@ func (g *Generator) parseToken(n *pegn.Node) {
 		case nd.TokenId:
 			// TokenId <-- ResTokenId / upper (upper / UNDER upper)+
 			// ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / etc...
-			token.name = g.tokenName(g.GetID(n))
+			id, err := g.GetID(n)
+			if err != nil {
+				return err
+			}
+			token.name = id
 
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
 		case nd.Unicode, nd.Hexadec:
 			hex, err := ConvertToHex(n.Value[1:], 16)
 			if err != nil {
-				g.errors = append(g.errors, err)
-				return
+				return err
 			}
 			token.values = append(token.values, tokenValue{
 				hexValue: hex,
@@ -74,8 +77,7 @@ func (g *Generator) parseToken(n *pegn.Node) {
 		case nd.Binary:
 			hex, err := ConvertToHex(n.Value[1:], 2)
 			if err != nil {
-				g.errors = append(g.errors, err)
-				return
+				return err
 			}
 			token.values = append(token.values, tokenValue{
 				hexValue: hex,
@@ -83,8 +85,7 @@ func (g *Generator) parseToken(n *pegn.Node) {
 		case nd.Octal:
 			hex, err := ConvertToHex(n.Value[1:], 8)
 			if err != nil {
-				g.errors = append(g.errors, err)
-				return
+				return err
 			}
 			token.values = append(token.values, tokenValue{
 				hexValue: hex,
@@ -94,13 +95,14 @@ func (g *Generator) parseToken(n *pegn.Node) {
 				value: n.Value,
 			})
 		default:
-			g.errors = append(g.errors, errors.New("unknown token child"))
+			return errors.New("unknown token child")
 		}
 	}
 	g.tokens = append(g.tokens, token)
+	return nil
 }
 
-func (g *Generator) generateTokens() {
+func (g *Generator) generateTokens() error {
 	w := g.writers["tk"]
 
 	w.c("Token Definitions")
@@ -142,4 +144,5 @@ func (g *Generator) generateTokens() {
 		}
 	}
 	w.wln(")")
+	return nil
 }

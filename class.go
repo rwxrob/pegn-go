@@ -23,25 +23,30 @@ func (g *Generator) className(s string) string {
 }
 
 // ClassDef <-- ClassId SP+ '<-' SP+ ClassExpr
-func (g *Generator) parseClass(n *pegn.Node) {
+func (g *Generator) parseClass(n *pegn.Node) error {
 	var class class
 	for _, n := range n.Children() {
 		switch n.Type {
 		case nd.ClassId:
 			// ClassId <-- ResClassId / lower (lower / UNDER lower)+
 			// ResClassId <-- 'alphanum' / 'alpha' / 'any' / etc...
-			class.name = g.GetID(n)
+			name, err := g.GetID(n)
+			if err != nil {
+				return err
+			}
+			class.name = name
 		case nd.ClassExpr:
 			// ClassExpr <-- Simple (Spacing '/' SP+ Simple)*
 			class.expression = n.Children()
 		default:
-			g.errors = append(g.errors, errors.New("unknown class child"))
+			return errors.New("unknown class child")
 		}
 	}
 	g.classes = append(g.classes, class)
+	return nil
 }
 
-func (g *Generator) generateClasses() {
+func (g *Generator) generateClasses() error {
 	w := g.writers["is"]
 
 	for idx, class := range g.classes {
@@ -78,10 +83,12 @@ func (g *Generator) generateClasses() {
 				case nd.Octal:
 					v, _ := ConvertToRuneString(n.Value[1:], 8)
 					w.w(v)
-				case nd.ClassId:
-					w.w(g.className(g.GetID(n)))
-				case nd.TokenId:
-					w.w(g.tokenName(g.GetID(n)))
+				case nd.ClassId, nd.TokenId:
+					id, err := g.GetID(n)
+					if err != nil {
+						return err
+					}
+					w.w(id)
 				case nd.AlphaRange:
 					// AlphaRange <-- '[' Letter '-' Letter ']'
 					min := n.Children()[0].Value
@@ -92,16 +99,13 @@ func (g *Generator) generateClasses() {
 					min, _ := strconv.Atoi(n.Children()[0].Value)
 					max, _ := strconv.Atoi(n.Children()[1].Value)
 					if min < 0 {
-						g.errors = append(g.errors, fmt.Errorf("int range is negative: [%v-%v]", min, max))
-						continue
+						return fmt.Errorf("int range is negative: [%v-%v]", min, max)
 					}
 					if max <= min {
-						g.errors = append(g.errors, fmt.Errorf("int range is inverted: [%v-%v]", min, max))
-						continue
+						return fmt.Errorf("int range is inverted: [%v-%v]", min, max)
 					}
 					if 10 <= max {
-						g.errors = append(g.errors, fmt.Errorf("int range too large: [%v-%v]", min, max))
-						continue
+						return fmt.Errorf("int range too large: [%v-%v]", min, max)
 					}
 					w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
 				case nd.UniRange, nd.HexRange:
@@ -123,8 +127,7 @@ func (g *Generator) generateClasses() {
 				case nd.String:
 					w.wf("%q", n.Value)
 				default:
-					g.errors = append(g.errors, fmt.Errorf("unknown class child: %v", n.Types[n.Type]))
-					continue
+					return fmt.Errorf("unknown class child: %v", n.Types[n.Type])
 				}
 				if 1 < size {
 					w.noIndent().wln(",")
@@ -142,4 +145,5 @@ func (g *Generator) generateClasses() {
 			w.ln()
 		}
 	}
+	return nil
 }

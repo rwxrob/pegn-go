@@ -31,14 +31,13 @@ type Config struct {
 	ClassAliases map[string]string
 	// NodeAliases is a map of original node names to an alias.
 	// e.g. map[Hexadec: Hexadecimal]
-	NodeAliases  map[string]string
+	NodeAliases map[string]string
 }
 
 type Generator struct {
 	root    *pegn.Node         // root node of the PEGN grammar.
 	config  Config             // config of the parser.
 	writers map[string]*writer // a map of writers to separate generated code.
-	errors  []error            // list of errors that occurred.
 
 	// meta data of the grammar.
 	meta struct {
@@ -92,7 +91,7 @@ func New(rawGrammar interface{}, parentDir string, config Config) (Generator, er
 	}, nil
 }
 
-func (g *Generator) Generate() {
+func (g *Generator) Generate() error {
 	for _, n := range g.root.Children() {
 		switch n.Type {
 		case nd.Comment, nd.EndLine:
@@ -137,24 +136,41 @@ func (g *Generator) Generate() {
 		// Definition
 		// Definition <- NodeDef / ScanDef / ClassDef / TokenDef
 		case nd.NodeDef:
-			g.parseNode(n)
+			if err := g.parseNode(n); err != nil {
+				return err
+			}
 		case nd.ScanDef:
-			g.parseScan(n)
+			if err := g.parseScan(n); err != nil {
+				return err
+			}
 		case nd.ClassDef:
-			g.parseClass(n)
+			if err := g.parseClass(n); err != nil {
+				return err
+			}
 		case nd.TokenDef:
-			g.parseToken(n)
+			if err := g.parseToken(n); err != nil {
+				return err
+			}
 		default:
-			g.errors = append(g.errors, fmt.Errorf("unknown definition child: %v", n.Types[n.Type]))
+			return fmt.Errorf("unknown definition child: %v", n.Types[n.Type])
 		}
 	}
 
 	// The order is important!
 	// g.generateNodes() for example relies on the (pre)generated tokens.
-	g.generateTokens()
-	g.generateTypes()
-	g.generateClasses()
-	g.generateNodes()
+	if err := g.generateTokens(); err != nil {
+		return err
+	}
+	if err := g.generateTypes(); err != nil {
+		return err
+	}
+	if err := g.generateClasses(); err != nil {
+		return err
+	}
+	if err := g.generateNodes(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (g *Generator) generateHeader(w *writer) {

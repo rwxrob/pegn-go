@@ -35,9 +35,9 @@ func Test(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	g.Generate()
-	for _, err := range g.errors {
+	if err := g.Generate(); err != nil {
 		t.Error(err)
+		return
 	}
 
 	w, b := newBW()

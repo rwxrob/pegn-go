@@ -33,7 +33,7 @@ func (g *Generator) nodeName(s string) string {
 	return s
 }
 
-func (g *Generator) parseNode(n *pegn.Node) {
+func (g *Generator) parseNode(n *pegn.Node) error {
 	var node node
 	for _, n := range n.Children() {
 		switch n.Type {
@@ -47,13 +47,14 @@ func (g *Generator) parseNode(n *pegn.Node) {
 		case nd.Expression:
 			node.expression = n.Children()
 		default:
-			g.errors = append(g.errors, errors.New("unknown node child"))
+			return errors.New("unknown node child")
 		}
 	}
 	g.nodes = append(g.nodes, node)
+	return nil
 }
 
-func (g *Generator) parseScan(n *pegn.Node) {
+func (g *Generator) parseScan(n *pegn.Node) error {
 	scan := node{
 		scan: true,
 	}
@@ -68,13 +69,14 @@ func (g *Generator) parseScan(n *pegn.Node) {
 			// Expression <-- Sequence (Spacing '/' SP+ Sequence)*
 			scan.expression = n.Children()
 		default:
-			g.errors = append(g.errors, errors.New("unknown scan child"))
+			return errors.New("unknown scan child")
 		}
 	}
 	g.nodes = append(g.nodes, scan)
+	return nil
 }
 
-func (g *Generator) generateNodes() {
+func (g *Generator) generateNodes() error {
 	//  Write to the ast buffer.
 	w := g.writers["ast"]
 	for idx, node := range g.nodes {
@@ -83,7 +85,9 @@ func (g *Generator) generateNodes() {
 			w := w.indent()
 			w.wln("return p.Expect(")
 			if node.scan {
-				g.generateExpression(w.indent(), node.expression)
+				if err := g.generateExpression(w.indent(), node.expression); err != nil {
+					return err
+				}
 			} else {
 				{
 					w := w.indent()
@@ -92,7 +96,9 @@ func (g *Generator) generateNodes() {
 						w := w.indent()
 						w.wlnf("Type: %s,", g.typeName(g.nodeName(node.name)))
 						w.wln("Value: ")
-						g.generateExpression(w, node.expression)
+						if err := g.generateExpression(w, node.expression); err != nil {
+							return err
+						}
 					}
 					w.wln("},")
 				}
@@ -104,9 +110,10 @@ func (g *Generator) generateNodes() {
 			w.ln()
 		}
 	}
+	return nil
 }
 
-func (g *Generator) generateExpression(w *writer, expression []*pegn.Node) {
+func (g *Generator) generateExpression(w *writer, expression []*pegn.Node) error {
 	size := len(expression)
 	if 1 < size {
 		w.wln("op.Or{")
@@ -129,8 +136,7 @@ func (g *Generator) generateExpression(w *writer, expression []*pegn.Node) {
 				g.generateSequence(w, n.Children())
 
 			default:
-				g.errors = append(g.errors, fmt.Errorf("unknown class child: %v", n.Types[n.Type]))
-				continue
+				return fmt.Errorf("unknown class child: %v", n.Types[n.Type])
 			}
 		}
 	}
@@ -138,9 +144,10 @@ func (g *Generator) generateExpression(w *writer, expression []*pegn.Node) {
 	if 1 < size {
 		w.wln("},")
 	}
+	return nil
 }
 
-func (g *Generator) generateSequence(w *writer, sequence []*pegn.Node) {
+func (g *Generator) generateSequence(w *writer, sequence []*pegn.Node) error {
 	size := len(sequence)
 	if 1 < size {
 		w.wln("op.And{")
@@ -166,7 +173,9 @@ func (g *Generator) generateSequence(w *writer, sequence []*pegn.Node) {
 					quant = last
 				}
 				if quant == nil {
-					g.generatePrimary(w, n.Children()[0])
+					if err := g.generatePrimary(w, n.Children()[0]); err != nil {
+						return err
+					}
 					break
 				} else {
 					q := n.Children()[1]
@@ -175,44 +184,53 @@ func (g *Generator) generateSequence(w *writer, sequence []*pegn.Node) {
 					switch q.Type {
 					case nd.Optional:
 						w.wln("op.Optional(")
-						g.generatePrimary(w.indent(), n)
+						if err := g.generatePrimary(w.indent(), n); err != nil {
+							return err
+						}
 						w.wln("),")
 					case nd.MinZero:
 						w.wln("op.MinZero(")
-						g.generatePrimary(w.indent(), n)
+						if err := g.generatePrimary(w.indent(), n); err != nil {
+							return err
+						}
 						w.wln("),")
 					case nd.MinOne:
 						w.wln("op.MinOne(")
-						g.generatePrimary(w.indent(), n)
+						if err := g.generatePrimary(w.indent(), n); err != nil {
+							return err
+						}
 						w.wln("),")
 					case nd.MinMax:
 						min := q.Children()[0].Value
 						max := q.Children()[1].Value
 						w.wlnf("op.MinMax(%s, %s,", min, max)
-						g.generatePrimary(w.indent(), n)
+						if err := g.generatePrimary(w.indent(), n); err != nil {
+							return err
+						}
 						w.wln("),")
 					case nd.Count:
 						count := q.Value
 						w.wlnf("op.Repeat(%s,", count)
-						g.generatePrimary(w.indent(), n)
+						if err := g.generatePrimary(w.indent(), n); err != nil {
+							return err
+						}
 						w.wln("),")
 					default:
-						g.errors = append(g.errors, fmt.Errorf("unknown quant child: %v", n.Types[n.Type]))
-						continue
+						return fmt.Errorf("unknown quant child: %v", n.Types[n.Type])
 					}
 				}
 			// PosLook <-- '&' Primary Quant?
 			case nd.PosLook:
-				g.errors = append(g.errors, errors.New("unsupported: "+n.Types[n.Type]))
-				continue
+				return fmt.Errorf("unsupported: %s", n.Types[n.Type])
 			// NegLook <-- '!' Primary Quant?
 			case nd.NegLook:
 				w.wln("op.Not{")
-				g.generatePrimary(w.indent(), n.Children()[0])
+				if err := g.generatePrimary(w.indent(), n.Children()[0]); err != nil {
+					return err
+				}
 				w.wln("},")
 			default:
-				g.errors = append(g.errors, fmt.Errorf("unknown sequence child: %v", n.Types[n.Type]))
-				continue
+				return fmt.Errorf("unknown sequence child: %v", n.Types[n.Type])
 			}
 		}
 	}
@@ -220,10 +238,11 @@ func (g *Generator) generateSequence(w *writer, sequence []*pegn.Node) {
 	if 1 < size {
 		w.wln("},")
 	}
+	return nil
 }
 
 // Primary <- Simple / CheckId / '(' Expression ')'
-func (g *Generator) generatePrimary(w *writer, n *pegn.Node) {
+func (g *Generator) generatePrimary(w *writer, n *pegn.Node) error {
 	switch n.Type {
 	case nd.Comment, nd.EndLine:
 		// Ignore these.
@@ -236,10 +255,12 @@ func (g *Generator) generatePrimary(w *writer, n *pegn.Node) {
 	case nd.Octal:
 		v, _ := ConvertToRuneString(n.Value[1:], 8)
 		w.w(v)
-	case nd.ClassId:
-		w.w(g.className(g.GetID(n)))
-	case nd.TokenId:
-		w.w(g.tokenName(g.GetID(n)))
+	case nd.ClassId, nd.TokenId, nd.CheckId:
+		id, err := g.GetID(n)
+		if err != nil {
+			return err
+		}
+		w.w(id)
 	case nd.AlphaRange:
 		// AlphaRange <-- '[' Letter '-' Letter ']'
 		min := n.Children()[0].Value
@@ -250,16 +271,13 @@ func (g *Generator) generatePrimary(w *writer, n *pegn.Node) {
 		min, _ := strconv.Atoi(n.Children()[0].Value)
 		max, _ := strconv.Atoi(n.Children()[1].Value)
 		if min < 0 {
-			g.errors = append(g.errors, fmt.Errorf("int range is negative: [%v-%v]", min, max))
-			break
+			return fmt.Errorf("int range is negative: [%v-%v]", min, max)
 		}
 		if max <= min {
-			g.errors = append(g.errors, fmt.Errorf("int range is inverted: [%v-%v]", min, max))
-			break
+			return fmt.Errorf("int range is inverted: [%v-%v]", min, max)
 		}
 		if 10 <= max {
-			g.errors = append(g.errors, fmt.Errorf("int range too large: [%v-%v]", min, max))
-			break
+			return fmt.Errorf("int range too large: [%v-%v]", min, max)
 		}
 		w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
 	case nd.UniRange, nd.HexRange:
@@ -280,15 +298,16 @@ func (g *Generator) generatePrimary(w *writer, n *pegn.Node) {
 		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 	case nd.String:
 		w.wf("%q", n.Value)
-	case nd.CheckId:
-		w.w(g.nodeName(g.GetID(n)))
 	case nd.Expression:
-		g.generateExpression(w, n.Children())
+		if err := g.generateExpression(w, n.Children()); err != nil {
+			return err
+		}
 	default:
-		g.errors = append(g.errors, fmt.Errorf("unknown plain child: %v", n.Types[n.Type]))
+		return fmt.Errorf("unknown plain child: %v", n.Types[n.Type])
 	}
 
 	if n.Type != nd.Expression {
 		w.noIndent().wln(",")
 	}
+	return nil
 }
