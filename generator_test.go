@@ -7,13 +7,13 @@ import (
 )
 
 func Test(t *testing.T) {
-	grammar, err := ioutil.ReadFile("./testdata/grammar.pegn")
+	grammar, err := ioutil.ReadFile("./pegn/testdata/grammar.pegn")
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	g, err := New(grammar, "testdata", Config{
+	g, err := New(grammar, "pegn", Config{
 		IgnoreReserved: true,
 		TypeSuffix:     "Type",
 		ClassAliases: map[string]string{
@@ -58,5 +58,5 @@ func Test(t *testing.T) {
 	w.w(g.writers["tk"].String())
 	w.ln()
 	w.w(g.writers["nd"].String())
-	_ = ioutil.WriteFile("./testdata/grammar.go", b.Bytes(), os.ModePerm)
+	_ = ioutil.WriteFile("./pegn/grammar.go", b.Bytes(), os.ModePerm)
 }

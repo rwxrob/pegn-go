@@ -2,8 +2,8 @@ package pegen
 
 import (
 	"fmt"
-	"gitlab.com/pegn/pegn-go"
-	"gitlab.com/pegn/pegn-go/nd"
+	"github.com/di-wu/parser/ast"
+	"github.com/pegn/pegen/pegn"
 )
 
 type ReservedIdentifierError struct {
@@ -17,27 +17,37 @@ func (r *ReservedIdentifierError) Error() string {
 // GetID extracts the token/class identifier from the given node. The node must
 // be of type nd.ClassId or nd.TokenId. If the generator is configured to return an error on
 // reserved classes then this will get appended to the generator errors list.
-func (g *Generator) GetID(n *pegn.Node) (string, error) {
-	id, err := g.getID(n)
-	if err != nil {
-		return id, err
-	}
+func (g *Generator) GetID(n *ast.Node) (string, error) {
+	id := n.ValueString()
 	switch n.Type {
-	case nd.CheckId:
+	case pegn.CheckIdType:
 		return g.nodeName(id), nil
-	case nd.ClassId:
+	case pegn.ClassIdType:
 		return g.className(id), nil
-	case nd.TokenId:
+	case pegn.ResClassIdType:
+		if !g.config.IgnoreReserved {
+			return id, &ReservedIdentifierError{
+				identifier: id,
+			}
+		}
+		return g.className(id), nil
+	case pegn.TokenIdType:
+		return g.tokenName(n.ValueString()), nil
+	case pegn.ResTokenIdType:
+		if !g.config.IgnoreReserved {
+			return id, &ReservedIdentifierError{
+				identifier: id,
+			}
+		}
 		return g.tokenName(id), nil
 	}
-	fmt.Println(n.Type)
 	return id, nil
 }
 
-func (g *Generator) getID(n *pegn.Node) (string, error) {
+func (g *Generator) getID(n *ast.Node) (string, error) {
 	// 1. Reserved class identifier.
 	if len(n.Children()) != 0 {
-		id := n.Children()[0].Value
+		id := n.Children()[0].ValueString()
 		if !g.config.IgnoreReserved {
 			return id, &ReservedIdentifierError{
 				identifier: id,
@@ -46,5 +56,5 @@ func (g *Generator) getID(n *pegn.Node) (string, error) {
 		return id, nil
 	}
 	// Normal token identifier.
-	return n.Value, nil
+	return n.ValueString(), nil
 }

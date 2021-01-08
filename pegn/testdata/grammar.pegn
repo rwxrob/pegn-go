@@ -62,7 +62,7 @@ MinOne     <-- '+'
 MinMax     <-- '{' Min ',' Max? '}'
 Min        <-- digit+
 Max        <-- digit+
-Count      <-- '{' digit+ '}'
+Count      <-- '{' Min+ '}'
 
 Range       <- AlphaRange / IntRange / UniRange
              / BinRange / HexRange / OctRange

@@ -2,13 +2,12 @@ package pegen
 
 import (
 	"fmt"
+	"github.com/di-wu/parser"
+	"github.com/di-wu/parser/ast"
+	"github.com/pegn/pegen/pegn"
 	"os"
 	"strconv"
 	"strings"
-
-	"gitlab.com/pegn/pegn-go"
-	"gitlab.com/pegn/pegn-go/ast"
-	"gitlab.com/pegn/pegn-go/nd"
 )
 
 // Config that offers additional configuration options to the generator.
@@ -35,7 +34,7 @@ type Config struct {
 }
 
 type Generator struct {
-	root    *pegn.Node         // root node of the PEGN grammar.
+	root    *ast.Node          // root node of the PEGN grammar.
 	config  Config             // config of the parser.
 	writers map[string]*writer // a map of writers to separate generated code.
 
@@ -56,19 +55,19 @@ type Generator struct {
 	tokens  tokens
 }
 
-func New(rawGrammar interface{}, parentDir string, config Config) (Generator, error) {
+func New(rawGrammar []byte, parentDir string, config Config) (Generator, error) {
 	// 1. Create a new PEGN parser.
-	p := new(pegn.Parser)
-	if err := p.Init(rawGrammar); err != nil {
+	p, err := ast.New(rawGrammar)
+	if err != nil {
 		return Generator{}, err
 	}
 	// 2. Parse the given grammar.
-	grammar, err := ast.Grammar(p)
+	grammar, err := pegn.Grammar(p)
 	if err != nil {
 		return Generator{}, err
 	}
 	// 3. Check whether the whole file is parsed correctly.
-	if !p.Done() {
+	if _, err := p.Expect(parser.EOD); err != nil {
 		return Generator{}, fmt.Errorf("parser could not read the entire file")
 	}
 
@@ -94,65 +93,65 @@ func New(rawGrammar interface{}, parentDir string, config Config) (Generator, er
 func (g *Generator) Generate() error {
 	for _, n := range g.root.Children() {
 		switch n.Type {
-		case nd.Comment, nd.EndLine:
+		case pegn.CommentType, pegn.EndLineType:
 			// Ignore these.
-		case nd.Meta:
+		case pegn.MetaType:
 			// Meta <-- '# ' Language ' (' Version ') ' Home EndLine
 			// Language <- Lang ('-' LangExt)?
 			// Version <- 'v' MajorVer '.' MinorVer '.' PatchVer ('-' PreVer)?
 			// Home <-- (!ws unipoint)+
 			for _, n := range n.Children() {
 				switch n.Type {
-				case nd.Lang:
-					g.meta.language = n.Value
-				case nd.MajorVer:
-					g.meta.version.major, _ = strconv.Atoi(n.Value)
-				case nd.MinorVer:
-					g.meta.version.minor, _ = strconv.Atoi(n.Value)
-				case nd.PatchVer:
-					g.meta.version.patch, _ = strconv.Atoi(n.Value)
-				case nd.PreVer:
-					g.meta.version.prerelease = n.Value
-				case nd.Home:
-					g.meta.url = n.Value
+				case pegn.LangType:
+					g.meta.language = n.ValueString()
+				case pegn.MajorVerType:
+					g.meta.version.major, _ = strconv.Atoi(n.ValueString())
+				case pegn.MinorVerType:
+					g.meta.version.minor, _ = strconv.Atoi(n.ValueString())
+				case pegn.PatchVerType:
+					g.meta.version.patch, _ = strconv.Atoi(n.ValueString())
+				case pegn.PreVerType:
+					g.meta.version.prerelease = n.ValueString()
+				case pegn.HomeType:
+					g.meta.url = n.ValueString()
 				}
 			}
-		case nd.Copyright:
+		case pegn.CopyrightType:
 			// Copyright <-- '# Copyright ' Comment EndLine
 			for _, n := range n.Children() {
-				if n.Type == nd.Comment {
-					g.copyright = n.Value
+				if n.Type == pegn.CommentType {
+					g.copyright = n.ValueString()
 					break
 				}
 			}
-		case nd.Licensed:
+		case pegn.LicensedType:
 			// Licensed <-- '# Licensed under ' Comment EndLine
 			for _, n := range n.Children() {
-				if n.Type == nd.Comment {
-					g.license = n.Value
+				if n.Type == pegn.CommentType {
+					g.license = n.ValueString()
 					break
 				}
 			}
 		// Definition
 		// Definition <- NodeDef / ScanDef / ClassDef / TokenDef
-		case nd.NodeDef:
+		case pegn.NodeDefType:
 			if err := g.parseNode(n); err != nil {
 				return err
 			}
-		case nd.ScanDef:
+		case pegn.ScanDefType:
 			if err := g.parseScan(n); err != nil {
 				return err
 			}
-		case nd.ClassDef:
+		case pegn.ClassDefType:
 			if err := g.parseClass(n); err != nil {
 				return err
 			}
-		case nd.TokenDef:
+		case pegn.TokenDefType:
 			if err := g.parseToken(n); err != nil {
 				return err
 			}
 		default:
-			return fmt.Errorf("unknown definition child: %v", n.Types[n.Type])
+			return fmt.Errorf("unknown definition child: %v", pegn.NodeTypes[n.Type])
 		}
 	}
 

@@ -702,7 +702,7 @@ func Count(p *ast.Parser) (*ast.Node, error) {
 			op.And{
 				"{",
 				op.MinOne(
-					Digit,
+					Min,
 				),
 				"}",
 			},
@@ -1159,6 +1159,10 @@ func Whitespace(p *parser.Parser) (*parser.Cursor, bool) {
 	})
 }
 
+func Alnum(p *parser.Parser) (*parser.Cursor, bool) {
+	return p.Check(AlphaNum)
+}
+
 func ASCII(p *parser.Parser) (*parser.Cursor, bool) {
 	return p.Check(parser.CheckRuneRange('\u0000', '\u007F'))
 }
@@ -1168,6 +1172,10 @@ func Blank(p *parser.Parser) (*parser.Cursor, bool) {
 		SP,
 		TAB,
 	})
+}
+
+func Cntrl(p *parser.Parser) (*parser.Cursor, bool) {
+	return p.Check(Control)
 }
 
 func Graph(p *parser.Parser) (*parser.Cursor, bool) {
@@ -1195,6 +1203,9 @@ func Word(p *parser.Parser) (*parser.Cursor, bool) {
 	})
 }
 
+func Xdigit(p *parser.Parser) (*parser.Cursor, bool) {
+	return p.Check(HexDig)
+}
 
 // Token Definitions
 const (

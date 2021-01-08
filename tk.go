@@ -1,10 +1,9 @@
 package pegen
 
 import (
-	"errors"
 	"fmt"
-	"gitlab.com/pegn/pegn-go"
-	"gitlab.com/pegn/pegn-go/nd"
+	"github.com/di-wu/parser/ast"
+	"github.com/pegn/pegen/pegn"
 	"strings"
 )
 
@@ -45,18 +44,18 @@ func (g *Generator) tokenName(s string) string {
 // TokenDef <-- TokenId SP+ '<-' SP+
 //              TokenVal (Spacing TokenVal)*
 //              ComEndLine
-func (g *Generator) parseToken(n *pegn.Node) error {
+func (g *Generator) parseToken(n *ast.Node) error {
 	var token token
 	for _, n := range n.Children() {
 		switch n.Type {
-		case nd.Comment:
+		case pegn.CommentType:
 			// ComEndLine
-			token.comment = n.Value
-		case nd.EndLine:
+			token.comment = n.ValueString()
+		case pegn.EndLineType:
 			// Ignore this.
 
-		case nd.TokenId:
-			// TokenId <-- ResTokenId / upper (upper / UNDER upper)+
+		case pegn.TokenIdType, pegn.ResTokenIdType:
+			// TokenId    <-- upper (upper / UNDER upper)+
 			// ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / etc...
 			id, err := g.GetID(n)
 			if err != nil {
@@ -66,36 +65,36 @@ func (g *Generator) parseToken(n *pegn.Node) error {
 
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
-		case nd.Unicode, nd.Hexadec:
-			hex, err := ConvertToHex(n.Value[1:], 16)
+		case pegn.UnicodeType, pegn.HexadecimalType:
+			hex, err := ConvertToHex(n.ValueString()[1:], 16)
 			if err != nil {
 				return err
 			}
 			token.values = append(token.values, tokenValue{
 				hexValue: hex,
 			})
-		case nd.Binary:
-			hex, err := ConvertToHex(n.Value[1:], 2)
+		case pegn.BinaryType:
+			hex, err := ConvertToHex(n.ValueString()[1:], 2)
 			if err != nil {
 				return err
 			}
 			token.values = append(token.values, tokenValue{
 				hexValue: hex,
 			})
-		case nd.Octal:
-			hex, err := ConvertToHex(n.Value[1:], 8)
+		case pegn.OctalType:
+			hex, err := ConvertToHex(n.ValueString()[1:], 8)
 			if err != nil {
 				return err
 			}
 			token.values = append(token.values, tokenValue{
 				hexValue: hex,
 			})
-		case nd.String:
+		case pegn.StringType:
 			token.values = append(token.values, tokenValue{
-				value: n.Value,
+				value: n.ValueString(),
 			})
 		default:
-			return errors.New("unknown token child")
+			return fmt.Errorf("unknown token child: %v", pegn.NodeTypes[n.Type])
 		}
 	}
 	g.tokens = append(g.tokens, token)
