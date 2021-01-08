@@ -23,7 +23,7 @@ func TestGrammar(t *testing.T) {
 	}
 
 	if _, err := p.Expect(op.And{
-		pegn.Grammar,
+		pegn.Spec,
 		parser.EOD,
 	}); err != nil {
 		t.Error(err)

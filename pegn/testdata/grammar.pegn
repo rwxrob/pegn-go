@@ -1,16 +1,21 @@
 # PEGN (v1.0.0-alpha) gitlab.com/pegn/spec
+# Uses spec.pegn.dev/classes
+# Uses spec.pegn.dev/tokens
 
-Grammar    <-- Meta? Copyright? Licensed?
+# NOTE: assumes scanning by at least one byte at a time
+
+Spec       <-- Meta? Copyright? Licensed? Uses*
                ComEndLine*
                (Definition ComEndLine*)+
 
-Meta       <-- '# ' Language ' (' Version ') ' Home EndLine
+Meta       <-- '# ' Grammar ' (' Version ') ' Home EndLine
 Copyright  <-- '# Copyright ' Comment EndLine
 Licensed   <-- '# Licensed under ' Comment EndLine
+Uses       <-- '# Uses ' (!ws unipoint)+ EndLine
 ComEndLine  <- SP* ('# ' Comment)? EndLine
 Definition  <- NodeDef / ScanDef / ClassDef / TokenDef
 
-Language    <- Lang ('-' LangExt)?
+Grammar     <- Name ('-' NameExt)?
 Version     <- 'v' MajorVer '.' MinorVer '.' PatchVer ('-' PreVer)?
 Home       <-- (!ws unipoint)+
 
@@ -28,8 +33,8 @@ Identifier  <- CheckId / ClassId / TokenId
 
 TokenVal    <- Unicode / Binary / Hexadec / Octal / SQ String SQ
 
-Lang       <-- upper{2,12}
-LangExt    <-- visible{1,20}
+Name       <-- upper{2,12}
+NameExt    <-- visible{1,20}
 
 MajorVer   <-- digit+
 MinorVer   <-- digit+
@@ -62,7 +67,7 @@ MinOne     <-- '+'
 MinMax     <-- '{' Min ',' Max? '}'
 Min        <-- digit+
 Max        <-- digit+
-Count      <-- '{' Min+ '}'
+Count      <-- '{' Min '}'
 
 Range       <- AlphaRange / IntRange / UniRange
              / BinRange / HexRange / OctRange
@@ -100,7 +105,7 @@ ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / 'LFAT' / 'SP' / 'VT' / 'FF' / 'NOT'
              / 'RBRACE' / 'TILDE' / 'UNKNOWN' / 'REPLACE' / 'MAXRUNE'
              / 'MAXASCII' / 'MAXLATIN' / 'LARROWF' / 'RARROWF' / 'LLARROW'
              / 'RLARROW' / 'LARROW' / 'LF' / 'RARROW' / 'RFAT'
-             / 'WALRUS' / 'ENDOFDATA'
+             / 'WALRUS' / 'ENDOFDATA' / 'TODO'
 
 # classes of runes
 

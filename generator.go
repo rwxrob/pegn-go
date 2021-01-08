@@ -62,7 +62,7 @@ func New(rawGrammar []byte, parentDir string, config Config) (Generator, error) 
 		return Generator{}, err
 	}
 	// 2. Parse the given grammar.
-	grammar, err := pegn.Grammar(p)
+	grammar, err := pegn.Spec(p)
 	if err != nil {
 		return Generator{}, err
 	}
@@ -102,8 +102,9 @@ func (g *Generator) Generate() error {
 			// Home <-- (!ws unipoint)+
 			for _, n := range n.Children() {
 				switch n.Type {
-				case pegn.LangType:
+				case pegn.NameType:
 					g.meta.language = n.ValueString()
+				case pegn.NameExtType: // TODO
 				case pegn.MajorVerType:
 					g.meta.version.major, _ = strconv.Atoi(n.ValueString())
 				case pegn.MinorVerType:
@@ -132,6 +133,7 @@ func (g *Generator) Generate() error {
 					break
 				}
 			}
+		case pegn.UsesType: // TODO
 		// Definition
 		// Definition <- NodeDef / ScanDef / ClassDef / TokenDef
 		case pegn.NodeDefType:

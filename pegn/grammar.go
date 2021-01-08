@@ -7,10 +7,10 @@ import (
 	"github.com/di-wu/parser/op"
 )
 
-func Grammar(p *ast.Parser) (*ast.Node, error) {
+func Spec(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: GrammarType,
+			Type: SpecType,
 			Value: 
 			op.And{
 				op.Optional(
@@ -21,6 +21,9 @@ func Grammar(p *ast.Parser) (*ast.Node, error) {
 				),
 				op.Optional(
 					Licensed,
+				),
+				op.MinZero(
+					Uses,
 				),
 				op.MinZero(
 					ComEndLine,
@@ -45,7 +48,7 @@ func Meta(p *ast.Parser) (*ast.Node, error) {
 			Value: 
 			op.And{
 				"# ",
-				Language,
+				Grammar,
 				" (",
 				Version,
 				") ",
@@ -84,6 +87,27 @@ func Licensed(p *ast.Parser) (*ast.Node, error) {
 	)
 }
 
+func Uses(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		ast.Capture{
+			Type: UsesType,
+			Value: 
+			op.And{
+				"# Uses ",
+				op.MinOne(
+					op.And{
+						op.Not{
+							Whitespace,
+						},
+						UniPoint,
+					},
+				),
+				EndLine,
+			},
+		},
+	)
+}
+
 func ComEndLine(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		op.And{
@@ -112,14 +136,14 @@ func Definition(p *ast.Parser) (*ast.Node, error) {
 	)
 }
 
-func Language(p *ast.Parser) (*ast.Node, error) {
+func Grammar(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		op.And{
-			Lang,
+			Name,
 			op.Optional(
 				op.And{
 					"-",
-					LangExt,
+					NameExt,
 				},
 			),
 		},
@@ -292,10 +316,10 @@ func TokenVal(p *ast.Parser) (*ast.Node, error) {
 	)
 }
 
-func Lang(p *ast.Parser) (*ast.Node, error) {
+func Name(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: LangType,
+			Type: NameType,
 			Value: 
 			op.MinMax(2, 12,
 				Upper,
@@ -304,10 +328,10 @@ func Lang(p *ast.Parser) (*ast.Node, error) {
 	)
 }
 
-func LangExt(p *ast.Parser) (*ast.Node, error) {
+func NameExt(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: LangExtType,
+			Type: NameExtType,
 			Value: 
 			op.MinMax(1, 20,
 				Visible,
@@ -701,9 +725,7 @@ func Count(p *ast.Parser) (*ast.Node, error) {
 			Value: 
 			op.And{
 				"{",
-				op.MinOne(
-					Min,
-				),
+				Min,
 				"}",
 			},
 		},
@@ -1039,6 +1061,7 @@ func ResTokenId(p *ast.Parser) (*ast.Node, error) {
 				"RFAT",
 				"WALRUS",
 				"ENDOFDATA",
+				"TODO",
 			},
 		},
 	)
@@ -1275,13 +1298,14 @@ const (
 const (
 	Unknown = iota
 
-	GrammarType
+	SpecType
 	MetaType
 	CopyrightType
 	LicensedType
+	UsesType
 	ComEndLineType
 	DefinitionType
-	LanguageType
+	GrammarType
 	VersionType
 	HomeType
 	CommentType
@@ -1291,8 +1315,8 @@ const (
 	TokenDefType
 	IdentifierType
 	TokenValType
-	LangType
-	LangExtType
+	NameType
+	NameExtType
 	MajorVerType
 	MinorVerType
 	PatchVerType
@@ -1339,13 +1363,14 @@ const (
 
 var NodeTypes = []string{
 	"UNKNOWN",
-	"Grammar",
+	"Spec",
 	"Meta",
 	"Copyright",
 	"Licensed",
+	"Uses",
 	"ComEndLine",
 	"Definition",
-	"Language",
+	"Grammar",
 	"Version",
 	"Home",
 	"Comment",
@@ -1355,8 +1380,8 @@ var NodeTypes = []string{
 	"TokenDef",
 	"Identifier",
 	"TokenVal",
-	"Lang",
-	"LangExt",
+	"Name",
+	"NameExt",
 	"MajorVer",
 	"MinorVer",
 	"PatchVer",
