@@ -94,16 +94,26 @@ func Uses(p *ast.Parser) (*ast.Node, error) {
 			Value: 
 			op.And{
 				"# Uses ",
-				op.MinOne(
-					op.And{
-						op.Not{
-							Whitespace,
-						},
-						UniPoint,
-					},
-				),
+				Path,
 				EndLine,
 			},
+		},
+	)
+}
+
+func Path(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		ast.Capture{
+			Type: PathType,
+			Value: 
+			op.MinOne(
+				op.And{
+					op.Not{
+						Whitespace,
+					},
+					UniPoint,
+				},
+			),
 		},
 	)
 }
@@ -1303,6 +1313,7 @@ const (
 	CopyrightType
 	LicensedType
 	UsesType
+	PathType
 	ComEndLineType
 	DefinitionType
 	GrammarType
@@ -1368,6 +1379,7 @@ var NodeTypes = []string{
 	"Copyright",
 	"Licensed",
 	"Uses",
+	"Path",
 	"ComEndLine",
 	"Definition",
 	"Grammar",

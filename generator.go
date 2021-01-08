@@ -47,8 +47,9 @@ type Generator struct {
 		}
 		url string
 	}
-	copyright string
-	license   string
+	copyright    string
+	license      string
+	dependencies []string
 
 	nodes   nodes
 	classes []class
@@ -104,7 +105,8 @@ func (g *Generator) Generate() error {
 				switch n.Type {
 				case pegn.NameType:
 					g.meta.language = n.ValueString()
-				case pegn.NameExtType: // TODO
+				case pegn.NameExtType:
+					g.meta.language += fmt.Sprintf("-%s", n.ValueString())
 				case pegn.MajorVerType:
 					g.meta.version.major, _ = strconv.Atoi(n.ValueString())
 				case pegn.MinorVerType:
@@ -133,7 +135,13 @@ func (g *Generator) Generate() error {
 					break
 				}
 			}
-		case pegn.UsesType: // TODO
+		case pegn.UsesType:
+			for _, n := range n.Children() {
+				if n.Type == pegn.PathType {
+					g.dependencies = append(g.dependencies, n.ValueString())
+					break
+				}
+			}
 		// Definition
 		// Definition <- NodeDef / ScanDef / ClassDef / TokenDef
 		case pegn.NodeDefType:
