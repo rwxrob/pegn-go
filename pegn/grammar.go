@@ -1314,18 +1314,12 @@ const (
 	LicensedType
 	UsesType
 	PathType
-	ComEndLineType
-	DefinitionType
-	GrammarType
-	VersionType
 	HomeType
 	CommentType
 	NodeDefType
 	ScanDefType
 	ClassDefType
 	TokenDefType
-	IdentifierType
-	TokenValType
 	NameType
 	NameExtType
 	MajorVerType
@@ -1337,15 +1331,10 @@ const (
 	TokenIdType
 	ExpressionType
 	ClassExprType
-	SimpleType
-	SpacingType
 	SequenceType
-	RuleType
 	PlainType
 	PosLookType
 	NegLookType
-	PrimaryType
-	QuantType
 	OptionalType
 	MinZeroType
 	MinOneType
@@ -1353,7 +1342,6 @@ const (
 	MinType
 	MaxType
 	CountType
-	RangeType
 	UniRangeType
 	AlphaRangeType
 	IntRangeType
@@ -1380,18 +1368,12 @@ var NodeTypes = []string{
 	"Licensed",
 	"Uses",
 	"Path",
-	"ComEndLine",
-	"Definition",
-	"Grammar",
-	"Version",
 	"Home",
 	"Comment",
 	"NodeDef",
 	"ScanDef",
 	"ClassDef",
 	"TokenDef",
-	"Identifier",
-	"TokenVal",
 	"Name",
 	"NameExt",
 	"MajorVer",
@@ -1403,15 +1385,10 @@ var NodeTypes = []string{
 	"TokenId",
 	"Expression",
 	"ClassExpr",
-	"Simple",
-	"Spacing",
 	"Sequence",
-	"Rule",
 	"Plain",
 	"PosLook",
 	"NegLook",
-	"Primary",
-	"Quant",
 	"Optional",
 	"MinZero",
 	"MinOne",
@@ -1419,7 +1396,6 @@ var NodeTypes = []string{
 	"Min",
 	"Max",
 	"Count",
-	"Range",
 	"UniRange",
 	"AlphaRange",
 	"IntRange",
