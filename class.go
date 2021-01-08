@@ -3,7 +3,7 @@ package pegen
 import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegen/pegn"
+	"github.com/pegn/pegn-go/pegn"
 	"strconv"
 	"strings"
 )

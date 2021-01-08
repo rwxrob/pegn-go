@@ -3,7 +3,6 @@ package pegen
 import (
 	"bytes"
 	"fmt"
-	"strings"
 )
 
 type writer struct {
@@ -66,8 +65,4 @@ func (w *writer) noIndent() *writer {
 	return &writer{
 		Buffer: w.Buffer,
 	}
-}
-
-func fillRight(v string, size int) string {
-	return fmt.Sprintf("%s%s", v, strings.Repeat(" ", size-len(v)))
 }

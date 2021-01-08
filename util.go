@@ -1,5 +1,11 @@
 package pegen
 
+import (
+	"fmt"
+	"github.com/di-wu/parser/ast"
+	"strings"
+)
+
 func (g *Generator) longestTokenName() int {
 	var length int
 	for _, token := range g.tokens {
@@ -8,4 +14,34 @@ func (g *Generator) longestTokenName() int {
 		}
 	}
 	return length
+}
+
+func (g *Generator) longestTokenValueWithComment(idx int) int {
+	var length int
+	for _, token := range g.tokens[idx:] {
+		if token.comment == "" {
+			if length != 0 {
+				break
+			}
+			continue
+		}
+		if l := len(token.value); length < l {
+			length = l
+		}
+	}
+	return length
+}
+
+func fillRight(v string, size int) string {
+	return fmt.Sprintf("%s%s", v, strings.Repeat(" ", size-len(v)))
+}
+
+func singleNestedValue(n *ast.Node) bool {
+	if !n.IsParent() {
+		return true
+	}
+	if len(n.Children()) != 1 {
+		return false
+	}
+	return singleNestedValue(n.Children()[0])
 }

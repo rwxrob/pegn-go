@@ -1,8 +1,7 @@
-module github.com/pegn/pegen
+module github.com/pegn/pegn-go
 
-go 1.14
+go 1.15
 
 require (
 	github.com/di-wu/parser v0.1.3
-	gitlab.com/pegn/pegn-go v0.0.0-20201211101434-97ab26245bce
 )

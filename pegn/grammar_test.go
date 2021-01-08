@@ -4,7 +4,7 @@ import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
 	"github.com/di-wu/parser/op"
-	"github.com/pegn/pegen/pegn"
+	"github.com/pegn/pegn-go/pegn"
 	"io/ioutil"
 	"testing"
 )

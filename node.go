@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegen/pegn"
+	"github.com/pegn/pegn-go/pegn"
 	"strconv"
 )
 
@@ -85,7 +85,7 @@ func (g *Generator) generateNodes() error {
 			w := w.indent()
 			w.wln("return p.Expect(")
 			if node.scan {
-				if err := g.generateExpression(w.indent(), node.expression); err != nil {
+				if err := g.generateExpression(w.indent(), node.expression, true); err != nil {
 					return err
 				}
 			} else {
@@ -94,9 +94,15 @@ func (g *Generator) generateNodes() error {
 					w.wln("ast.Capture{")
 					{
 						w := w.indent()
-						w.wlnf("Type: %s,", g.typeName(g.nodeName(node.name)))
-						w.wln("Value: ")
-						if err := g.generateExpression(w, node.expression); err != nil {
+						w.w("Type: ")
+						if len(node.expression) == 1 {
+							if singleNestedValue(node.expression[0]) {
+								w.noIndent().w(" ") // To align with 'Value: '
+							}
+						}
+						w.noIndent().wlnf("%s,", g.typeName(g.nodeName(node.name)))
+						w.w("Value: ")
+						if err := g.generateExpression(w, node.expression, false); err != nil {
 							return err
 						}
 					}
@@ -113,10 +119,15 @@ func (g *Generator) generateNodes() error {
 	return nil
 }
 
-func (g *Generator) generateExpression(w *writer, expression []*ast.Node) error {
+func (g *Generator) generateExpression(w *writer, expression []*ast.Node, indent bool) error {
 	size := len(expression)
 	if 1 < size {
-		w.wln("op.Or{")
+		if !indent {
+			w.noIndent().wln("op.Or{")
+			indent = true
+		} else {
+			w.wln("op.Or{")
+		}
 	}
 
 	{
@@ -133,7 +144,7 @@ func (g *Generator) generateExpression(w *writer, expression []*ast.Node) error 
 
 			// Sequence <-- Rule (Spacing Rule)*
 			case pegn.SequenceType:
-				if err := g.generateSequence(w, n.Children()); err != nil {
+				if err := g.generateSequence(w, n.Children(), indent); err != nil {
 					return err
 				}
 
@@ -149,10 +160,15 @@ func (g *Generator) generateExpression(w *writer, expression []*ast.Node) error 
 	return nil
 }
 
-func (g *Generator) generateSequence(w *writer, sequence []*ast.Node) error {
+func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent bool) error {
 	size := len(sequence)
 	if 1 < size {
-		w.wln("op.And{")
+		if !indent {
+			w.noIndent().wln("op.And{")
+			indent = true
+		} else {
+			w.wln("op.And{")
+		}
 	}
 
 	{
@@ -175,7 +191,7 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node) error {
 					quant = last
 				}
 				if quant == nil {
-					if err := g.generatePrimary(w, n.Children()[0]); err != nil {
+					if err := g.generatePrimary(w, n.Children()[0], indent); err != nil {
 						return err
 					}
 					break
@@ -185,35 +201,60 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node) error {
 
 					switch q.Type {
 					case pegn.OptionalType:
-						w.wln("op.Optional(")
-						if err := g.generatePrimary(w.indent(), n); err != nil {
+						if !indent {
+							w.noIndent().wln("op.Optional(")
+							indent = true
+						} else {
+							w.wln("op.Optional(")
+						}
+						if err := g.generatePrimary(w.indent(), n, indent); err != nil {
 							return err
 						}
 						w.wln("),")
 					case pegn.MinZeroType:
-						w.wln("op.MinZero(")
-						if err := g.generatePrimary(w.indent(), n); err != nil {
+						if !indent {
+							w.noIndent().wln("op.MinZero(")
+							indent = true
+						} else {
+							w.wln("op.MinZero(")
+						}
+						if err := g.generatePrimary(w.indent(), n, indent); err != nil {
 							return err
 						}
 						w.wln("),")
 					case pegn.MinOneType:
-						w.wln("op.MinOne(")
-						if err := g.generatePrimary(w.indent(), n); err != nil {
+						if !indent {
+							w.noIndent().wln("op.MinOne(")
+							indent = true
+						} else {
+							w.wln("op.MinOne(")
+						}
+						if err := g.generatePrimary(w.indent(), n, indent); err != nil {
 							return err
 						}
 						w.wln("),")
 					case pegn.MinMaxType:
 						min := q.Children()[0].ValueString()
 						max := q.Children()[1].ValueString()
-						w.wlnf("op.MinMax(%s, %s,", min, max)
-						if err := g.generatePrimary(w.indent(), n); err != nil {
+						if !indent {
+							w.noIndent().wlnf("op.MinMax(%s, %s,", min, max)
+							indent = true
+						} else {
+							w.wlnf("op.MinMax(%s, %s,", min, max)
+						}
+						if err := g.generatePrimary(w.indent(), n, indent); err != nil {
 							return err
 						}
 						w.wln("),")
 					case pegn.CountType:
 						min := q.Children()[0].ValueString()
-						w.wlnf("op.Repeat(%s,", min)
-						if err := g.generatePrimary(w.indent(), n); err != nil {
+						if !indent {
+							w.noIndent().wlnf("op.Repeat(%s,", min)
+							indent = true
+						} else {
+							w.wlnf("op.Repeat(%s,", min)
+						}
+						if err := g.generatePrimary(w.indent(), n, indent); err != nil {
 							return err
 						}
 						w.wln("),")
@@ -226,8 +267,13 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node) error {
 				return fmt.Errorf("unsupported: %s", pegn.NodeTypes[n.Type])
 			// NegLook <-- '!' Primary Quant?
 			case pegn.NegLookType:
-				w.wln("op.Not{")
-				if err := g.generatePrimary(w.indent(), n.Children()[0]); err != nil {
+				if !indent {
+					w.noIndent().wln("op.Not{")
+					indent = true
+				} else {
+					w.wln("op.Not{")
+				}
+				if err := g.generatePrimary(w.indent(), n.Children()[0], indent); err != nil {
 					return err
 				}
 				w.wln("},")
@@ -244,7 +290,12 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node) error {
 }
 
 // Primary <- Simple / CheckId / '(' Expression ')'
-func (g *Generator) generatePrimary(w *writer, n *ast.Node) error {
+func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
+	if !indent {
+		w = w.noIndent()
+		indent = true
+	}
+
 	switch n.Type {
 	case pegn.CommentType, pegn.EndLineType:
 		// Ignore these.
@@ -303,7 +354,7 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node) error {
 	case pegn.StringType:
 		w.wf("%q", n.Value)
 	case pegn.ExpressionType:
-		if err := g.generateExpression(w, n.Children()); err != nil {
+		if err := g.generateExpression(w, n.Children(), indent); err != nil {
 			return err
 		}
 	default:

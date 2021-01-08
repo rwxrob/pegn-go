@@ -3,7 +3,7 @@ package pegen
 import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegen/pegn"
+	"github.com/pegn/pegn-go/pegn"
 	"strings"
 )
 
@@ -21,7 +21,7 @@ func (ts tokens) get(id string) token {
 type token struct {
 	comment string // comment after the token.
 	name    string // name of the token.
-	values  []tokenValue
+	value   string
 }
 
 type tokenValue struct {
@@ -46,6 +46,7 @@ func (g *Generator) tokenName(s string) string {
 //              ComEndLine
 func (g *Generator) parseToken(n *ast.Node) error {
 	var token token
+	var values []tokenValue
 	for _, n := range n.Children() {
 		switch n.Type {
 		case pegn.CommentType:
@@ -70,7 +71,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			if err != nil {
 				return err
 			}
-			token.values = append(token.values, tokenValue{
+			values = append(values, tokenValue{
 				hexValue: hex,
 			})
 		case pegn.BinaryType:
@@ -78,7 +79,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			if err != nil {
 				return err
 			}
-			token.values = append(token.values, tokenValue{
+			values = append(values, tokenValue{
 				hexValue: hex,
 			})
 		case pegn.OctalType:
@@ -86,16 +87,35 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			if err != nil {
 				return err
 			}
-			token.values = append(token.values, tokenValue{
+			values = append(values, tokenValue{
 				hexValue: hex,
 			})
 		case pegn.StringType:
-			token.values = append(token.values, tokenValue{
+			values = append(values, tokenValue{
 				value: n.ValueString(),
 			})
 		default:
 			return fmt.Errorf("unknown token child: %v", pegn.NodeTypes[n.Type])
 		}
+	}
+	if len(values) == 1 {
+		tk := values[0]
+		if tk.isString() {
+			// Strings: "value"
+			token.value = fmt.Sprintf("%q", tk.value)
+		} else {
+			token.value, _ = ConvertToRuneString(tk.hexValue, 16)
+		}
+	} else {
+		for _, tk := range values {
+			if tk.isString() {
+				token.value += tk.value
+			} else {
+				v, _ := ConvertToInt(tk.hexValue, 16)
+				token.value += string(rune(v))
+			}
+		}
+		token.value = fmt.Sprintf("%q", token.value)
 	}
 	g.tokens = append(g.tokens, token)
 	return nil
@@ -109,28 +129,12 @@ func (g *Generator) generateTokens() error {
 	{
 		w := w.indent()
 		longestName := g.longestTokenName()
-		for _, token := range g.tokens {
-			var value string
-			if len(token.values) == 1 {
-				tk := token.values[0]
-				if tk.isString() {
-					// Strings: "value"
-					value = fmt.Sprintf("%q", tk.value)
-				} else {
-					value, _ = ConvertToRuneString(tk.hexValue, 16)
-				}
-			} else {
-				for _, tk := range token.values {
-					if tk.isString() {
-						value += tk.value
-					} else {
-						v, _ := ConvertToInt(tk.hexValue, 16)
-						value += string(rune(v))
-					}
-				}
-				value = fmt.Sprintf("%q", value)
+		for idx, token := range g.tokens {
+			if token.comment != "" {
+				longestValue := g.longestTokenValueWithComment(idx)
+				token.value = fillRight(token.value, longestValue)
 			}
-			w.wf("%s = %s", fillRight(token.name, longestName), value)
+			w.wf("%s = %s", fillRight(token.name, longestName), token.value)
 			{
 				w := w.noIndent()
 				if token.comment != "" {
