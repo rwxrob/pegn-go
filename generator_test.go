@@ -1,19 +1,11 @@
 package pegen
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 )
 
-func Test(t *testing.T) {
-	grammar, err := ioutil.ReadFile("./pegn/testdata/grammar.pegn")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	g, err := New(grammar, "pegn", Config{
+func TestGenerateFromURLs(t *testing.T) {
+	if err := GenerateFromURLs("pegn/", Config{
 		IgnoreReserved: true,
 		TypeSuffix:     "Type",
 		ClassAliases: map[string]string{
@@ -30,33 +22,12 @@ func Test(t *testing.T) {
 		NodeAliases: map[string]string{
 			"Hexadec": "Hexadecimal",
 		},
-	})
-	if err != nil {
+	}, []string{
+		"https://raw.githubusercontent.com/pegn/spec/master/grammar.pegn",
+		"https://raw.githubusercontent.com/pegn/spec/master/classes/grammar.pegn",
+		"https://raw.githubusercontent.com/pegn/spec/master/tokens/grammar.pegn",
+	}...); err != nil {
 		t.Error(err)
 		return
 	}
-	if err := g.Generate(); err != nil {
-		t.Error(err)
-		return
-	}
-
-	w, b := newBW()
-	g.generateHeader(w)
-	w.wln("import (")
-	{
-		w := w.indent()
-		w.wln("\"github.com/di-wu/parser\"")
-		w.wln("\"github.com/di-wu/parser/ast\"")
-		w.wln("\"github.com/di-wu/parser/op\"")
-	}
-	w.wln(")")
-	w.ln()
-	w.w(g.writers["ast"].String())
-	w.ln()
-	w.w(g.writers["is"].String())
-	w.ln()
-	w.w(g.writers["tk"].String())
-	w.ln()
-	w.w(g.writers["nd"].String())
-	_ = ioutil.WriteFile("./pegn/grammar.go", b.Bytes(), os.ModePerm)
 }

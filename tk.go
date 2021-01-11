@@ -128,24 +128,48 @@ func (g *Generator) generateTokens() error {
 	w.wln("const (")
 	{
 		w := w.indent()
-		longestName := g.longestTokenName()
-		for idx, token := range g.tokens {
-			if token.comment != "" {
-				longestValue := g.longestTokenValueWithComment(idx)
-				token.value = fillRight(token.value, longestValue)
+		w.w("TODO = '\\u0000'")
+		{
+			w := w.noIndent()
+			w.w(" ")
+			w.c("TODO: remove this.")
+		}
+		w.ln()
+
+		if len(g.tokens) != 0 {
+			w.cf("%s (%s)", g.meta.language, g.meta.url)
+			g.generateTokenValues(w)
+			w.ln()
+		}
+
+		for _, dep := range g.dependencies {
+			if len(dep.tokens) == 0 {
+				continue
 			}
-			w.wf("%s = %s", fillRight(token.name, longestName), token.value)
-			{
-				w := w.noIndent()
-				if token.comment != "" {
-					w.w(" ")
-					w.c(token.comment)
-				} else {
-					w.ln()
-				}
-			}
+			w.cf("%s (%s)", dep.meta.language, dep.meta.url)
+			dep.generateTokenValues(w)
 		}
 	}
 	w.wln(")")
 	return nil
+}
+
+func (g *Generator) generateTokenValues(w *writer) {
+	longestName := g.longestTokenName()
+	for idx, token := range g.tokens {
+		if token.comment != "" {
+			longestValue := g.longestTokenValueWithComment(idx)
+			token.value = fillRight(token.value, longestValue)
+		}
+		w.wf("%s = %s", fillRight(token.name, longestName), token.value)
+		{
+			w := w.noIndent()
+			if token.comment != "" {
+				w.w(" ")
+				w.c(token.comment)
+			} else {
+				w.ln()
+			}
+		}
+	}
 }

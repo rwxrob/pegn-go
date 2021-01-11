@@ -45,9 +45,7 @@ func (g *Generator) parseClass(n *ast.Node) error {
 	return nil
 }
 
-func (g *Generator) generateClasses() error {
-	w := g.writers["is"]
-
+func (g *Generator) generateClasses(w *writer) error {
 	for idx, class := range g.classes {
 		size := len(class.expression)
 		if size == 1 {
@@ -145,5 +143,12 @@ func (g *Generator) generateClasses() error {
 			w.ln()
 		}
 	}
+
+	for _, dep := range g.dependencies {
+		if err := dep.generateClasses(w); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

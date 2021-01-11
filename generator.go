@@ -5,21 +5,26 @@ import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
 	"github.com/pegn/pegn-go/pegn"
+	"io/ioutil"
+	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
 
 // Config that offers additional configuration options to the generator.
 type Config struct {
+	// GrammarLocations are aliases to the grammar locations.
+	// e.g. 'spec.pegn.dev': 'https://raw.githubusercontent.com/pegn/spec/master/grammar.pegn'
+	GrammarLocations map[string]string
 	// IgnoreReserved makes sure the generator does not return a error when it
 	// tries to generate a reserved class/token. False by default, you should
 	// not overwrite reserved classes or tokens.
 	IgnoreReserved bool
 	// TokenPrefix represents the prefix before a token name. No prefix is added
-	// when the value is an empty string. This can also be used if the tokens
-	// are located in a submodule.
-	// e.g. 'SP' with prefix 'tk.' results in 'tk.SP'.
+	// when the value is an empty string.
+	// e.g. 'SP' with prefix 'Token' results in 'TokenSP'.
 	TokenPrefix string
 	// TypePrefix / TypeSuffix represent the pre- or suffix before a class name.
 	// Recommended. Type names are the same as there corresponding parse
@@ -38,6 +43,9 @@ type Generator struct {
 	config  Config             // config of the parser.
 	writers map[string]*writer // a map of writers to separate generated code.
 
+	dependencies   []Generator
+	dependencyURLs []string
+
 	// meta data of the grammar.
 	meta struct {
 		language string
@@ -47,16 +55,103 @@ type Generator struct {
 		}
 		url string
 	}
-	copyright    string
-	license      string
-	dependencies []string
+	copyright string
+	license   string
 
 	nodes   nodes
 	classes []class
 	tokens  tokens
 }
 
-func New(rawGrammar []byte, parentDir string, config Config) (Generator, error) {
+func GenerateFromURLs(outputDir string, config Config, urls ...string) error {
+	files := make([][]byte, len(urls))
+	for i, url := range urls {
+		resp, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+		raw, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		files[i] = raw
+	}
+	return GenerateFromFiles(outputDir, config, files[0], files[1:]...)
+}
+
+func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependencies ...[]byte) error {
+	parentDir := filepath.Dir(outputDir)
+	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(parentDir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	g, err := New(grammar, config)
+	if err != nil {
+		return err
+	}
+
+	var (
+		generators []Generator
+		urls       = make(map[string]bool)
+	)
+	for _, file := range dependencies {
+		g, err := New(file, config)
+		if err != nil {
+			return err
+		}
+		if err := g.GenerateBuffers(); err != nil {
+			return err
+		}
+		generators = append(generators, g)
+		urls[g.meta.url] = true
+	}
+
+	// Check whether the grammar files has all its dependencies.
+	for _, dep := range g.dependencyURLs {
+		if _, ok := urls[dep]; !ok {
+			return fmt.Errorf("missing dependency: %s", dep)
+		}
+	}
+	// Check whether all the dependencies have all their dependencies.
+	for _, dep := range generators {
+		for _, url := range g.dependencyURLs {
+			if _, ok := urls[url]; !ok {
+				return fmt.Errorf("missing dependency: %s", url)
+			}
+		}
+		g.dependencies = append(g.dependencies, dep)
+	}
+
+	// Make sure to do this after adding all the dependencies.
+	if err := g.GenerateBuffers(); err != nil {
+		return err
+	}
+
+	w, b := newBW()
+	g.generateHeader(w)
+	w.ln()
+	w.wln("import (")
+	{
+		w := w.indent()
+		w.wln("\"github.com/di-wu/parser\"")
+		w.wln("\"github.com/di-wu/parser/ast\"")
+		w.wln("\"github.com/di-wu/parser/op\"")
+	}
+	w.wln(")")
+	w.ln()
+	w.w(g.writers["ast"].String())
+	w.w(g.writers["is"].String())
+	w.ln()
+	w.w(g.writers["tk"].String())
+	w.ln()
+	w.w(g.writers["nd"].String())
+
+	return ioutil.WriteFile(fmt.Sprintf("%s/grammar.go", parentDir), b.Bytes(), os.ModePerm)
+}
+
+func New(rawGrammar []byte, config Config) (Generator, error) {
 	// 1. Create a new PEGN parser.
 	p, err := ast.New(rawGrammar)
 	if err != nil {
@@ -72,13 +167,6 @@ func New(rawGrammar []byte, parentDir string, config Config) (Generator, error) 
 		return Generator{}, fmt.Errorf("parser could not read the entire file")
 	}
 
-	// 4. Ensure if parentDir exists.
-	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-		if err := os.Mkdir(parentDir, os.ModePerm); err != nil {
-			return Generator{}, err
-		}
-	}
-
 	return Generator{
 		root: grammar,
 		writers: map[string]*writer{
@@ -91,7 +179,7 @@ func New(rawGrammar []byte, parentDir string, config Config) (Generator, error) 
 	}, nil
 }
 
-func (g *Generator) Generate() error {
+func (g *Generator) GenerateBuffers() error {
 	for _, n := range g.root.Children() {
 		switch n.Type {
 		case pegn.CommentType, pegn.EndLineType:
@@ -138,7 +226,7 @@ func (g *Generator) Generate() error {
 		case pegn.UsesType:
 			for _, n := range n.Children() {
 				if n.Type == pegn.PathType {
-					g.dependencies = append(g.dependencies, n.ValueString())
+					g.dependencyURLs = append(g.dependencyURLs, n.ValueString())
 					break
 				}
 			}
@@ -173,10 +261,10 @@ func (g *Generator) Generate() error {
 	if err := g.generateTypes(); err != nil {
 		return err
 	}
-	if err := g.generateClasses(); err != nil {
+	if err := g.generateClasses(g.writers["is"]); err != nil {
 		return err
 	}
-	if err := g.generateNodes(); err != nil {
+	if err := g.generateNodes(g.writers["ast"]); err != nil {
 		return err
 	}
 	return nil
@@ -185,5 +273,4 @@ func (g *Generator) Generate() error {
 func (g *Generator) generateHeader(w *writer) {
 	w.c("Do not edit. This file is auto-generated.")
 	w.wlnf("package %s", strings.ToLower(g.meta.language))
-	w.ln()
 }

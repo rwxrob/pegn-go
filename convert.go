@@ -46,14 +46,14 @@ func ConvertToRuneString(v string, base int) (string, error) {
 	}
 	// Runes: '\u0000' || '\U00000000' || int32
 	if len(value) <= 4 {
-		value = fmt.Sprintf("'\\u%s'", value)
+		value = fmt.Sprintf("0x%s", value)
 	} else {
 		i, err := strconv.ParseInt(value, 16, 32)
 		if err != nil {
 			return "", err
 		}
 		if i <= utf8.MaxRune {
-			value = fmt.Sprintf("'\\U%s'", value)
+			value = fmt.Sprintf("0x%s", value)
 		} else {
 			value = fmt.Sprintf("%d", i)
 		}

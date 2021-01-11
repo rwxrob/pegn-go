@@ -76,9 +76,7 @@ func (g *Generator) parseScan(n *ast.Node) error {
 	return nil
 }
 
-func (g *Generator) generateNodes() error {
-	//  Write to the ast buffer.
-	w := g.writers["ast"]
+func (g *Generator) generateNodes(w *writer) error {
 	for idx, node := range g.nodes {
 		w.wlnf("func %s(p *ast.Parser) (*ast.Node, error) {", g.nodeName(node.name))
 		{
@@ -116,6 +114,13 @@ func (g *Generator) generateNodes() error {
 			w.ln()
 		}
 	}
+
+	for _, dep := range g.dependencies {
+		if err := dep.generateNodes(w); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -247,7 +252,7 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent boo
 						}
 						w.wln("),")
 					case pegn.CountType:
-						min := q.Children()[0].ValueString()
+						min := q.ValueString()
 						if !indent {
 							w.noIndent().wlnf("op.Repeat(%s,", min)
 							indent = true
