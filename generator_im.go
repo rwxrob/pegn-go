@@ -12,54 +12,61 @@ import (
 )
 
 type Parser struct {
-	sync.WaitGroup
-	sync.RWMutex
 	tokens  map[string]interface{}
 	classes map[string]interface{}
 }
 
-func ParserFromURLs(config Config, urls ...string) error {
+type internalParser struct {
+	sync.WaitGroup
+	sync.RWMutex
+	Parser
+}
+
+func ParserFromURLs(config Config, urls ...string) (Parser, error) {
 	files := make([][]byte, len(urls))
 	for i, url := range urls {
 		resp, err := http.Get(url)
 		if err != nil {
-			return err
+			return Parser{}, err
 		}
 		raw, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return err
+			return Parser{}, err
 		}
 		files[i] = raw
 	}
 	return ParserFromFiles(config, files[0], files[1:]...)
 }
 
-func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) error {
+func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Parser, error) {
 	g, err := NewFromFiles(config, grammar, dependencies...)
 	if err != nil {
-		return err
+		return Parser{}, err
 	}
 
 	if err := g.prepare(); err != nil {
-		return err
+		return Parser{}, err
 	}
 
-	p := Parser{
-		tokens:  make(map[string]interface{}),
-		classes: make(map[string]interface{}),
+	p := internalParser{
+		Parser: Parser{
+			tokens:  make(map[string]interface{}),
+			classes: make(map[string]interface{}),
+		},
 	}
 	p.tokens["TODO"] = '\u0000' // TODO: remove me
 
 	if err := p.generateTokens(g); err != nil {
-		return err
+		return Parser{}, err
 	}
 	if err := p.generateClasses(g); err != nil {
-		return err
+		return Parser{}, err
 	}
-	return nil
+
+	return p.Parser, nil
 }
 
-func (p *Parser) generateTokens(g Generator) error {
+func (p *internalParser) generateTokens(g Generator) error {
 	for _, token := range g.tokens {
 		if _, ok := p.tokens[token.name]; ok {
 			return fmt.Errorf("duplicate token: %s", token.name)
@@ -92,7 +99,7 @@ func (p *Parser) generateTokens(g Generator) error {
 	return nil
 }
 
-func (p *Parser) generateClasses(g Generator) error {
+func (p *internalParser) generateClasses(g Generator) error {
 	var wg sync.WaitGroup
 
 	generate := func(g Generator) {
