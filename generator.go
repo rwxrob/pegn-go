@@ -87,41 +87,9 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 		}
 	}
 
-	g, err := New(grammar, config)
+	g, err := NewFromFiles(config, grammar, dependencies...)
 	if err != nil {
 		return err
-	}
-
-	var (
-		generators []Generator
-		urls       = make(map[string]bool)
-	)
-	for _, file := range dependencies {
-		g, err := New(file, config)
-		if err != nil {
-			return err
-		}
-		if err := g.GenerateBuffers(); err != nil {
-			return err
-		}
-		generators = append(generators, g)
-		urls[g.meta.url] = true
-	}
-
-	// Check whether the grammar files has all its dependencies.
-	for _, dep := range g.dependencyURLs {
-		if _, ok := urls[dep]; !ok {
-			return fmt.Errorf("missing dependency: %s", dep)
-		}
-	}
-	// Check whether all the dependencies have all their dependencies.
-	for _, dep := range generators {
-		for _, url := range g.dependencyURLs {
-			if _, ok := urls[url]; !ok {
-				return fmt.Errorf("missing dependency: %s", url)
-			}
-		}
-		g.dependencies = append(g.dependencies, dep)
 	}
 
 	// Make sure to do this after adding all the dependencies.
@@ -151,7 +119,64 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	return ioutil.WriteFile(fmt.Sprintf("%s/grammar.go", parentDir), b.Bytes(), os.ModePerm)
 }
 
-func New(rawGrammar []byte, config Config) (Generator, error) {
+func NewFromURLs(config Config, mainURL string, depURLSs ...string) (Generator, error) {
+	files := make([][]byte, len(depURLSs)+1)
+	for i, url := range append([]string{mainURL}, depURLSs...) {
+		resp, err := http.Get(url)
+		if err != nil {
+			return Generator{}, err
+		}
+		raw, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return Generator{}, err
+		}
+		files[i] = raw
+	}
+	return NewFromFiles(config, files[0], files[1:]...)
+}
+
+func NewFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Generator, error) {
+	g, err := newGenerator(grammar, config)
+	if err != nil {
+		return Generator{}, err
+	}
+
+	var (
+		generators []Generator
+		urls       = make(map[string]bool)
+	)
+	for _, file := range dependencies {
+		g, err := newGenerator(file, config)
+		if err != nil {
+			return Generator{}, err
+		}
+		if err := g.GenerateBuffers(); err != nil {
+			return Generator{}, err
+		}
+		generators = append(generators, g)
+		urls[g.meta.url] = true
+	}
+
+	// Check whether the grammar files has all its dependencies.
+	for _, dep := range g.dependencyURLs {
+		if _, ok := urls[dep]; !ok {
+			return Generator{}, fmt.Errorf("missing dependency: %s", dep)
+		}
+	}
+	// Check whether all the dependencies have all their dependencies.
+	for _, dep := range generators {
+		for _, url := range g.dependencyURLs {
+			if _, ok := urls[url]; !ok {
+				return Generator{}, fmt.Errorf("missing dependency: %s", url)
+			}
+		}
+		g.dependencies = append(g.dependencies, dep)
+	}
+
+	return g, nil
+}
+
+func newGenerator(rawGrammar []byte, config Config) (Generator, error) {
 	// 1. Create a new PEGN parser.
 	p, err := ast.New(rawGrammar)
 	if err != nil {
@@ -179,7 +204,7 @@ func New(rawGrammar []byte, config Config) (Generator, error) {
 	}, nil
 }
 
-func (g *Generator) GenerateBuffers() error {
+func (g *Generator) prepare() error {
 	for _, n := range g.root.Children() {
 		switch n.Type {
 		case pegn.CommentType, pegn.EndLineType:
@@ -251,6 +276,13 @@ func (g *Generator) GenerateBuffers() error {
 		default:
 			return fmt.Errorf("unknown definition child: %v", pegn.NodeTypes[n.Type])
 		}
+	}
+	return nil
+}
+
+func (g *Generator) GenerateBuffers() error {
+	if err := g.prepare(); err != nil {
+		return err
 	}
 
 	// The order is important!

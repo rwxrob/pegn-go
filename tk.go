@@ -19,9 +19,10 @@ func (ts tokens) get(id string) token {
 }
 
 type token struct {
-	comment string // comment after the token.
-	name    string // name of the token.
-	value   string
+	comment   string // comment after the token.
+	name      string // name of the token.
+	rawValues []tokenValue
+	value     string
 }
 
 type tokenValue struct {
@@ -98,6 +99,8 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			return fmt.Errorf("unknown token child: %v", pegn.NodeTypes[n.Type])
 		}
 	}
+
+	token.rawValues = values
 	if len(values) == 1 {
 		tk := values[0]
 		if tk.isString() {
