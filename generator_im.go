@@ -455,33 +455,10 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		return i, nil
 	case pegn.CheckIdType:
 		name := g.nodeName(n.ValueString())
-
-		p.RWMutex.RLock()
-		if class, ok := p.Nodes[name]; ok {
-			p.RWMutex.RUnlock()
-			return class, nil
-		}
-		p.RWMutex.RUnlock()
-
-		var wg sync.WaitGroup
-		wg.Add(1)
-		go func(name string) {
-			defer wg.Done()
-			for {
-				p.RWMutex.RLock()
-				v := p.Nodes[name]
-				p.RWMutex.RUnlock()
-				if v != nil {
-					break
-				}
-			}
-		}(name)
-		wg.Wait()
-
-		p.RWMutex.RLock()
-		i := p.Nodes[name]
-		p.RWMutex.RUnlock()
-		return i, nil
+		return ast.LoopUp{
+			Key:   name,
+			Table: &p.Nodes,
+		}, nil
 	case pegn.AlphaRangeType, pegn.IntRangeType:
 		min := rune(n.Children()[0].ValueString()[0])
 		max := rune(n.Children()[1].ValueString()[0])

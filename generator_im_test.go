@@ -2,11 +2,12 @@ package pegen
 
 import (
 	"github.com/di-wu/parser"
+	"github.com/di-wu/parser/ast"
 	"testing"
 )
 
 func TestParserFromURLs(t *testing.T) {
-	p, err := ParserFromURLs(Config{
+	p, pErr := ParserFromURLs(Config{
 		IgnoreReserved: true,
 		TypeSuffix:     "Type",
 		ClassAliases: map[string]string{
@@ -28,14 +29,16 @@ func TestParserFromURLs(t *testing.T) {
 		"https://raw.githubusercontent.com/pegn/spec/master/classes/grammar.pegn",
 		"https://raw.githubusercontent.com/pegn/spec/master/tokens/grammar.pegn",
 	}...)
-	if err != nil {
-		t.Error(err)
+	if pErr != nil {
+		t.Error(pErr)
 		return
 	}
 
-	alpha := p.Classes["Alpha"]
-	ap, _ := parser.New([]byte("abc"))
-	m, err := ap.Expect(alpha)
+	var (
+		alpha  = p.Classes["Alpha"]
+		ap, _  = parser.New([]byte("abc"))
+		m, err = ap.Expect(alpha)
+	)
 	for {
 		tmp, err := ap.Expect(alpha)
 		if err != nil {
@@ -50,4 +53,21 @@ func TestParserFromURLs(t *testing.T) {
 	if m.Rune != 'c' {
 		t.Errorf(m.String())
 	}
+
+	var (
+		comEndLine = p.Nodes["ComEndLine"]
+		comment    = "# A comment.\n"
+		ap_, _     = ast.New([]byte(comment))
+	)
+	n, err := ap_.Expect(ast.Capture{
+		Value: comEndLine,
+	})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if n.ValueString() != comment {
+		t.Error(n.ValueString())
+	}
+
 }

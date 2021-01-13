@@ -1,4 +1,2 @@
-github.com/di-wu/parser v0.1.3 h1:7qkA+x0CpplPnvrrAML1YeAU2j4GblNQGOUN1ssuJhw=
-github.com/di-wu/parser v0.1.3/go.mod h1:SLp58pW6WamdmznrVRrw2NTyn4wAvT9rrEFynKX7nYo=
-gitlab.com/pegn/pegn-go v0.0.0-20201211101434-97ab26245bce h1:AZOHHBFUkcoGsWeGaVOEhydv2FKRL4sPOCccmNyQaUU=
-gitlab.com/pegn/pegn-go v0.0.0-20201211101434-97ab26245bce/go.mod h1:8iD19l1T7gbkKpQAFq5R9GMcXTFiSm1WFclJdvx6u5A=
+github.com/di-wu/parser v0.1.5 h1:u8FN9US5egDTybmKWXMd1MW5QYkos8yrhsquTpgksGI=
+github.com/di-wu/parser v0.1.5/go.mod h1:SLp58pW6WamdmznrVRrw2NTyn4wAvT9rrEFynKX7nYo=
