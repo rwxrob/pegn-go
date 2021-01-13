@@ -33,9 +33,8 @@ func TestParserFromURLs(t *testing.T) {
 		return
 	}
 
-	alpha := p.classes["Alpha"]
+	alpha := p.Classes["Alpha"]
 	ap, _ := parser.New([]byte("abc"))
-
 	m, err := ap.Expect(alpha)
 	for {
 		tmp, err := ap.Expect(alpha)
