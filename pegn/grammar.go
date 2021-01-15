@@ -1,4 +1,5 @@
 // Do not edit. This file is auto-generated.
+// Grammar: PEGN (v1.0.0-alpha) spec.pegn.dev
 package pegn
 
 import (

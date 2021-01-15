@@ -358,5 +358,12 @@ func (g *Generator) GenerateBuffers() error {
 
 func (g *Generator) generateHeader(w *writer) {
 	w.c("Do not edit. This file is auto-generated.")
+	w.cf(
+		"Grammar: %s (v%d.%d.%d-%s) %s",
+		g.meta.language,
+		g.meta.version.major, g.meta.version.minor,
+		g.meta.version.patch, g.meta.version.prerelease,
+		g.meta.url,
+	)
 	w.wlnf("package %s", strings.ToLower(g.meta.language))
 }
