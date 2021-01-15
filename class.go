@@ -3,7 +3,7 @@ package pegen
 import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn"
+	"github.com/pegn/pegn-go/pegn/nd"
 	"strconv"
 	"strings"
 )
@@ -26,7 +26,7 @@ func (g *Generator) parseClass(n *ast.Node) error {
 	var class class
 	for _, n := range n.Children() {
 		switch n.Type {
-		case pegn.ClassIdType, pegn.ResClassIdType:
+		case nd.ClassId, nd.ResClassId:
 			// ClassId    <-- lower (lower / UNDER lower)+
 			// ResClassId <-- 'alphanum' / 'alpha' / 'any' / etc...
 			name, err := g.GetID(n)
@@ -34,11 +34,11 @@ func (g *Generator) parseClass(n *ast.Node) error {
 				return err
 			}
 			class.name = name
-		case pegn.ClassExprType:
+		case nd.ClassExpr:
 			// ClassExpr <-- Simple (Spacing '/' SP+ Simple)*
 			class.expression = n.Children()
 		default:
-			return fmt.Errorf("unknown class child: %v", pegn.NodeTypes[n.Type])
+			return fmt.Errorf("unknown class child: %v", nd.NodeTypes[n.Type])
 		}
 	}
 	g.classes = append(g.classes, class)
@@ -50,7 +50,7 @@ func (g *Generator) generateClasses(w *writer) error {
 		size := len(class.expression)
 		if size == 1 {
 			// Duplicate (alias) class definition.
-			if c := class.expression[0]; c.Type == pegn.ClassIdType {
+			if c := class.expression[0]; c.Type == nd.ClassId {
 				continue
 			}
 		}
@@ -68,31 +68,31 @@ func (g *Generator) generateClasses(w *writer) error {
 			}
 			for _, n := range class.expression {
 				switch n.Type {
-				case pegn.CommentType, pegn.EndLineType:
+				case nd.Comment, nd.EndLine:
 					// Ignore these.
 					continue
-				case pegn.UnicodeType, pegn.HexadecimalType:
+				case nd.Unicode, nd.Hexadecimal:
 					v, _ := ConvertToRuneString(n.ValueString()[1:], 16)
 					w.w(v)
-				case pegn.BinaryType:
+				case nd.Binary:
 					v, _ := ConvertToRuneString(n.ValueString()[1:], 2)
 					w.w(v)
-				case pegn.OctalType:
+				case nd.Octal:
 					v, _ := ConvertToRuneString(n.ValueString()[1:], 8)
 					w.w(v)
-				case pegn.ClassIdType, pegn.ResClassIdType,
-					pegn.TokenIdType, pegn.ResTokenIdType:
+				case nd.ClassId, nd.ResClassId,
+					nd.TokenId, nd.ResTokenId:
 					id, err := g.GetID(n)
 					if err != nil {
 						return err
 					}
 					w.w(id)
-				case pegn.AlphaRangeType:
+				case nd.AlphaRange:
 					// AlphaRange <-- '[' Letter '-' Letter ']'
 					min := n.Children()[0].Value
 					max := n.Children()[1].Value
 					w.wf("parser.CheckRuneRange('%s', '%s')", min, max)
-				case pegn.IntRangeType:
+				case nd.IntRange:
 					// IntRange <-- '[' Integer '-' Integer ']'
 					min, _ := strconv.Atoi(n.Children()[0].ValueString())
 					max, _ := strconv.Atoi(n.Children()[1].ValueString())
@@ -106,26 +106,26 @@ func (g *Generator) generateClasses(w *writer) error {
 						return fmt.Errorf("int range too large: [%v-%v]", min, max)
 					}
 					w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
-				case pegn.UniRangeType, pegn.HexRangeType:
+				case nd.UniRange, nd.HexRange:
 					// UniRange <-- '[' Unicode '-' Unicode ']'
 					// HexRange <-- '[' Hexadec '-' Hexadec ']'
 					min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 16)
 					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 16)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
-				case pegn.BinRangeType:
+				case nd.BinRange:
 					// BinRange <-- '[' Binary '-' Binary ']'
 					min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 2)
 					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 2)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
-				case pegn.OctRangeType:
+				case nd.OctRange:
 					// OctRange <-- '[' Octal '-' Octal ']'
 					min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 8)
 					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 8)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
-				case pegn.StringType:
+				case nd.String:
 					w.wf("%q", n.ValueString())
 				default:
-					return fmt.Errorf("unknown class child: %v", pegn.NodeTypes[n.Type])
+					return fmt.Errorf("unknown class child: %v", nd.NodeTypes[n.Type])
 				}
 				if 1 < size {
 					w.noIndent().wln(",")

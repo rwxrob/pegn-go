@@ -3,7 +3,7 @@ package pegen
 import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn"
+	"github.com/pegn/pegn-go/pegn/nd"
 )
 
 type ReservedIdentifierError struct {
@@ -20,20 +20,20 @@ func (r *ReservedIdentifierError) Error() string {
 func (g *Generator) GetID(n *ast.Node) (string, error) {
 	id := n.ValueString()
 	switch n.Type {
-	case pegn.CheckIdType:
+	case nd.CheckId:
 		return g.nodeName(id), nil
-	case pegn.ClassIdType:
+	case nd.ClassId:
 		return g.className(id), nil
-	case pegn.ResClassIdType:
+	case nd.ResClassId:
 		if !g.config.IgnoreReserved {
 			return id, &ReservedIdentifierError{
 				identifier: id,
 			}
 		}
 		return g.className(id), nil
-	case pegn.TokenIdType:
+	case nd.TokenId:
 		return g.tokenName(n.ValueString()), nil
-	case pegn.ResTokenIdType:
+	case nd.ResTokenId:
 		if !g.config.IgnoreReserved {
 			return id, &ReservedIdentifierError{
 				identifier: id,

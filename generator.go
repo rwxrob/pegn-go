@@ -5,6 +5,7 @@ import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
 	"github.com/pegn/pegn-go/pegn"
+	"github.com/pegn/pegn-go/pegn/nd"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -15,24 +16,35 @@ import (
 
 // Config that offers additional configuration options to the generator.
 type Config struct {
+	// ModulePath is the path to the module. REQUIRED!
+	ModulePath string
+
 	// GrammarLocations are aliases to the grammar locations.
 	// e.g. 'spec.pegn.dev': 'https://raw.githubusercontent.com/pegn/spec/master/grammar.pegn'
 	GrammarLocations map[string]string
+
 	// IgnoreReserved makes sure the generator does not return a error when it
 	// tries to generate a reserved class/token. False by default, you should
 	// not overwrite reserved classes or tokens.
 	IgnoreReserved bool
+
 	// TokenPrefix represents the prefix before a token name. No prefix is added
 	// when the value is an empty string.
 	// e.g. 'SP' with prefix 'Token' results in 'TokenSP'.
 	TokenPrefix string
-	// TypePrefix / TypeSuffix represent the pre- or suffix before a class name.
+
+	// TypeSuffix represent the pre- or suffix before a class name.
 	// Recommended. Type names are the same as there corresponding parse
 	// functions. e.g. 'Grammar' with suffix 'Type' results in 'GrammarType'.
-	TypePrefix, TypeSuffix string
+	TypeSuffix string
+	// TypeSubPackage is the name of the sub-package for types. It left empty
+	// the types will get added to the main file.
+	TypeSubPackage string
+
 	// ClassAliases is a map of original class names to an alias.
 	// e.g. map[alphanum: AlphaNum]
 	ClassAliases map[string]string
+
 	// NodeAliases is a map of original node names to an alias.
 	// e.g. map[Hexadec: Hexadecimal]
 	NodeAliases map[string]string
@@ -103,9 +115,18 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	w.wln("import (")
 	{
 		w := w.indent()
-		w.wln("\"github.com/di-wu/parser\"")
-		w.wln("\"github.com/di-wu/parser/ast\"")
-		w.wln("\"github.com/di-wu/parser/op\"")
+		w.wlnf("%q", "github.com/di-wu/parser")
+		w.wlnf("%q", "github.com/di-wu/parser/ast")
+		w.wlnf("%q", "github.com/di-wu/parser/op")
+
+		if g.config.TypeSubPackage != "" {
+			w.wlnf(
+				"%q", fmt.Sprintf(
+					"%s/%s/%s",
+					g.config.ModulePath, parentDir, g.config.TypeSubPackage,
+				),
+			)
+		}
 	}
 	w.wln(")")
 	w.ln()
@@ -113,10 +134,43 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	w.w(g.writers["is"].String())
 	w.ln()
 	w.w(g.writers["tk"].String())
+	if g.config.TypeSubPackage == "" {
+		w.ln()
+		w.w(g.writers["nd"].String())
+	} else {
+		if err := g.generateTypeFile(parentDir); err != nil {
+			return err
+		}
+	}
+
+	return ioutil.WriteFile(
+		fmt.Sprintf("%s/grammar.go", parentDir),
+		b.Bytes(), os.ModePerm,
+	)
+}
+
+func (g *Generator) generateTypeFile(parentDir string) error {
+	pkg := strings.ToLower(g.config.TypeSubPackage)
+	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	w, b := newBW()
+	w.c("Do not edit. This file is auto-generated.")
+	w.wlnf("package %s", strings.ToLower(pkg))
 	w.ln()
 	w.w(g.writers["nd"].String())
 
-	return ioutil.WriteFile(fmt.Sprintf("%s/grammar.go", parentDir), b.Bytes(), os.ModePerm)
+	if err := ioutil.WriteFile(
+		fmt.Sprintf("%s/types.go", dir),
+		b.Bytes(), os.ModePerm,
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewFromURLs(config Config, mainURL string, depURLSs ...string) (Generator, error) {
@@ -207,74 +261,74 @@ func newGenerator(rawGrammar []byte, config Config) (Generator, error) {
 func (g *Generator) prepare() error {
 	for _, n := range g.root.Children() {
 		switch n.Type {
-		case pegn.CommentType, pegn.EndLineType:
+		case nd.Comment, nd.EndLine:
 			// Ignore these.
-		case pegn.MetaType:
+		case nd.Meta:
 			// Meta <-- '# ' Language ' (' Version ') ' Home EndLine
 			// Language <- Lang ('-' LangExt)?
 			// Version <- 'v' MajorVer '.' MinorVer '.' PatchVer ('-' PreVer)?
 			// Home <-- (!ws unipoint)+
 			for _, n := range n.Children() {
 				switch n.Type {
-				case pegn.NameType:
+				case nd.Name:
 					g.meta.language = n.ValueString()
-				case pegn.NameExtType:
+				case nd.NameExt:
 					g.meta.language += fmt.Sprintf("-%s", n.ValueString())
-				case pegn.MajorVerType:
+				case nd.MajorVer:
 					g.meta.version.major, _ = strconv.Atoi(n.ValueString())
-				case pegn.MinorVerType:
+				case nd.MinorVer:
 					g.meta.version.minor, _ = strconv.Atoi(n.ValueString())
-				case pegn.PatchVerType:
+				case nd.PatchVer:
 					g.meta.version.patch, _ = strconv.Atoi(n.ValueString())
-				case pegn.PreVerType:
+				case nd.PreVer:
 					g.meta.version.prerelease = n.ValueString()
-				case pegn.HomeType:
+				case nd.Home:
 					g.meta.url = n.ValueString()
 				}
 			}
-		case pegn.CopyrightType:
+		case nd.Copyright:
 			// Copyright <-- '# Copyright ' Comment EndLine
 			for _, n := range n.Children() {
-				if n.Type == pegn.CommentType {
+				if n.Type == nd.Comment {
 					g.copyright = n.ValueString()
 					break
 				}
 			}
-		case pegn.LicensedType:
+		case nd.Licensed:
 			// Licensed <-- '# Licensed under ' Comment EndLine
 			for _, n := range n.Children() {
-				if n.Type == pegn.CommentType {
+				if n.Type == nd.Comment {
 					g.license = n.ValueString()
 					break
 				}
 			}
-		case pegn.UsesType:
+		case nd.Uses:
 			for _, n := range n.Children() {
-				if n.Type == pegn.PathType {
+				if n.Type == nd.Path {
 					g.dependencyURLs = append(g.dependencyURLs, n.ValueString())
 					break
 				}
 			}
 		// Definition
 		// Definition <- NodeDef / ScanDef / ClassDef / TokenDef
-		case pegn.NodeDefType:
+		case nd.NodeDef:
 			if err := g.parseNode(n); err != nil {
 				return err
 			}
-		case pegn.ScanDefType:
+		case nd.ScanDef:
 			if err := g.parseScan(n); err != nil {
 				return err
 			}
-		case pegn.ClassDefType:
+		case nd.ClassDef:
 			if err := g.parseClass(n); err != nil {
 				return err
 			}
-		case pegn.TokenDefType:
+		case nd.TokenDef:
 			if err := g.parseToken(n); err != nil {
 				return err
 			}
 		default:
-			return fmt.Errorf("unknown definition child: %v", pegn.NodeTypes[n.Type])
+			return fmt.Errorf("unknown definition child: %v", nd.NodeTypes[n.Type])
 		}
 	}
 	return nil

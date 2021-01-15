@@ -3,7 +3,7 @@ package pegen
 import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn"
+	"github.com/pegn/pegn-go/pegn/nd"
 	"strings"
 )
 
@@ -50,13 +50,13 @@ func (g *Generator) parseToken(n *ast.Node) error {
 	var values []tokenValue
 	for _, n := range n.Children() {
 		switch n.Type {
-		case pegn.CommentType:
+		case nd.Comment:
 			// ComEndLine
 			token.comment = n.ValueString()
-		case pegn.EndLineType:
+		case nd.EndLine:
 			// Ignore this.
 
-		case pegn.TokenIdType, pegn.ResTokenIdType:
+		case nd.TokenId, nd.ResTokenId:
 			// TokenId    <-- upper (upper / UNDER upper)+
 			// ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / etc...
 			id, err := g.GetID(n)
@@ -67,7 +67,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
-		case pegn.UnicodeType, pegn.HexadecimalType:
+		case nd.Unicode, nd.Hexadecimal:
 			hex, err := ConvertToHex(n.ValueString()[1:], 16)
 			if err != nil {
 				return err
@@ -75,7 +75,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			values = append(values, tokenValue{
 				hexValue: hex,
 			})
-		case pegn.BinaryType:
+		case nd.Binary:
 			hex, err := ConvertToHex(n.ValueString()[1:], 2)
 			if err != nil {
 				return err
@@ -83,7 +83,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			values = append(values, tokenValue{
 				hexValue: hex,
 			})
-		case pegn.OctalType:
+		case nd.Octal:
 			hex, err := ConvertToHex(n.ValueString()[1:], 8)
 			if err != nil {
 				return err
@@ -91,12 +91,12 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			values = append(values, tokenValue{
 				hexValue: hex,
 			})
-		case pegn.StringType:
+		case nd.String:
 			values = append(values, tokenValue{
 				value: n.ValueString(),
 			})
 		default:
-			return fmt.Errorf("unknown token child: %v", pegn.NodeTypes[n.Type])
+			return fmt.Errorf("unknown token child: %v", nd.NodeTypes[n.Type])
 		}
 	}
 

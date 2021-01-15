@@ -5,12 +5,13 @@ import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
 	"github.com/di-wu/parser/op"
+	"github.com/pegn/pegn-go/pegn/nd"
 )
 
 func Spec(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: SpecType,
+			Type: nd.Spec,
 			Value: op.And{
 				op.Optional(
 					Meta,
@@ -43,7 +44,7 @@ func Spec(p *ast.Parser) (*ast.Node, error) {
 func Meta(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: MetaType,
+			Type: nd.Meta,
 			Value: op.And{
 				"# ",
 				Grammar,
@@ -60,7 +61,7 @@ func Meta(p *ast.Parser) (*ast.Node, error) {
 func Copyright(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: CopyrightType,
+			Type: nd.Copyright,
 			Value: op.And{
 				"# Copyright ",
 				Comment,
@@ -73,7 +74,7 @@ func Copyright(p *ast.Parser) (*ast.Node, error) {
 func Licensed(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: LicensedType,
+			Type: nd.Licensed,
 			Value: op.And{
 				"# Licensed under ",
 				Comment,
@@ -86,7 +87,7 @@ func Licensed(p *ast.Parser) (*ast.Node, error) {
 func Uses(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: UsesType,
+			Type: nd.Uses,
 			Value: op.And{
 				"# Uses ",
 				Path,
@@ -99,7 +100,7 @@ func Uses(p *ast.Parser) (*ast.Node, error) {
 func Path(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: PathType,
+			Type: nd.Path,
 			Value: op.MinOne(
 				op.And{
 					op.Not{
@@ -176,7 +177,7 @@ func Version(p *ast.Parser) (*ast.Node, error) {
 func Home(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: HomeType,
+			Type: nd.Home,
 			Value: op.MinOne(
 				op.And{
 					op.Not{
@@ -192,7 +193,7 @@ func Home(p *ast.Parser) (*ast.Node, error) {
 func Comment(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: CommentType,
+			Type: nd.Comment,
 			Value: op.MinOne(
 				op.And{
 					op.Not{
@@ -208,7 +209,7 @@ func Comment(p *ast.Parser) (*ast.Node, error) {
 func NodeDef(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: NodeDefType,
+			Type: nd.NodeDef,
 			Value: op.And{
 				CheckId,
 				op.MinOne(
@@ -227,7 +228,7 @@ func NodeDef(p *ast.Parser) (*ast.Node, error) {
 func ScanDef(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ScanDefType,
+			Type: nd.ScanDef,
 			Value: op.And{
 				CheckId,
 				op.MinOne(
@@ -246,7 +247,7 @@ func ScanDef(p *ast.Parser) (*ast.Node, error) {
 func ClassDef(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ClassDefType,
+			Type: nd.ClassDef,
 			Value: op.And{
 				ClassId,
 				op.MinOne(
@@ -265,7 +266,7 @@ func ClassDef(p *ast.Parser) (*ast.Node, error) {
 func TokenDef(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: TokenDefType,
+			Type: nd.TokenDef,
 			Value: op.And{
 				TokenId,
 				op.MinOne(
@@ -317,7 +318,7 @@ func TokenVal(p *ast.Parser) (*ast.Node, error) {
 func Name(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: NameType,
+			Type: nd.Name,
 			Value: op.MinMax(2, 12,
 				Upper,
 			),
@@ -328,7 +329,7 @@ func Name(p *ast.Parser) (*ast.Node, error) {
 func NameExt(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: NameExtType,
+			Type: nd.NameExt,
 			Value: op.MinMax(1, 20,
 				Visible,
 			),
@@ -339,7 +340,7 @@ func NameExt(p *ast.Parser) (*ast.Node, error) {
 func MajorVer(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: MajorVerType,
+			Type: nd.MajorVer,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -350,7 +351,7 @@ func MajorVer(p *ast.Parser) (*ast.Node, error) {
 func MinorVer(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: MinorVerType,
+			Type: nd.MinorVer,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -361,7 +362,7 @@ func MinorVer(p *ast.Parser) (*ast.Node, error) {
 func PatchVer(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: PatchVerType,
+			Type: nd.PatchVer,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -372,7 +373,7 @@ func PatchVer(p *ast.Parser) (*ast.Node, error) {
 func PreVer(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: PreVerType,
+			Type: nd.PreVer,
 			Value: op.And{
 				op.MinOne(
 					op.Or{
@@ -399,7 +400,7 @@ func PreVer(p *ast.Parser) (*ast.Node, error) {
 func CheckId(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: CheckIdType,
+			Type: nd.CheckId,
 			Value: op.MinOne(
 				op.And{
 					Upper,
@@ -415,7 +416,7 @@ func CheckId(p *ast.Parser) (*ast.Node, error) {
 func ClassId(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ClassIdType,
+			Type: nd.ClassId,
 			Value: op.Or{
 				ResClassId,
 				op.And{
@@ -438,7 +439,7 @@ func ClassId(p *ast.Parser) (*ast.Node, error) {
 func TokenId(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: TokenIdType,
+			Type: nd.TokenId,
 			Value: op.Or{
 				ResTokenId,
 				op.And{
@@ -461,7 +462,7 @@ func TokenId(p *ast.Parser) (*ast.Node, error) {
 func Expression(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ExpressionType,
+			Type: nd.Expression,
 			Value: op.And{
 				Sequence,
 				op.MinZero(
@@ -482,7 +483,7 @@ func Expression(p *ast.Parser) (*ast.Node, error) {
 func ClassExpr(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ClassExprType,
+			Type: nd.ClassExpr,
 			Value: op.And{
 				Simple,
 				op.MinZero(
@@ -535,7 +536,7 @@ func Spacing(p *ast.Parser) (*ast.Node, error) {
 func Sequence(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: SequenceType,
+			Type: nd.Sequence,
 			Value: op.And{
 				Rule,
 				op.MinZero(
@@ -562,7 +563,7 @@ func Rule(p *ast.Parser) (*ast.Node, error) {
 func Plain(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: PlainType,
+			Type: nd.Plain,
 			Value: op.And{
 				Primary,
 				op.Optional(
@@ -576,7 +577,7 @@ func Plain(p *ast.Parser) (*ast.Node, error) {
 func PosLook(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: PosLookType,
+			Type: nd.PosLook,
 			Value: op.And{
 				"&",
 				Primary,
@@ -591,7 +592,7 @@ func PosLook(p *ast.Parser) (*ast.Node, error) {
 func NegLook(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: NegLookType,
+			Type: nd.NegLook,
 			Value: op.And{
 				"!",
 				Primary,
@@ -632,7 +633,7 @@ func Quant(p *ast.Parser) (*ast.Node, error) {
 func Optional(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type:  OptionalType,
+			Type:  nd.Optional,
 			Value: "?",
 		},
 	)
@@ -641,7 +642,7 @@ func Optional(p *ast.Parser) (*ast.Node, error) {
 func MinZero(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type:  MinZeroType,
+			Type:  nd.MinZero,
 			Value: "*",
 		},
 	)
@@ -650,7 +651,7 @@ func MinZero(p *ast.Parser) (*ast.Node, error) {
 func MinOne(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type:  MinOneType,
+			Type:  nd.MinOne,
 			Value: "+",
 		},
 	)
@@ -659,7 +660,7 @@ func MinOne(p *ast.Parser) (*ast.Node, error) {
 func MinMax(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: MinMaxType,
+			Type: nd.MinMax,
 			Value: op.And{
 				"{",
 				Min,
@@ -676,7 +677,7 @@ func MinMax(p *ast.Parser) (*ast.Node, error) {
 func Min(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: MinType,
+			Type: nd.Min,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -687,7 +688,7 @@ func Min(p *ast.Parser) (*ast.Node, error) {
 func Max(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: MaxType,
+			Type: nd.Max,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -708,7 +709,7 @@ func Amount(p *ast.Parser) (*ast.Node, error) {
 func Count(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: CountType,
+			Type: nd.Count,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -732,7 +733,7 @@ func Range(p *ast.Parser) (*ast.Node, error) {
 func UniRange(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: UniRangeType,
+			Type: nd.UniRange,
 			Value: op.And{
 				"[",
 				Unicode,
@@ -747,7 +748,7 @@ func UniRange(p *ast.Parser) (*ast.Node, error) {
 func AlphaRange(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: AlphaRangeType,
+			Type: nd.AlphaRange,
 			Value: op.And{
 				"[",
 				Letter,
@@ -762,7 +763,7 @@ func AlphaRange(p *ast.Parser) (*ast.Node, error) {
 func IntRange(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: IntRangeType,
+			Type: nd.IntRange,
 			Value: op.And{
 				"[",
 				Integer,
@@ -777,7 +778,7 @@ func IntRange(p *ast.Parser) (*ast.Node, error) {
 func BinRange(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: BinRangeType,
+			Type: nd.BinRange,
 			Value: op.And{
 				"[",
 				Binary,
@@ -792,7 +793,7 @@ func BinRange(p *ast.Parser) (*ast.Node, error) {
 func HexRange(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: HexRangeType,
+			Type: nd.HexRange,
 			Value: op.And{
 				"[",
 				Hexadecimal,
@@ -807,7 +808,7 @@ func HexRange(p *ast.Parser) (*ast.Node, error) {
 func OctRange(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: OctRangeType,
+			Type: nd.OctRange,
 			Value: op.And{
 				"[",
 				Octal,
@@ -822,7 +823,7 @@ func OctRange(p *ast.Parser) (*ast.Node, error) {
 func String(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: StringType,
+			Type: nd.String,
 			Value: op.MinOne(
 				Quotable,
 			),
@@ -833,7 +834,7 @@ func String(p *ast.Parser) (*ast.Node, error) {
 func Letter(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type:  LetterType,
+			Type:  nd.Letter,
 			Value: Alpha,
 		},
 	)
@@ -842,7 +843,7 @@ func Letter(p *ast.Parser) (*ast.Node, error) {
 func Unicode(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: UnicodeType,
+			Type: nd.Unicode,
 			Value: op.And{
 				"u",
 				op.Or{
@@ -864,7 +865,7 @@ func Unicode(p *ast.Parser) (*ast.Node, error) {
 func Integer(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: IntegerType,
+			Type: nd.Integer,
 			Value: op.MinOne(
 				Digit,
 			),
@@ -875,7 +876,7 @@ func Integer(p *ast.Parser) (*ast.Node, error) {
 func Binary(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: BinaryType,
+			Type: nd.Binary,
 			Value: op.And{
 				"b",
 				op.MinOne(
@@ -889,7 +890,7 @@ func Binary(p *ast.Parser) (*ast.Node, error) {
 func Hexadecimal(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: HexadecimalType,
+			Type: nd.Hexadecimal,
 			Value: op.And{
 				"x",
 				op.MinOne(
@@ -903,7 +904,7 @@ func Hexadecimal(p *ast.Parser) (*ast.Node, error) {
 func Octal(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: OctalType,
+			Type: nd.Octal,
 			Value: op.And{
 				"o",
 				op.MinOne(
@@ -917,7 +918,7 @@ func Octal(p *ast.Parser) (*ast.Node, error) {
 func EndLine(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: EndLineType,
+			Type: nd.EndLine,
 			Value: op.Or{
 				LF,
 				CRLF,
@@ -930,7 +931,7 @@ func EndLine(p *ast.Parser) (*ast.Node, error) {
 func ResClassId(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ResClassIdType,
+			Type: nd.ResClassId,
 			Value: op.Or{
 				"alphanum",
 				"alpha",
@@ -967,7 +968,7 @@ func ResClassId(p *ast.Parser) (*ast.Node, error) {
 func ResTokenId(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type: ResTokenIdType,
+			Type: nd.ResTokenId,
 			Value: op.Or{
 				"TAB",
 				"CRLF",
@@ -4664,116 +4665,3 @@ const (
 	RFAT      = "=>"
 	WALRUS    = ":="
 )
-
-// Node Types
-const (
-	Unknown = iota
-
-	// PEGN (spec.pegn.dev)
-	SpecType
-	MetaType
-	CopyrightType
-	LicensedType
-	UsesType
-	PathType
-	HomeType
-	CommentType
-	NodeDefType
-	ScanDefType
-	ClassDefType
-	TokenDefType
-	NameType
-	NameExtType
-	MajorVerType
-	MinorVerType
-	PatchVerType
-	PreVerType
-	CheckIdType
-	ClassIdType
-	TokenIdType
-	ExpressionType
-	ClassExprType
-	SequenceType
-	PlainType
-	PosLookType
-	NegLookType
-	OptionalType
-	MinZeroType
-	MinOneType
-	MinMaxType
-	MinType
-	MaxType
-	CountType
-	UniRangeType
-	AlphaRangeType
-	IntRangeType
-	BinRangeType
-	HexRangeType
-	OctRangeType
-	StringType
-	LetterType
-	UnicodeType
-	IntegerType
-	BinaryType
-	HexadecimalType
-	OctalType
-	EndLineType
-	ResClassIdType
-	ResTokenIdType
-)
-
-var NodeTypes = []string{
-	"UNKNOWN",
-
-	// PEGN (spec.pegn.dev)
-	"Spec",
-	"Meta",
-	"Copyright",
-	"Licensed",
-	"Uses",
-	"Path",
-	"Home",
-	"Comment",
-	"NodeDef",
-	"ScanDef",
-	"ClassDef",
-	"TokenDef",
-	"Name",
-	"NameExt",
-	"MajorVer",
-	"MinorVer",
-	"PatchVer",
-	"PreVer",
-	"CheckId",
-	"ClassId",
-	"TokenId",
-	"Expression",
-	"ClassExpr",
-	"Sequence",
-	"Plain",
-	"PosLook",
-	"NegLook",
-	"Optional",
-	"MinZero",
-	"MinOne",
-	"MinMax",
-	"Min",
-	"Max",
-	"Count",
-	"UniRange",
-	"AlphaRange",
-	"IntRange",
-	"BinRange",
-	"HexRange",
-	"OctRange",
-	"String",
-	"Letter",
-	"Unicode",
-	"Integer",
-	"Binary",
-	"Hexadecimal",
-	"Octal",
-	"EndLine",
-	"ResClassId",
-	"ResTokenId",
-}

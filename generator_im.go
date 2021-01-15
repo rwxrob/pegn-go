@@ -5,14 +5,14 @@ import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
 	"github.com/di-wu/parser/op"
-	"github.com/pegn/pegn-go/pegn"
+	"github.com/pegn/pegn-go/pegn/nd"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"sync"
 )
 
-type Parser struct {
+type InMemoryParser struct {
 	Tokens  map[string]interface{}
 	Classes map[string]interface{}
 	Nodes   map[string]interface{}
@@ -21,37 +21,37 @@ type Parser struct {
 type internalParser struct {
 	sync.WaitGroup
 	sync.RWMutex
-	Parser
+	InMemoryParser
 }
 
-func ParserFromURLs(config Config, urls ...string) (Parser, error) {
+func ParserFromURLs(config Config, urls ...string) (InMemoryParser, error) {
 	files := make([][]byte, len(urls))
 	for i, url := range urls {
 		resp, err := http.Get(url)
 		if err != nil {
-			return Parser{}, err
+			return InMemoryParser{}, err
 		}
 		raw, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return Parser{}, err
+			return InMemoryParser{}, err
 		}
 		files[i] = raw
 	}
 	return ParserFromFiles(config, files[0], files[1:]...)
 }
 
-func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Parser, error) {
+func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (InMemoryParser, error) {
 	g, err := NewFromFiles(config, grammar, dependencies...)
 	if err != nil {
-		return Parser{}, err
+		return InMemoryParser{}, err
 	}
 
 	if err := g.prepare(); err != nil {
-		return Parser{}, err
+		return InMemoryParser{}, err
 	}
 
 	p := internalParser{
-		Parser: Parser{
+		InMemoryParser: InMemoryParser{
 			Tokens:  make(map[string]interface{}),
 			Classes: make(map[string]interface{}),
 			Nodes:   make(map[string]interface{}),
@@ -60,16 +60,16 @@ func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Par
 	p.Tokens["TODO"] = '\u0000' // TODO: remove me
 
 	if err := p.generateTokens(g); err != nil {
-		return Parser{}, err
+		return InMemoryParser{}, err
 	}
 	if err := p.generateClasses(g); err != nil {
-		return Parser{}, err
+		return InMemoryParser{}, err
 	}
 	if err := p.generateNodes(g); err != nil {
-		return Parser{}, err
+		return InMemoryParser{}, err
 	}
 
-	return p.Parser, nil
+	return p.InMemoryParser, nil
 }
 
 func (p *internalParser) generateTokens(g Generator) error {
@@ -118,19 +118,19 @@ func (p *internalParser) generateClasses(g Generator) error {
 					defer p.WaitGroup.Done()
 
 					switch n.Type {
-					case pegn.CommentType, pegn.EndLineType:
+					case nd.Comment, nd.EndLine:
 						// Ignore these.
 						return
-					case pegn.UnicodeType, pegn.HexadecimalType:
+					case nd.Unicode, nd.Hexadecimal:
 						i, _ := ConvertToInt(n.ValueString()[1:], 16)
 						or = append(or, i)
-					case pegn.BinaryType:
+					case nd.Binary:
 						i, _ := ConvertToInt(n.ValueString()[1:], 2)
 						or = append(or, i)
-					case pegn.OctalType:
+					case nd.Octal:
 						i, _ := ConvertToInt(n.ValueString()[1:], 8)
 						or = append(or, i)
-					case pegn.ClassIdType, pegn.ResClassIdType:
+					case nd.ClassId, nd.ResClassId:
 						name := g.className(n.ValueString())
 
 						p.RWMutex.RLock()
@@ -157,7 +157,7 @@ func (p *internalParser) generateClasses(g Generator) error {
 						p.RWMutex.RLock()
 						or = append(or, p.Classes[name])
 						p.RWMutex.RUnlock()
-					case pegn.TokenIdType, pegn.ResTokenIdType:
+					case nd.TokenId, nd.ResTokenId:
 						name := g.tokenName(n.ValueString())
 
 						p.RWMutex.RLock()
@@ -184,26 +184,26 @@ func (p *internalParser) generateClasses(g Generator) error {
 						p.RWMutex.RLock()
 						or = append(or, p.Tokens[name])
 						p.RWMutex.RUnlock()
-					case pegn.AlphaRangeType, pegn.IntRangeType:
+					case nd.AlphaRange, nd.IntRange:
 						min := rune(n.Children()[0].ValueString()[0])
 						max := rune(n.Children()[1].ValueString()[0])
 						or = append(or, parser.CheckRuneRange(min, max))
-					case pegn.UniRangeType, pegn.HexRangeType:
+					case nd.UniRange, nd.HexRange:
 						min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 16)
 						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 16)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
-					case pegn.BinRangeType:
+					case nd.BinRange:
 						min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 2)
 						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 2)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
-					case pegn.OctRangeType:
+					case nd.OctRange:
 						min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 8)
 						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 8)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
-					case pegn.StringType:
+					case nd.String:
 						or = append(or, parser.CheckString(n.ValueString()))
 					default:
-						errChannel <- fmt.Errorf("unknown class child: %v", pegn.NodeTypes[n.Type])
+						errChannel <- fmt.Errorf("unknown class child: %v", nd.NodeTypes[n.Type])
 					}
 				}(n)
 			}
@@ -288,19 +288,19 @@ func (p *internalParser) generateExpression(g Generator, expression []*ast.Node)
 	var or op.Or
 	for _, n := range expression {
 		switch n.Type {
-		case pegn.CommentType, pegn.EndLineType:
+		case nd.Comment, nd.EndLine:
 			// Ignore these.
 			continue
 
 		// Sequence <-- Rule (Spacing Rule)*
-		case pegn.SequenceType:
+		case nd.Sequence:
 			i, err := p.generateSequence(g, n.Children())
 			if err != nil {
 				return nil, err
 			}
 			or = append(or, i)
 		default:
-			return nil, fmt.Errorf("unknown expression child: %v", pegn.NodeTypes[n.Type])
+			return nil, fmt.Errorf("unknown expression child: %v", nd.NodeTypes[n.Type])
 		}
 	}
 	if len(or) == 1 {
@@ -313,15 +313,15 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 	var and op.And
 	for _, n := range sequence {
 		switch n.Type {
-		case pegn.CommentType, pegn.EndLineType:
+		case nd.Comment, nd.EndLine:
 			// Ignore these.
 			continue
 		// Plain <-- Primary Quant?
-		case pegn.PlainType:
+		case nd.Plain:
 			// Plain <-- Primary Quant?
 			var quant *ast.Node
 			switch last := n.Children()[len(n.Children())-1]; last.Type {
-			case pegn.OptionalType, pegn.MinZeroType, pegn.MinOneType, pegn.MinMaxType, pegn.CountType:
+			case nd.Optional, nd.MinZero, nd.MinOne, nd.MinMax, nd.Count:
 				quant = last
 			}
 			if quant == nil {
@@ -342,28 +342,28 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 					continue
 				}
 				switch q := n.Children()[1]; q.Type {
-				case pegn.OptionalType:
+				case nd.Optional:
 					and = append(and, op.Optional(i))
-				case pegn.MinZeroType:
+				case nd.MinZero:
 					and = append(and, op.MinZero(i))
-				case pegn.MinOneType:
+				case nd.MinOne:
 					and = append(and, op.MinOne(i))
-				case pegn.MinMaxType:
+				case nd.MinMax:
 					min, _ := strconv.Atoi(q.Children()[0].ValueString())
 					max, _ := strconv.Atoi(q.Children()[1].ValueString())
 					and = append(and, op.MinMax(min, max, i))
-				case pegn.CountType:
+				case nd.Count:
 					min, _ := strconv.Atoi(q.ValueString())
 					and = append(and, op.Repeat(min, i))
 				default:
-					return nil, fmt.Errorf("unknown quant child: %v", pegn.NodeTypes[n.Type])
+					return nil, fmt.Errorf("unknown quant child: %v", nd.NodeTypes[n.Type])
 				}
 			}
 		// PosLook <-- '&' Primary Quant?
-		case pegn.PosLookType:
-			return nil, fmt.Errorf("unsupported: %s", pegn.NodeTypes[n.Type])
+		case nd.PosLook:
+			return nil, fmt.Errorf("unsupported: %s", nd.NodeTypes[n.Type])
 		// NegLook <-- '!' Primary Quant?
-		case pegn.NegLookType:
+		case nd.NegLook:
 			i, err := p.generatePrimary(g, n.Children()[0])
 			if err != nil {
 				return nil, err
@@ -372,7 +372,7 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 				and = append(and, op.Not{Value: i})
 			}
 		default:
-			return nil, fmt.Errorf("unknown sequence child: %v", pegn.NodeTypes[n.Type])
+			return nil, fmt.Errorf("unknown sequence child: %v", nd.NodeTypes[n.Type])
 		}
 	}
 	if len(and) == 1 {
@@ -383,19 +383,19 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 
 func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{}, error) {
 	switch n.Type {
-	case pegn.CommentType, pegn.EndLineType:
+	case nd.Comment, nd.EndLine:
 		// Ignore these.
 		return nil, nil
-	case pegn.UnicodeType, pegn.HexadecimalType:
+	case nd.Unicode, nd.Hexadecimal:
 		i, _ := ConvertToInt(n.ValueString()[1:], 16)
 		return i, nil
-	case pegn.BinaryType:
+	case nd.Binary:
 		i, _ := ConvertToInt(n.ValueString()[1:], 2)
 		return i, nil
-	case pegn.OctalType:
+	case nd.Octal:
 		i, _ := ConvertToInt(n.ValueString()[1:], 8)
 		return i, nil
-	case pegn.ClassIdType, pegn.ResClassIdType:
+	case nd.ClassId, nd.ResClassId:
 		name := g.className(n.ValueString())
 
 		p.RWMutex.RLock()
@@ -424,7 +424,7 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		i := p.Classes[name]
 		p.RWMutex.RUnlock()
 		return i, nil
-	case pegn.TokenIdType, pegn.ResTokenIdType:
+	case nd.TokenId, nd.ResTokenId:
 		name := g.tokenName(n.ValueString())
 
 		p.RWMutex.RLock()
@@ -453,33 +453,33 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		i := p.Tokens[name]
 		p.RWMutex.RUnlock()
 		return i, nil
-	case pegn.CheckIdType:
+	case nd.CheckId:
 		name := g.nodeName(n.ValueString())
 		return ast.LoopUp{
 			Key:   name,
 			Table: &p.Nodes,
 		}, nil
-	case pegn.AlphaRangeType, pegn.IntRangeType:
+	case nd.AlphaRange, nd.IntRange:
 		min := rune(n.Children()[0].ValueString()[0])
 		max := rune(n.Children()[1].ValueString()[0])
 		return parser.CheckRuneRange(min, max), nil
-	case pegn.UniRangeType, pegn.HexRangeType:
+	case nd.UniRange, nd.HexRange:
 		min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 16)
 		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 16)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
-	case pegn.BinRangeType:
+	case nd.BinRange:
 		min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 2)
 		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 2)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
-	case pegn.OctRangeType:
+	case nd.OctRange:
 		min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 8)
 		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 8)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
-	case pegn.StringType:
+	case nd.String:
 		return parser.CheckString(n.ValueString()), nil
-	case pegn.ExpressionType:
+	case nd.Expression:
 		return p.generateExpression(g, n.Children())
 	default:
-		return nil, fmt.Errorf("unknown plain child: %v", pegn.NodeTypes[n.Type])
+		return nil, fmt.Errorf("unknown plain child: %v", nd.NodeTypes[n.Type])
 	}
 }
