@@ -361,7 +361,13 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 			}
 		// PosLook <-- '&' Primary Quant?
 		case nd.PosLook:
-			return nil, fmt.Errorf("unsupported: %s", nd.NodeTypes[n.Type])
+			i, err := p.generatePrimary(g, n.Children()[0])
+			if err != nil {
+				return nil, err
+			}
+			if i != nil {
+				and = append(and, op.Ensure{Value: i})
+			}
 		// NegLook <-- '!' Primary Quant?
 		case nd.NegLook:
 			i, err := p.generatePrimary(g, n.Children()[0])

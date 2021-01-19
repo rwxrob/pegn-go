@@ -269,7 +269,16 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent boo
 				}
 			// PosLook <-- '&' Primary Quant?
 			case nd.PosLook:
-				return fmt.Errorf("unsupported: %s", nd.NodeTypes[n.Type])
+				if !indent {
+					w.noIndent().wln("op.Ensure{")
+					indent = true
+				} else {
+					w.wln("op.Ensure{")
+				}
+				if err := g.generatePrimary(w.indent(), n.Children()[0], indent); err != nil {
+					return err
+				}
+				w.wln("},")
 			// NegLook <-- '!' Primary Quant?
 			case nd.NegLook:
 				if !indent {
