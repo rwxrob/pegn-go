@@ -3,10 +3,11 @@ package pegen
 import "fmt"
 
 func (g *Generator) typeNameGenerated(s string) string {
+	s = g.typeName(s)
 	if pkg := g.config.TypeSubPackage; pkg != "" {
-		s = fmt.Sprintf("%s.%s", pkg, s)
+		return fmt.Sprintf("%s.%s", pkg, s)
 	}
-	return g.typeName(s)
+	return s
 }
 
 func (g *Generator) typeName(s string) string {

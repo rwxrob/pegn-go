@@ -313,14 +313,20 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
 	case nd.Octal:
 		v, _ := ConvertToRuneString(n.ValueString()[1:], 8)
 		w.w(v)
-	case nd.ClassId, nd.ResClassId,
-		nd.TokenId, nd.ResTokenId,
-		nd.CheckId:
+	case nd.ClassId, nd.ResClassId:
+		w.w(g.classNameGenerated(n.ValueString()))
+	case nd.CheckId:
 		id, err := g.GetID(n)
 		if err != nil {
 			return err
 		}
 		w.w(id)
+	case nd.TokenId, nd.ResTokenId:
+		id, err := g.GetID(n)
+		if err != nil {
+			return err
+		}
+		w.w(g.tokenNameGenerated(id))
 	case nd.AlphaRange:
 		// AlphaRange <-- '[' Letter '-' Letter ']'
 		min := n.Children()[0].Value

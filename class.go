@@ -13,12 +13,24 @@ type class struct {
 	expression []*ast.Node
 }
 
+func (g *Generator) classNameGenerated(s string) string {
+	s = g.className(s)
+	if pkg := g.config.ClassSubPackage; pkg != "" {
+		return fmt.Sprintf("%s.%s", pkg, s)
+	}
+	return s
+}
+
 func (g *Generator) className(s string) string {
 	// Check whether the class has an alias.
 	if c, ok := g.config.ClassAliases[s]; ok {
 		s = c
 	}
-	return strings.Title(s)
+	parts := strings.Split(s, "_")
+	for i, s := range parts {
+		parts[i] = strings.Title(s)
+	}
+	return strings.Join(parts, "")
 }
 
 // ClassDef <-- ClassId SP+ '<-' SP+ ClassExpr
@@ -80,13 +92,18 @@ func (g *Generator) generateClasses(w *writer) error {
 				case nd.Octal:
 					v, _ := ConvertToRuneString(n.ValueString()[1:], 8)
 					w.w(v)
-				case nd.ClassId, nd.ResClassId,
-					nd.TokenId, nd.ResTokenId:
+				case nd.ClassId, nd.ResClassId:
 					id, err := g.GetID(n)
 					if err != nil {
 						return err
 					}
 					w.w(id)
+				case nd.TokenId, nd.ResTokenId:
+					id, err := g.GetID(n)
+					if err != nil {
+						return err
+					}
+					w.w(g.tokenNameGenerated(id))
 				case nd.AlphaRange:
 					// AlphaRange <-- '[' Letter '-' Letter ']'
 					min := n.Children()[0].Value

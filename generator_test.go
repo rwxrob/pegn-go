@@ -6,9 +6,11 @@ import (
 
 func TestGenerateFromURLs(t *testing.T) {
 	if err := GenerateFromURLs("pegn/", Config{
-		ModulePath:     "github.com/pegn/pegn-go",
-		IgnoreReserved: true,
-		TypeSubPackage: "nd",
+		ModulePath:      "github.com/pegn/pegn-go",
+		IgnoreReserved:  true,
+		ClassSubPackage: "is",
+		TokenSubPackage: "tk",
+		TypeSubPackage:  "nd",
 		ClassAliases: map[string]string{
 			"alphanum": "AlphaNum",
 			"unipoint": "UniPoint",

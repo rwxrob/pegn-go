@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -32,6 +33,9 @@ type Config struct {
 	// when the value is an empty string.
 	// e.g. 'SP' with prefix 'Token' results in 'TokenSP'.
 	TokenPrefix string
+	// TokenSubPackage is the name of the sub-package for tokens. It left empty
+	// the tokens will get added to the main file.
+	TokenSubPackage string
 
 	// TypeSuffix represent the pre- or suffix before a class name.
 	// Recommended. Type names are the same as there corresponding parse
@@ -44,6 +48,9 @@ type Config struct {
 	// ClassAliases is a map of original class names to an alias.
 	// e.g. map[alphanum: AlphaNum]
 	ClassAliases map[string]string
+	// ClassSubPackage is the name of the sub-package for classes. It left empty
+	// the classes will get added to the main file.
+	ClassSubPackage string
 
 	// NodeAliases is a map of original node names to an alias.
 	// e.g. map[Hexadec: Hexadecimal]
@@ -115,25 +122,55 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	w.wln("import (")
 	{
 		w := w.indent()
-		w.wlnf("%q", "github.com/di-wu/parser")
-		w.wlnf("%q", "github.com/di-wu/parser/ast")
-		w.wlnf("%q", "github.com/di-wu/parser/op")
 
+		imports := []string{
+			"github.com/di-wu/parser/ast",
+			"github.com/di-wu/parser/op",
+		}
 		if g.config.TypeSubPackage != "" {
-			w.wlnf(
-				"%q", fmt.Sprintf(
-					"%s/%s/%s",
-					g.config.ModulePath, parentDir, g.config.TypeSubPackage,
-				),
-			)
+			imports = append(imports, fmt.Sprintf(
+				"%s/%s/%s",
+				g.config.ModulePath, parentDir, g.config.TypeSubPackage,
+			))
+		}
+		if g.config.TokenSubPackage != "" {
+			imports = append(imports, fmt.Sprintf(
+				"%s/%s/%s",
+				g.config.ModulePath, parentDir, g.config.TokenSubPackage,
+			))
+		}
+		if g.config.ClassSubPackage != "" {
+			imports = append(imports, fmt.Sprintf(
+				"%s/%s/%s",
+				g.config.ModulePath, parentDir, g.config.ClassSubPackage,
+			))
+		} else {
+			imports = append(imports, "github.com/di-wu/parser")
+		}
+
+		sort.Strings(imports)
+		for _, i := range imports {
+			w.wlnf("%q", i)
 		}
 	}
 	w.wln(")")
 	w.ln()
 	w.w(g.writers["ast"].String())
-	w.w(g.writers["is"].String())
-	w.ln()
-	w.w(g.writers["tk"].String())
+	if g.config.TokenSubPackage == "" {
+		w.w(g.writers["is"].String())
+	} else {
+		if err := g.generateClassFile(parentDir); err != nil {
+			return err
+		}
+	}
+	if g.config.TokenSubPackage == "" {
+		w.ln()
+		w.w(g.writers["tk"].String())
+	} else {
+		if err := g.generateTokenFile(parentDir); err != nil {
+			return err
+		}
+	}
 	if g.config.TypeSubPackage == "" {
 		w.ln()
 		w.w(g.writers["nd"].String())
@@ -148,8 +185,78 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 		b.Bytes(), os.ModePerm,
 	)
 }
+func (g *Generator) generateClassFile(parentDir string) error {
+	pkg := strings.ToLower(g.config.ClassSubPackage)
+	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	w, b := newBW()
+	w.c("Do not edit. This file is auto-generated.")
+	w.wlnf("package %s", strings.ToLower(pkg))
+	w.ln()
+	w.wln("import (")
+	{
+		w := w.indent()
+
+		imports := []string{
+			"github.com/di-wu/parser",
+			"github.com/di-wu/parser/op",
+		}
+
+		if g.config.TokenSubPackage != "" {
+			imports = append(imports, fmt.Sprintf(
+				"%s/%s/%s",
+				g.config.ModulePath, parentDir, g.config.TokenSubPackage,
+			))
+		}
+
+		sort.Strings(imports)
+		for _, i := range imports {
+			w.wlnf("%q", i)
+		}
+	}
+	w.wln(")")
+	w.ln()
+	w.w(g.writers["is"].String())
+
+	if err := ioutil.WriteFile(
+		fmt.Sprintf("%s/classes.go", dir),
+		b.Bytes(), os.ModePerm,
+	); err != nil {
+		return err
+	}
+	return nil
+}
 
 func (g *Generator) generateTypeFile(parentDir string) error {
+	pkg := strings.ToLower(g.config.TokenSubPackage)
+	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	w, b := newBW()
+	w.c("Do not edit. This file is auto-generated.")
+	w.wlnf("package %s", strings.ToLower(pkg))
+	w.ln()
+	w.w(g.writers["tk"].String())
+
+	if err := ioutil.WriteFile(
+		fmt.Sprintf("%s/tokens.go", dir),
+		b.Bytes(), os.ModePerm,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *Generator) generateTokenFile(parentDir string) error {
 	pkg := strings.ToLower(g.config.TypeSubPackage)
 	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {

@@ -34,6 +34,14 @@ func (t *tokenValue) isString() bool {
 	return t.value != "" && t.hexValue == ""
 }
 
+func (g *Generator) tokenNameGenerated(s string) string {
+	s = g.tokenName(s)
+	if pkg := g.config.TokenSubPackage; pkg != "" {
+		return fmt.Sprintf("%s.%s", pkg, s)
+	}
+	return s
+}
+
 func (g *Generator) tokenName(s string) string {
 	if prefix := g.config.TokenPrefix; prefix != "" {
 		prefix := strings.ToUpper(prefix)
