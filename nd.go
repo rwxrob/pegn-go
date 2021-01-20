@@ -16,6 +16,7 @@ func (g *Generator) typeName(s string) string {
 
 func (g *Generator) generateTypes() error {
 	w := g.writers["nd"]
+	var index int
 
 	w.c("Node Types")
 	w.wln("const (")
@@ -26,9 +27,12 @@ func (g *Generator) generateTypes() error {
 
 		if len(g.nodes) != 0 {
 			w.cf("%s (%s)", g.meta.language, g.meta.url)
+			indent := g.longestTypeName() + 1
 			for _, node := range g.nodes {
 				if !node.scan {
-					w.wln(g.typeName(g.nodeName(node.name)))
+					index++
+					w.w(fillRight(g.typeName(g.nodeName(node.name)), indent))
+					w.noIndent().cf("%03d", index)
 				}
 			}
 		}
@@ -38,9 +42,12 @@ func (g *Generator) generateTypes() error {
 				continue
 			}
 			w.cf("%s (%s)", dep.meta.language, dep.meta.url)
+			indent := g.longestTypeName() + 1
 			for _, node := range dep.nodes {
 				if !node.scan {
-					w.wln(dep.typeName(dep.nodeName(node.name)))
+					index++
+					w.w(fillRight(g.typeName(g.nodeName(node.name)), indent))
+					w.noIndent().cf("%03d", index)
 				}
 			}
 		}

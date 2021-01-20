@@ -32,6 +32,18 @@ func (g *Generator) longestTokenValueWithComment(idx int) int {
 	return length
 }
 
+func (g *Generator) longestTypeName() int {
+	var length int
+	for _, node := range g.nodes {
+		if !node.scan {
+			if l := len(g.typeName(g.nodeName(node.name))); length < l {
+				length = l
+			}
+		}
+	}
+	return length
+}
+
 func fillRight(v string, size int) string {
 	return fmt.Sprintf("%s%s", v, strings.Repeat(" ", size-len(v)))
 }
