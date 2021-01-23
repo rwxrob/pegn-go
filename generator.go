@@ -1,4 +1,4 @@
-package pegen
+package pegn
 
 import (
 	"fmt"
@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 )
+
+//go:generate go run gen.go
 
 // Config that offers additional configuration options to the generator.
 type Config struct {

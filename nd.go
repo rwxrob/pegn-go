@@ -1,4 +1,4 @@
-package pegen
+package pegn
 
 import "fmt"
 

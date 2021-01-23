@@ -1,4 +1,4 @@
-package pegen
+package pegn
 
 import (
 	"github.com/di-wu/parser"
@@ -69,5 +69,4 @@ func TestParserFromURLs(t *testing.T) {
 	if n.ValueString() != comment {
 		t.Error(n.ValueString())
 	}
-
 }

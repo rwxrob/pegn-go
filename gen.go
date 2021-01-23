@@ -1,11 +1,16 @@
-package pegn
+// +build ignore
+
+// This program generates the pegn sub-package. It can be invoked by running the
+// go generate command.
+package main
 
 import (
-	"testing"
+	"github.com/pegn/pegn-go"
+	"log"
 )
 
-func TestGenerateFromURLs(t *testing.T) {
-	if err := GenerateFromURLs("pegn/", Config{
+func main() {
+	if err := pegn.GenerateFromURLs("pegn/", pegn.Config{
 		ModulePath:      "github.com/pegn/pegn-go",
 		IgnoreReserved:  true,
 		ClassSubPackage: "is",
@@ -30,7 +35,7 @@ func TestGenerateFromURLs(t *testing.T) {
 		"https://raw.githubusercontent.com/pegn/spec/master/classes/grammar.pegn",
 		"https://raw.githubusercontent.com/pegn/spec/master/tokens/grammar.pegn",
 	}...); err != nil {
-		t.Error(err)
-		return
+		log.Fatal(err)
 	}
+	log.Println("Successfully generated the pegn sub-module.")
 }
