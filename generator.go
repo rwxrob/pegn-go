@@ -471,12 +471,13 @@ func (g *Generator) GenerateBuffers() error {
 
 func (g *Generator) generateHeader(w *writer) {
 	w.c("Do not edit. This file is auto-generated.")
+	version := fmt.Sprintf("%d.%d.%d", g.meta.version.major, g.meta.version.minor, g.meta.version.patch)
+	if pre := g.meta.version.prerelease; pre != "" {
+		version = fmt.Sprintf("%s-%s", version, pre)
+	}
 	w.cf(
-		"Grammar: %s (v%d.%d.%d-%s) %s",
-		g.meta.language,
-		g.meta.version.major, g.meta.version.minor,
-		g.meta.version.patch, g.meta.version.prerelease,
-		g.meta.url,
+		"Grammar: %s (v%s) %s",
+		g.meta.language, version, g.meta.url,
 	)
 	w.wlnf("package %s", strings.ToLower(g.meta.language))
 }
