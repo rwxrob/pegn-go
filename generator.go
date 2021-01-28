@@ -163,6 +163,7 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	w.ln()
 	w.w(g.writers["ast"].String())
 	if g.config.ClassSubPackage == "" {
+		w.ln()
 		w.w(g.writers["is"].String())
 	} else {
 		if err := g.generateClassFile(parentDir); err != nil {
