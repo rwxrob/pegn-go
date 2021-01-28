@@ -118,6 +118,10 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 		return err
 	}
 
+	if config.TypeSubPackage == "" && config.TypeSuffix == "" {
+		return fmt.Errorf("a type suffix should be defined when there is no type sub-package")
+	}
+
 	w, b := newBW()
 	g.generateHeader(w)
 	w.ln()
@@ -158,7 +162,7 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	w.wln(")")
 	w.ln()
 	w.w(g.writers["ast"].String())
-	if g.config.TokenSubPackage == "" {
+	if g.config.ClassSubPackage == "" {
 		w.w(g.writers["is"].String())
 	} else {
 		if err := g.generateClassFile(parentDir); err != nil {
@@ -234,7 +238,7 @@ func (g *Generator) generateClassFile(parentDir string) error {
 	return nil
 }
 
-func (g *Generator) generateTypeFile(parentDir string) error {
+func (g *Generator) generateTokenFile(parentDir string) error {
 	pkg := strings.ToLower(g.config.TokenSubPackage)
 	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -258,7 +262,7 @@ func (g *Generator) generateTypeFile(parentDir string) error {
 	return nil
 }
 
-func (g *Generator) generateTokenFile(parentDir string) error {
+func (g *Generator) generateTypeFile(parentDir string) error {
 	pkg := strings.ToLower(g.config.TypeSubPackage)
 	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
