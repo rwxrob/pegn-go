@@ -140,7 +140,11 @@ func (g *Generator) generateClasses(w *writer) error {
 					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 8)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.String:
-					w.wf("%q", n.ValueString())
+					if v := n.ValueString(); len(v) == 1 {
+						w.wf("'%s'", v)
+					} else {
+						w.wf("%q", v)
+					}
 				default:
 					return fmt.Errorf("unknown class child: %v", nd.NodeTypes[n.Type])
 				}

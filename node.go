@@ -372,7 +372,11 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
 		max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 8)
 		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 	case nd.String:
-		w.wf("%q", n.Value)
+		if v := n.ValueString(); len(v) == 1 {
+			w.wf("'%s'", v)
+		} else {
+			w.wf("%q", v)
+		}
 	case nd.Expression:
 		if err := g.generateExpression(w, n.Children(), indent); err != nil {
 			return err

@@ -201,7 +201,11 @@ func (p *internalParser) generateClasses(g Generator) error {
 						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 8)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
 					case nd.String:
-						or = append(or, parser.CheckString(n.ValueString()))
+						if v := n.ValueString(); len(v) == 1 {
+							or = append(or, parser.CheckRune([]rune(v)[0]))
+						} else {
+							or = append(or, parser.CheckString(v))
+						}
 					default:
 						errChannel <- fmt.Errorf("unknown class child: %v", nd.NodeTypes[n.Type])
 					}
@@ -482,6 +486,9 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 8)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.String:
+		if v := n.ValueString(); len(v) == 1 {
+			return parser.CheckRune([]rune(v)[0]), nil
+		}
 		return parser.CheckString(n.ValueString()), nil
 	case nd.Expression:
 		return p.generateExpression(g, n.Children())

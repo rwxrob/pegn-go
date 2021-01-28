@@ -149,7 +149,7 @@ func Grammar(p *ast.Parser) (*ast.Node, error) {
 			Name,
 			op.Optional(
 				op.And{
-					"-",
+					'-',
 					NameExt,
 				},
 			),
@@ -160,15 +160,15 @@ func Grammar(p *ast.Parser) (*ast.Node, error) {
 func Version(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		op.And{
-			"v",
+			'v',
 			MajorVer,
-			".",
+			'.',
 			MinorVer,
-			".",
+			'.',
 			PatchVer,
 			op.Optional(
 				op.And{
-					"-",
+					'-',
 					PreVer,
 				},
 			),
@@ -385,7 +385,7 @@ func PreVer(p *ast.Parser) (*ast.Node, error) {
 				),
 				op.MinZero(
 					op.And{
-						".",
+						'.',
 						op.MinOne(
 							op.Or{
 								is.Word,
@@ -470,7 +470,7 @@ func Expression(p *ast.Parser) (*ast.Node, error) {
 				op.MinZero(
 					op.And{
 						Spacing,
-						"/",
+						'/',
 						op.MinOne(
 							tk.SP,
 						),
@@ -491,7 +491,7 @@ func ClassExpr(p *ast.Parser) (*ast.Node, error) {
 				op.MinZero(
 					op.And{
 						Spacing,
-						"/",
+						'/',
 						op.MinOne(
 							tk.SP,
 						),
@@ -581,7 +581,7 @@ func PosLook(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.PosLook,
 			Value: op.And{
-				"&",
+				'&',
 				Primary,
 				op.Optional(
 					Quant,
@@ -596,7 +596,7 @@ func NegLook(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.NegLook,
 			Value: op.And{
-				"!",
+				'!',
 				Primary,
 				op.Optional(
 					Quant,
@@ -612,9 +612,9 @@ func Primary(p *ast.Parser) (*ast.Node, error) {
 			Simple,
 			CheckId,
 			op.And{
-				"(",
+				'(',
 				Expression,
-				")",
+				')',
 			},
 		},
 	)
@@ -636,7 +636,7 @@ func Optional(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
 			Type:  nd.Optional,
-			Value: "?",
+			Value: '?',
 		},
 	)
 }
@@ -645,7 +645,7 @@ func MinZero(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
 			Type:  nd.MinZero,
-			Value: "*",
+			Value: '*',
 		},
 	)
 }
@@ -654,7 +654,7 @@ func MinOne(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
 			Type:  nd.MinOne,
-			Value: "+",
+			Value: '+',
 		},
 	)
 }
@@ -664,13 +664,13 @@ func MinMax(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.MinMax,
 			Value: op.And{
-				"{",
+				'{',
 				Min,
-				",",
+				',',
 				op.Optional(
 					Max,
 				),
-				"}",
+				'}',
 			},
 		},
 	)
@@ -701,9 +701,9 @@ func Max(p *ast.Parser) (*ast.Node, error) {
 func Amount(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		op.And{
-			"{",
+			'{',
 			Count,
-			"}",
+			'}',
 		},
 	)
 }
@@ -737,11 +737,11 @@ func UniRange(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.UniRange,
 			Value: op.And{
-				"[",
+				'[',
 				Unicode,
-				"-",
+				'-',
 				Unicode,
-				"]",
+				']',
 			},
 		},
 	)
@@ -752,11 +752,11 @@ func AlphaRange(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.AlphaRange,
 			Value: op.And{
-				"[",
+				'[',
 				Letter,
-				"-",
+				'-',
 				Letter,
-				"]",
+				']',
 			},
 		},
 	)
@@ -767,11 +767,11 @@ func IntRange(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.IntRange,
 			Value: op.And{
-				"[",
+				'[',
 				Integer,
-				"-",
+				'-',
 				Integer,
-				"]",
+				']',
 			},
 		},
 	)
@@ -782,11 +782,11 @@ func BinRange(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.BinRange,
 			Value: op.And{
-				"[",
+				'[',
 				Binary,
-				"-",
+				'-',
 				Binary,
-				"]",
+				']',
 			},
 		},
 	)
@@ -797,11 +797,11 @@ func HexRange(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.HexRange,
 			Value: op.And{
-				"[",
+				'[',
 				Hexadecimal,
-				"-",
+				'-',
 				Hexadecimal,
-				"]",
+				']',
 			},
 		},
 	)
@@ -812,11 +812,11 @@ func OctRange(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.OctRange,
 			Value: op.And{
-				"[",
+				'[',
 				Octal,
-				"-",
+				'-',
 				Octal,
-				"]",
+				']',
 			},
 		},
 	)
@@ -847,7 +847,7 @@ func Unicode(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.Unicode,
 			Value: op.And{
-				"u",
+				'u',
 				op.Or{
 					op.And{
 						"10",
@@ -880,7 +880,7 @@ func Binary(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.Binary,
 			Value: op.And{
-				"b",
+				'b',
 				op.MinOne(
 					is.BinDig,
 				),
@@ -894,7 +894,7 @@ func Hexadecimal(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.Hexadecimal,
 			Value: op.And{
-				"x",
+				'x',
 				op.MinOne(
 					is.UpHex,
 				),
@@ -908,7 +908,7 @@ func Octal(p *ast.Parser) (*ast.Node, error) {
 		ast.Capture{
 			Type: nd.Octal,
 			Value: op.And{
-				"o",
+				'o',
 				op.MinOne(
 					is.OctDig,
 				),
