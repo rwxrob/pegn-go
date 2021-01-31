@@ -93,7 +93,7 @@ func (g *Generator) generateNodes(w *writer) error {
 					{
 						w := w.indent()
 						w.wlnf("Type:        %s,", g.typeNameGenerated(g.nodeName(node.name)))
-						w.wlnf("TypeStrings: %s,", g.typeNameGenerated("NodeTypes"))
+						w.wlnf("TypeStrings: %s,", g.typePrefix("NodeTypes"))
 						w.w("Value: ")
 						if len(node.expression) == 1 {
 							if singleNestedValue(node.expression[0]) {

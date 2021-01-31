@@ -2,6 +2,13 @@ package pegn
 
 import "fmt"
 
+func (g *Generator) typePrefix(s string) string {
+	if pkg := g.config.TypeSubPackage; pkg != "" {
+		return fmt.Sprintf("%s.%s", pkg, s)
+	}
+	return s
+}
+
 func (g *Generator) typeNameGenerated(s string) string {
 	s = g.typeName(s)
 	if pkg := g.config.TypeSubPackage; pkg != "" {
