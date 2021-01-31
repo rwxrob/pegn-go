@@ -15,7 +15,7 @@ func main() {
 		IgnoreReserved:  true,
 		ClassSubPackage: "is",
 		TokenSubPackage: "tk",
-		TypeSubPackage: "nd",
+		TypeSubPackage:  "nd",
 		ClassAliases: map[string]string{
 			"alphanum": "AlphaNum",
 			"unipoint": "UniPoint",

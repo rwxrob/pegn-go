@@ -357,7 +357,7 @@ func newGenerator(rawGrammar []byte, config Config) (Generator, error) {
 	}
 	// 3. Check whether the whole file is parsed correctly.
 	if _, err := p.Expect(parser.EOD); err != nil {
-		return Generator{}, fmt.Errorf("parser could not read the entire file")
+		return Generator{}, fmt.Errorf("parser could not read the entire file: %s", err.Error())
 	}
 
 	return Generator{

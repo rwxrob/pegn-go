@@ -92,14 +92,14 @@ func (g *Generator) generateNodes(w *writer) error {
 					w.wln("ast.Capture{")
 					{
 						w := w.indent()
-						w.w("Type: ")
+						w.wlnf("Type:        %s,", g.typeNameGenerated(g.nodeName(node.name)))
+						w.wlnf("TypeStrings: %s,", g.typeNameGenerated("NodeTypes"))
+						w.w("Value: ")
 						if len(node.expression) == 1 {
 							if singleNestedValue(node.expression[0]) {
-								w.noIndent().w(" ") // To align with 'Value: '
+								w.noIndent().w("      ") // To align with Type(Strings)
 							}
 						}
-						w.noIndent().wlnf("%s,", g.typeNameGenerated(g.nodeName(node.name)))
-						w.w("Value: ")
 						if err := g.generateExpression(w, node.expression, false); err != nil {
 							return err
 						}
