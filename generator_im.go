@@ -86,7 +86,6 @@ func (p *internalParser) generateTokens(g Generator) error {
 				and = append(and, i)
 			}
 		}
-
 		p.RWMutex.Lock()
 		if len(and) == 1 {
 			p.Tokens[token.name] = and[0]
@@ -95,7 +94,6 @@ func (p *internalParser) generateTokens(g Generator) error {
 		}
 		p.RWMutex.Unlock()
 	}
-
 	for _, dep := range g.dependencies {
 		if err := p.generateTokens(dep); err != nil {
 			return err
@@ -131,31 +129,10 @@ func (p *internalParser) generateClasses(g Generator) error {
 						or = append(or, i)
 					case nd.ClassId, nd.ResClassId:
 						name := g.className(n.ValueString())
-
-						p.RWMutex.RLock()
-						if class, ok := p.Classes[name]; ok {
-							or = append(or, class)
-						}
-						p.RWMutex.RUnlock()
-
-						var wg sync.WaitGroup
-						wg.Add(1)
-						go func(name string) {
-							defer wg.Done()
-							for {
-								p.RWMutex.RLock()
-								v := p.Classes[name]
-								p.RWMutex.RUnlock()
-								if v != nil {
-									break
-								}
-							}
-						}(name)
-						wg.Wait()
-
-						p.RWMutex.RLock()
-						or = append(or, p.Classes[name])
-						p.RWMutex.RUnlock()
+						or = append(or, ast.LoopUp{
+							Key:   name,
+							Table: &p.Nodes,
+						})
 					case nd.TokenId, nd.ResTokenId:
 						name := g.tokenName(n.ValueString())
 
