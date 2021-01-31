@@ -171,55 +171,88 @@ func UniPoint(p *parser.Parser) (*parser.Cursor, bool) {
 }
 
 func Ucontrol(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
-}
-
-func Udigit(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcCc,
+		UcCf,
+		UcCo,
+		UcCs,
+	})
 }
 
 func Ugraphic(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		Uprint,
+		UcZs,
+	})
 }
 
 func Uletter(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
-}
-
-func Ulower(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcLl,
+		UcLm,
+		UcLo,
+		UcLt,
+		UcLu,
+	})
 }
 
 func Umark(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcMc,
+		UcMe,
+		UcMn,
+	})
 }
 
 func Unumber(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcNd,
+		UcNl,
+		UcNo,
+	})
 }
 
 func Uprint(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		Uletter,
+		Umark,
+		Unumber,
+		Upunct,
+		Usymbol,
+	})
 }
 
 func Upunct(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcPc,
+		UcPd,
+		UcPe,
+		UcPf,
+		UcPi,
+		UcPo,
+		UcPs,
+	})
 }
 
 func Uspace(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcZl,
+		UcZp,
+		UcZs,
+	})
 }
 
 func Usymbol(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+	return p.Check(op.Or{
+		UcSc,
+		UcSk,
+		UcSm,
+		UcSo,
+	})
 }
 
-func Utitle(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
-}
-
-func Uupper(p *parser.Parser) (*parser.Cursor, bool) {
-	return p.Check(tk.TODO)
+func UcCc(p *parser.Parser) (*parser.Cursor, bool) {
+	return p.Check(parser.CheckRuneRange(0x0000, 0x001F))
 }
 
 func UcCf(p *parser.Parser) (*parser.Cursor, bool) {
