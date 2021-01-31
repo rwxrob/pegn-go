@@ -3,8 +3,6 @@ package tk
 
 // Token Definitions
 const (
-	TODO = '\u0000' // TODO: remove this.
-
 	// PEGN-tokens (spec.pegn.dev/tokens)
 	TAB       = 0x0009 // "\t"
 	LF        = 0x000A // "\n" (line feed)

@@ -57,7 +57,6 @@ func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (InM
 			Nodes:   make(map[string]interface{}),
 		},
 	}
-	p.Tokens["TODO"] = '\u0000' // TODO: remove me
 
 	if err := p.generateTokens(g); err != nil {
 		return InMemoryParser{}, err

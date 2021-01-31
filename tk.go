@@ -139,13 +139,6 @@ func (g *Generator) generateTokens() error {
 	w.wln("const (")
 	{
 		w := w.indent()
-		w.w("TODO = '\\u0000'")
-		{
-			w := w.noIndent()
-			w.w(" ")
-			w.c("TODO: remove this.")
-		}
-		w.ln()
 
 		if len(g.tokens) != 0 {
 			w.cf("%s (%s)", g.meta.language, g.meta.url)
