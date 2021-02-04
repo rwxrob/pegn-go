@@ -60,7 +60,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 		switch n.Type {
 		case nd.Comment:
 			// ComEndLine
-			token.comment = n.ValueString()
+			token.comment = n.Value
 		case nd.EndLine:
 			// Ignore this.
 
@@ -76,7 +76,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
 		case nd.Unicode, nd.Hexadecimal:
-			hex, err := ConvertToHex(n.ValueString()[1:], 16)
+			hex, err := ConvertToHex(n.Value[1:], 16)
 			if err != nil {
 				return err
 			}
@@ -84,7 +84,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 				hexValue: hex,
 			})
 		case nd.Binary:
-			hex, err := ConvertToHex(n.ValueString()[1:], 2)
+			hex, err := ConvertToHex(n.Value[1:], 2)
 			if err != nil {
 				return err
 			}
@@ -92,7 +92,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 				hexValue: hex,
 			})
 		case nd.Octal:
-			hex, err := ConvertToHex(n.ValueString()[1:], 8)
+			hex, err := ConvertToHex(n.Value[1:], 8)
 			if err != nil {
 				return err
 			}
@@ -101,7 +101,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			})
 		case nd.String:
 			values = append(values, tokenValue{
-				value: n.ValueString(),
+				value: n.Value,
 			})
 		default:
 			return fmt.Errorf("unknown token child: %v", nd.NodeTypes[n.Type])

@@ -66,7 +66,7 @@ func TestParserFromURLs(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if n.ValueString() != comment {
-		t.Error(n.ValueString())
+	if n.Value != comment {
+		t.Error(n.Value)
 	}
 }

@@ -84,13 +84,13 @@ func (g *Generator) generateClasses(w *writer) error {
 					// Ignore these.
 					continue
 				case nd.Unicode, nd.Hexadecimal:
-					v, _ := ConvertToRuneString(n.ValueString()[1:], 16)
+					v, _ := ConvertToRuneString(n.Value[1:], 16)
 					w.w(v)
 				case nd.Binary:
-					v, _ := ConvertToRuneString(n.ValueString()[1:], 2)
+					v, _ := ConvertToRuneString(n.Value[1:], 2)
 					w.w(v)
 				case nd.Octal:
-					v, _ := ConvertToRuneString(n.ValueString()[1:], 8)
+					v, _ := ConvertToRuneString(n.Value[1:], 8)
 					w.w(v)
 				case nd.ClassId, nd.ResClassId:
 					id, err := g.GetID(n)
@@ -111,8 +111,8 @@ func (g *Generator) generateClasses(w *writer) error {
 					w.wf("parser.CheckRuneRange('%s', '%s')", min, max)
 				case nd.IntRange:
 					// IntRange <-- '[' Integer '-' Integer ']'
-					min, _ := strconv.Atoi(n.Children()[0].ValueString())
-					max, _ := strconv.Atoi(n.Children()[1].ValueString())
+					min, _ := strconv.Atoi(n.Children()[0].Value)
+					max, _ := strconv.Atoi(n.Children()[1].Value)
 					if min < 0 {
 						return fmt.Errorf("int range is negative: [%v-%v]", min, max)
 					}
@@ -126,21 +126,21 @@ func (g *Generator) generateClasses(w *writer) error {
 				case nd.UniRange, nd.HexRange:
 					// UniRange <-- '[' Unicode '-' Unicode ']'
 					// HexRange <-- '[' Hexadec '-' Hexadec ']'
-					min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 16)
-					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 16)
+					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 16)
+					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 16)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.BinRange:
 					// BinRange <-- '[' Binary '-' Binary ']'
-					min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 2)
-					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 2)
+					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 2)
+					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 2)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.OctRange:
 					// OctRange <-- '[' Octal '-' Octal ']'
-					min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 8)
-					max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 8)
+					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 8)
+					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 8)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.String:
-					if v := n.ValueString(); len(v) == 1 {
+					if v := n.Value; len(v) == 1 {
 						w.wf("'%s'", v)
 					} else {
 						w.wf("%q", v)

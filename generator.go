@@ -385,26 +385,26 @@ func (g *Generator) prepare() error {
 			for _, n := range n.Children() {
 				switch n.Type {
 				case nd.Name:
-					g.meta.language = n.ValueString()
+					g.meta.language = n.Value
 				case nd.NameExt:
-					g.meta.language += fmt.Sprintf("-%s", n.ValueString())
+					g.meta.language += fmt.Sprintf("-%s", n.Value)
 				case nd.MajorVer:
-					g.meta.version.major, _ = strconv.Atoi(n.ValueString())
+					g.meta.version.major, _ = strconv.Atoi(n.Value)
 				case nd.MinorVer:
-					g.meta.version.minor, _ = strconv.Atoi(n.ValueString())
+					g.meta.version.minor, _ = strconv.Atoi(n.Value)
 				case nd.PatchVer:
-					g.meta.version.patch, _ = strconv.Atoi(n.ValueString())
+					g.meta.version.patch, _ = strconv.Atoi(n.Value)
 				case nd.PreVer:
-					g.meta.version.prerelease = n.ValueString()
+					g.meta.version.prerelease = n.Value
 				case nd.Home:
-					g.meta.url = n.ValueString()
+					g.meta.url = n.Value
 				}
 			}
 		case nd.Copyright:
 			// Copyright <-- '# Copyright ' Comment EndLine
 			for _, n := range n.Children() {
 				if n.Type == nd.Comment {
-					g.copyright = n.ValueString()
+					g.copyright = n.Value
 					break
 				}
 			}
@@ -412,14 +412,14 @@ func (g *Generator) prepare() error {
 			// Licensed <-- '# Licensed under ' Comment EndLine
 			for _, n := range n.Children() {
 				if n.Type == nd.Comment {
-					g.license = n.ValueString()
+					g.license = n.Value
 					break
 				}
 			}
 		case nd.Uses:
 			for _, n := range n.Children() {
 				if n.Type == nd.Path {
-					g.dependencyURLs = append(g.dependencyURLs, n.ValueString())
+					g.dependencyURLs = append(g.dependencyURLs, n.Value)
 					break
 				}
 			}

@@ -1,4 +1,2 @@
-github.com/di-wu/parser v0.1.6 h1:RSVcOc1vFDpQVaMMwY/EKr1k7Ucj4L2NSI9IWaIk6cU=
-github.com/di-wu/parser v0.1.6/go.mod h1:SLp58pW6WamdmznrVRrw2NTyn4wAvT9rrEFynKX7nYo=
-github.com/di-wu/parser v0.1.7-0.20210126161304-f6b1ca6c9a58 h1:pJHgccxvp3/y9fJbaHLS6C7UxoXFjxknrL1PdHLWfVM=
-github.com/di-wu/parser v0.1.7-0.20210126161304-f6b1ca6c9a58/go.mod h1:SLp58pW6WamdmznrVRrw2NTyn4wAvT9rrEFynKX7nYo=
+github.com/di-wu/parser v0.2.0 h1:7+LCbXB+s5xISNizPP23JEk1nOZ55fRYLlQWfVPSc6Y=
+github.com/di-wu/parser v0.2.0/go.mod h1:SLp58pW6WamdmznrVRrw2NTyn4wAvT9rrEFynKX7nYo=

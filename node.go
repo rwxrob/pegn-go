@@ -41,7 +41,7 @@ func (g *Generator) parseNode(n *ast.Node) error {
 			// Ignore these.
 			continue
 		case nd.CheckId:
-			node.name = n.ValueString()
+			node.name = n.Value
 
 		// Expression <-- Sequence (Spacing '/' SP+ Sequence)*
 		case nd.Expression:
@@ -64,7 +64,7 @@ func (g *Generator) parseScan(n *ast.Node) error {
 			// Ignore these.
 			continue
 		case nd.CheckId:
-			scan.name = n.ValueString()
+			scan.name = n.Value
 		case nd.Expression:
 			// Expression <-- Sequence (Spacing '/' SP+ Sequence)*
 			scan.expression = n.Children()
@@ -239,8 +239,8 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent boo
 						}
 						w.wln("),")
 					case nd.MinMax:
-						min := q.Children()[0].ValueString()
-						max := q.Children()[1].ValueString()
+						min := q.Children()[0].Value
+						max := q.Children()[1].Value
 						if !indent {
 							w.noIndent().wlnf("op.MinMax(%s, %s,", min, max)
 							indent = true
@@ -252,7 +252,7 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent boo
 						}
 						w.wln("),")
 					case nd.Count:
-						min := q.ValueString()
+						min := q.Value
 						if !indent {
 							w.noIndent().wlnf("op.Repeat(%s,", min)
 							indent = true
@@ -314,16 +314,16 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
 	case nd.Comment, nd.EndLine:
 		// Ignore these.
 	case nd.Unicode, nd.Hexadecimal:
-		v, _ := ConvertToRuneString(n.ValueString()[1:], 16)
+		v, _ := ConvertToRuneString(n.Value[1:], 16)
 		w.w(v)
 	case nd.Binary:
-		v, _ := ConvertToRuneString(n.ValueString()[1:], 2)
+		v, _ := ConvertToRuneString(n.Value[1:], 2)
 		w.w(v)
 	case nd.Octal:
-		v, _ := ConvertToRuneString(n.ValueString()[1:], 8)
+		v, _ := ConvertToRuneString(n.Value[1:], 8)
 		w.w(v)
 	case nd.ClassId, nd.ResClassId:
-		w.w(g.classNameGenerated(n.ValueString()))
+		w.w(g.classNameGenerated(n.Value))
 	case nd.CheckId:
 		id, err := g.GetID(n)
 		if err != nil {
@@ -343,8 +343,8 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
 		w.wf("parser.CheckRuneRange('%s', '%s')", min, max)
 	case nd.IntRange:
 		// IntRange <-- '[' Integer '-' Integer ']'
-		min, _ := strconv.Atoi(n.Children()[0].ValueString())
-		max, _ := strconv.Atoi(n.Children()[1].ValueString())
+		min, _ := strconv.Atoi(n.Children()[0].Value)
+		max, _ := strconv.Atoi(n.Children()[1].Value)
 		if min < 0 {
 			return fmt.Errorf("int range is negative: [%v-%v]", min, max)
 		}
@@ -358,21 +358,21 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
 	case nd.UniRange, nd.HexRange:
 		// UniRange <-- '[' Unicode '-' Unicode ']'
 		// HexRange <-- '[' Hexadec '-' Hexadec ']'
-		min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 16)
-		max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 16)
+		min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 16)
+		max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 16)
 		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 	case nd.BinRange:
 		// BinRange <-- '[' Binary '-' Binary ']'
-		min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 2)
-		max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 2)
+		min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 2)
+		max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 2)
 		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 	case nd.OctRange:
 		// OctRange <-- '[' Octal '-' Octal ']'
-		min, _ := ConvertToRuneString(n.Children()[0].ValueString()[1:], 8)
-		max, _ := ConvertToRuneString(n.Children()[1].ValueString()[1:], 8)
+		min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 8)
+		max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 8)
 		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 	case nd.String:
-		if v := n.ValueString(); len(v) == 1 {
+		if v := n.Value; len(v) == 1 {
 			w.wf("'%s'", v)
 		} else {
 			w.wf("%q", v)

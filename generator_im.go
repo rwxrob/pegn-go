@@ -119,22 +119,22 @@ func (p *internalParser) generateClasses(g Generator) error {
 						// Ignore these.
 						return
 					case nd.Unicode, nd.Hexadecimal:
-						i, _ := ConvertToInt(n.ValueString()[1:], 16)
+						i, _ := ConvertToInt(n.Value[1:], 16)
 						or = append(or, i)
 					case nd.Binary:
-						i, _ := ConvertToInt(n.ValueString()[1:], 2)
+						i, _ := ConvertToInt(n.Value[1:], 2)
 						or = append(or, i)
 					case nd.Octal:
-						i, _ := ConvertToInt(n.ValueString()[1:], 8)
+						i, _ := ConvertToInt(n.Value[1:], 8)
 						or = append(or, i)
 					case nd.ClassId, nd.ResClassId:
-						name := g.className(n.ValueString())
+						name := g.className(n.Value)
 						or = append(or, ast.LoopUp{
 							Key:   name,
 							Table: &p.Nodes,
 						})
 					case nd.TokenId, nd.ResTokenId:
-						name := g.tokenName(n.ValueString())
+						name := g.tokenName(n.Value)
 
 						p.RWMutex.RLock()
 						if token, ok := p.Tokens[name]; ok {
@@ -161,23 +161,23 @@ func (p *internalParser) generateClasses(g Generator) error {
 						or = append(or, p.Tokens[name])
 						p.RWMutex.RUnlock()
 					case nd.AlphaRange, nd.IntRange:
-						min := rune(n.Children()[0].ValueString()[0])
-						max := rune(n.Children()[1].ValueString()[0])
+						min := rune(n.Children()[0].Value[0])
+						max := rune(n.Children()[1].Value[0])
 						or = append(or, parser.CheckRuneRange(min, max))
 					case nd.UniRange, nd.HexRange:
-						min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 16)
-						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 16)
+						min, _ := ConvertToInt(n.Children()[0].Value[1:], 16)
+						max, _ := ConvertToInt(n.Children()[1].Value[1:], 16)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
 					case nd.BinRange:
-						min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 2)
-						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 2)
+						min, _ := ConvertToInt(n.Children()[0].Value[1:], 2)
+						max, _ := ConvertToInt(n.Children()[1].Value[1:], 2)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
 					case nd.OctRange:
-						min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 8)
-						max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 8)
+						min, _ := ConvertToInt(n.Children()[0].Value[1:], 8)
+						max, _ := ConvertToInt(n.Children()[1].Value[1:], 8)
 						or = append(or, parser.CheckRuneRange(rune(min), rune(max)))
 					case nd.String:
-						if v := n.ValueString(); len(v) == 1 {
+						if v := n.Value; len(v) == 1 {
 							or = append(or, parser.CheckRune([]rune(v)[0]))
 						} else {
 							or = append(or, parser.CheckString(v))
@@ -329,11 +329,11 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 				case nd.MinOne:
 					and = append(and, op.MinOne(i))
 				case nd.MinMax:
-					min, _ := strconv.Atoi(q.Children()[0].ValueString())
-					max, _ := strconv.Atoi(q.Children()[1].ValueString())
+					min, _ := strconv.Atoi(q.Children()[0].Value)
+					max, _ := strconv.Atoi(q.Children()[1].Value)
 					and = append(and, op.MinMax(min, max, i))
 				case nd.Count:
-					min, _ := strconv.Atoi(q.ValueString())
+					min, _ := strconv.Atoi(q.Value)
 					and = append(and, op.Repeat(min, i))
 				default:
 					return nil, fmt.Errorf("unknown quant child: %v", nd.NodeTypes[n.Type])
@@ -373,16 +373,16 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		// Ignore these.
 		return nil, nil
 	case nd.Unicode, nd.Hexadecimal:
-		i, _ := ConvertToInt(n.ValueString()[1:], 16)
+		i, _ := ConvertToInt(n.Value[1:], 16)
 		return i, nil
 	case nd.Binary:
-		i, _ := ConvertToInt(n.ValueString()[1:], 2)
+		i, _ := ConvertToInt(n.Value[1:], 2)
 		return i, nil
 	case nd.Octal:
-		i, _ := ConvertToInt(n.ValueString()[1:], 8)
+		i, _ := ConvertToInt(n.Value[1:], 8)
 		return i, nil
 	case nd.ClassId, nd.ResClassId:
-		name := g.className(n.ValueString())
+		name := g.className(n.Value)
 
 		p.RWMutex.RLock()
 		if class, ok := p.Classes[name]; ok {
@@ -411,7 +411,7 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		p.RWMutex.RUnlock()
 		return i, nil
 	case nd.TokenId, nd.ResTokenId:
-		name := g.tokenName(n.ValueString())
+		name := g.tokenName(n.Value)
 
 		p.RWMutex.RLock()
 		if class, ok := p.Tokens[name]; ok {
@@ -440,32 +440,32 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		p.RWMutex.RUnlock()
 		return i, nil
 	case nd.CheckId:
-		name := g.nodeName(n.ValueString())
+		name := g.nodeName(n.Value)
 		return ast.LoopUp{
 			Key:   name,
 			Table: &p.Nodes,
 		}, nil
 	case nd.AlphaRange, nd.IntRange:
-		min := rune(n.Children()[0].ValueString()[0])
-		max := rune(n.Children()[1].ValueString()[0])
+		min := rune(n.Children()[0].Value[0])
+		max := rune(n.Children()[1].Value[0])
 		return parser.CheckRuneRange(min, max), nil
 	case nd.UniRange, nd.HexRange:
-		min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 16)
-		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 16)
+		min, _ := ConvertToInt(n.Children()[0].Value[1:], 16)
+		max, _ := ConvertToInt(n.Children()[1].Value[1:], 16)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.BinRange:
-		min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 2)
-		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 2)
+		min, _ := ConvertToInt(n.Children()[0].Value[1:], 2)
+		max, _ := ConvertToInt(n.Children()[1].Value[1:], 2)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.OctRange:
-		min, _ := ConvertToInt(n.Children()[0].ValueString()[1:], 8)
-		max, _ := ConvertToInt(n.Children()[1].ValueString()[1:], 8)
+		min, _ := ConvertToInt(n.Children()[0].Value[1:], 8)
+		max, _ := ConvertToInt(n.Children()[1].Value[1:], 8)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.String:
-		if v := n.ValueString(); len(v) == 1 {
+		if v := n.Value; len(v) == 1 {
 			return parser.CheckRune([]rune(v)[0]), nil
 		}
-		return parser.CheckString(n.ValueString()), nil
+		return parser.CheckString(n.Value), nil
 	case nd.Expression:
 		return p.generateExpression(g, n.Children())
 	default:

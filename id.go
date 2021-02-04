@@ -18,7 +18,7 @@ func (r *ReservedIdentifierError) Error() string {
 // be of type nd.ClassId or nd.TokenId. If the generator is configured to return an error on
 // reserved classes then this will get appended to the generator errors list.
 func (g *Generator) GetID(n *ast.Node) (string, error) {
-	id := n.ValueString()
+	id := n.Value
 	switch n.Type {
 	case nd.CheckId:
 		return g.nodeName(id), nil
@@ -32,7 +32,7 @@ func (g *Generator) GetID(n *ast.Node) (string, error) {
 		}
 		return g.className(id), nil
 	case nd.TokenId:
-		return g.tokenName(n.ValueString()), nil
+		return g.tokenName(n.Value), nil
 	case nd.ResTokenId:
 		if !g.config.IgnoreReserved {
 			return id, &ReservedIdentifierError{
@@ -47,7 +47,7 @@ func (g *Generator) GetID(n *ast.Node) (string, error) {
 func (g *Generator) getID(n *ast.Node) (string, error) {
 	// 1. Reserved class identifier.
 	if len(n.Children()) != 0 {
-		id := n.Children()[0].ValueString()
+		id := n.Children()[0].Value
 		if !g.config.IgnoreReserved {
 			return id, &ReservedIdentifierError{
 				identifier: id,
@@ -56,5 +56,5 @@ func (g *Generator) getID(n *ast.Node) (string, error) {
 		return id, nil
 	}
 	// Normal token identifier.
-	return n.ValueString(), nil
+	return n.Value, nil
 }
