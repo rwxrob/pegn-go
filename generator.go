@@ -162,20 +162,24 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	w.wln(")")
 	w.ln()
 	w.w(g.writers["ast"].String())
-	if g.config.ClassSubPackage == "" {
-		w.ln()
-		w.w(g.writers["is"].String())
-	} else {
-		if err := g.generateClassFile(parentDir); err != nil {
-			return err
+	if classes := g.writers["is"].String(); len(classes) != 0 {
+		if g.config.ClassSubPackage == "" {
+			w.ln()
+			w.w(g.writers["is"].String())
+		} else {
+			if err := g.generateClassFile(parentDir); err != nil {
+				return err
+			}
 		}
 	}
-	if g.config.TokenSubPackage == "" {
-		w.ln()
-		w.w(g.writers["tk"].String())
-	} else {
-		if err := g.generateTokenFile(parentDir); err != nil {
-			return err
+	if tokens := g.writers["tk"].String(); len(tokens) != 0 {
+		if g.config.TokenSubPackage == "" {
+			w.ln()
+			w.w(tokens)
+		} else {
+			if err := g.generateTokenFile(parentDir); err != nil {
+				return err
+			}
 		}
 	}
 	if g.config.TypeSubPackage == "" {

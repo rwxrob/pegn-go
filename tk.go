@@ -135,6 +135,20 @@ func (g *Generator) parseToken(n *ast.Node) error {
 func (g *Generator) generateTokens() error {
 	w := g.writers["tk"]
 
+	// Check whether the grammar has tokens.
+	var containsTokens bool
+	if len(g.tokens) != 0 {
+		containsTokens = true
+	}
+	for _, dep := range g.dependencies {
+		if len(dep.tokens) != 0 {
+			containsTokens = true
+		}
+	}
+	if !containsTokens {
+		return nil
+	}
+
 	w.c("Token Definitions")
 	w.wln("const (")
 	{
