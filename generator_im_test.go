@@ -35,9 +35,9 @@ func TestParserFromURLs(t *testing.T) {
 	}
 
 	var (
-		alpha  = p.Classes["Alpha"]
-		ap, _  = parser.New([]byte("abc"))
-		m, err = ap.Expect(alpha)
+		alpha, _ = p.GetClassDef("Alpha")
+		ap, _    = parser.New([]byte("abc"))
+		m, err   = ap.Expect(alpha)
 	)
 	for {
 		tmp, err := ap.Expect(alpha)
@@ -55,9 +55,9 @@ func TestParserFromURLs(t *testing.T) {
 	}
 
 	var (
-		comEndLine = p.Nodes["ComEndLine"]
-		comment    = "# A comment.\n"
-		ap_, _     = ast.New([]byte(comment))
+		comEndLine, _ = p.GetNodeDef("ComEndLine")
+		comment       = "# A comment.\n"
+		ap_, _        = ast.New([]byte(comment))
 	)
 	n, err := ap_.Expect(ast.Capture{
 		Value: comEndLine,

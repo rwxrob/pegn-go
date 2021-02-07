@@ -5,9 +5,9 @@ import (
 )
 
 func ExampleConvertToHex() {
-	fmt.Println(ConvertToHex("001010", 2))
-	fmt.Println(ConvertToHex("000012", 8))
-	fmt.Println(ConvertToHex("000010", 10))
+	fmt.Println(convertToHex("001010", 2))
+	fmt.Println(convertToHex("000012", 8))
+	fmt.Println(convertToHex("000010", 10))
 
 	// Output:
 	// 0A <nil>
@@ -16,8 +16,8 @@ func ExampleConvertToHex() {
 }
 
 func ExampleConvert_binary() {
-	fmt.Println(Convert("1010", 2, 16))
-	fmt.Println(Convert("0001", 2, 10))
+	fmt.Println(convert("1010", 2, 16))
+	fmt.Println(convert("0001", 2, 10))
 
 	// Output:
 	// A <nil>
@@ -25,8 +25,8 @@ func ExampleConvert_binary() {
 }
 
 func ExampleConvert_hex() {
-	fmt.Println(Convert("A", 16, 10))
-	fmt.Println(Convert("FF", 16, 10))
+	fmt.Println(convert("A", 16, 10))
+	fmt.Println(convert("FF", 16, 10))
 
 	// Output:
 	// 10 <nil>
@@ -34,8 +34,8 @@ func ExampleConvert_hex() {
 }
 
 func ExampleConvert_oct() {
-	fmt.Println(Convert("12", 8, 10))
-	fmt.Println(Convert("12", 8, 16))
+	fmt.Println(convert("12", 8, 10))
+	fmt.Println(convert("12", 8, 16))
 
 	// Output:
 	// 10 <nil>

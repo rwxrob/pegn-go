@@ -7,8 +7,8 @@ import (
 	"unicode/utf8"
 )
 
-// Convert changes the given string from one base to another.
-func Convert(v string, from, to int) (string, error) {
+// convert changes the given string from one base to another.
+func convert(v string, from, to int) (string, error) {
 	i, err := strconv.ParseInt(v, from, 64)
 	if err != nil {
 		return "", err
@@ -16,9 +16,9 @@ func Convert(v string, from, to int) (string, error) {
 	return strings.ToUpper(strconv.FormatInt(i, to)), nil
 }
 
-// Convert changes the given string in the given base to hex.
-func ConvertToHex(v string, base int) (string, error) {
-	hex, err := Convert(v, base, 16)
+// convert changes the given string in the given base to hex.
+func convertToHex(v string, base int) (string, error) {
+	hex, err := convert(v, base, 16)
 	if err != nil {
 		return "", err
 	}
@@ -28,15 +28,15 @@ func ConvertToHex(v string, base int) (string, error) {
 	return hex, nil
 }
 
-// ConvertToInt changes the given string in the given base to an integer.
-func ConvertToInt(v string, base int) (int, error) {
+// convertToInt changes the given string in the given base to an integer.
+func convertToInt(v string, base int) (int, error) {
 	i, err := strconv.ParseInt(v, base, 64)
 	return int(i), err
 }
 
-func ConvertToRuneString(v string, base int) (string, error) {
+func convertToRuneString(v string, base int) (string, error) {
 	// Hex: (00)07
-	value, err := ConvertToHex(v, base)
+	value, err := convertToHex(v, base)
 	if err != nil {
 		return "", err
 	}

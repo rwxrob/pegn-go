@@ -67,7 +67,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 		case nd.TokenId, nd.ResTokenId:
 			// TokenId    <-- upper (upper / UNDER upper)+
 			// ResTokenId <-- 'TAB' / 'CRLF' / 'CR' / etc...
-			id, err := g.GetID(n)
+			id, err := g.getID(n)
 			if err != nil {
 				return err
 			}
@@ -76,7 +76,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 		// TokenVal (Spacing TokenVal)*
 		// TokenVal <- Unicode / Binary / Hexadec / Octal / SQ String SQ
 		case nd.Unicode, nd.Hexadecimal:
-			hex, err := ConvertToHex(n.Value[1:], 16)
+			hex, err := convertToHex(n.Value[1:], 16)
 			if err != nil {
 				return err
 			}
@@ -84,7 +84,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 				hexValue: hex,
 			})
 		case nd.Binary:
-			hex, err := ConvertToHex(n.Value[1:], 2)
+			hex, err := convertToHex(n.Value[1:], 2)
 			if err != nil {
 				return err
 			}
@@ -92,7 +92,7 @@ func (g *Generator) parseToken(n *ast.Node) error {
 				hexValue: hex,
 			})
 		case nd.Octal:
-			hex, err := ConvertToHex(n.Value[1:], 8)
+			hex, err := convertToHex(n.Value[1:], 8)
 			if err != nil {
 				return err
 			}
@@ -115,14 +115,14 @@ func (g *Generator) parseToken(n *ast.Node) error {
 			// Strings: "value"
 			token.value = fmt.Sprintf("%q", tk.value)
 		} else {
-			token.value, _ = ConvertToRuneString(tk.hexValue, 16)
+			token.value, _ = convertToRuneString(tk.hexValue, 16)
 		}
 	} else {
 		for _, tk := range values {
 			if tk.isString() {
 				token.value += tk.value
 			} else {
-				v, _ := ConvertToInt(tk.hexValue, 16)
+				v, _ := convertToInt(tk.hexValue, 16)
 				token.value += string(rune(v))
 			}
 		}

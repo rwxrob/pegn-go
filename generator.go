@@ -196,6 +196,7 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 		b.Bytes(), os.ModePerm,
 	)
 }
+
 func (g *Generator) generateClassFile(parentDir string) error {
 	pkg := strings.ToLower(g.config.ClassSubPackage)
 	dir := fmt.Sprintf("%s/%s", parentDir, pkg)

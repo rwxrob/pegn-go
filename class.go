@@ -41,7 +41,7 @@ func (g *Generator) parseClass(n *ast.Node) error {
 		case nd.ClassId, nd.ResClassId:
 			// ClassId    <-- lower (lower / UNDER lower)+
 			// ResClassId <-- 'alphanum' / 'alpha' / 'any' / etc...
-			name, err := g.GetID(n)
+			name, err := g.getID(n)
 			if err != nil {
 				return err
 			}
@@ -84,22 +84,22 @@ func (g *Generator) generateClasses(w *writer) error {
 					// Ignore these.
 					continue
 				case nd.Unicode, nd.Hexadecimal:
-					v, _ := ConvertToRuneString(n.Value[1:], 16)
+					v, _ := convertToRuneString(n.Value[1:], 16)
 					w.w(v)
 				case nd.Binary:
-					v, _ := ConvertToRuneString(n.Value[1:], 2)
+					v, _ := convertToRuneString(n.Value[1:], 2)
 					w.w(v)
 				case nd.Octal:
-					v, _ := ConvertToRuneString(n.Value[1:], 8)
+					v, _ := convertToRuneString(n.Value[1:], 8)
 					w.w(v)
 				case nd.ClassId, nd.ResClassId:
-					id, err := g.GetID(n)
+					id, err := g.getID(n)
 					if err != nil {
 						return err
 					}
 					w.w(id)
 				case nd.TokenId, nd.ResTokenId:
-					id, err := g.GetID(n)
+					id, err := g.getID(n)
 					if err != nil {
 						return err
 					}
@@ -126,18 +126,18 @@ func (g *Generator) generateClasses(w *writer) error {
 				case nd.UniRange, nd.HexRange:
 					// UniRange <-- '[' Unicode '-' Unicode ']'
 					// HexRange <-- '[' Hexadec '-' Hexadec ']'
-					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 16)
-					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 16)
+					min, _ := convertToRuneString(n.Children()[0].Value[1:], 16)
+					max, _ := convertToRuneString(n.Children()[1].Value[1:], 16)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.BinRange:
 					// BinRange <-- '[' Binary '-' Binary ']'
-					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 2)
-					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 2)
+					min, _ := convertToRuneString(n.Children()[0].Value[1:], 2)
+					max, _ := convertToRuneString(n.Children()[1].Value[1:], 2)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.OctRange:
 					// OctRange <-- '[' Octal '-' Octal ']'
-					min, _ := ConvertToRuneString(n.Children()[0].Value[1:], 8)
-					max, _ := ConvertToRuneString(n.Children()[1].Value[1:], 8)
+					min, _ := convertToRuneString(n.Children()[0].Value[1:], 8)
+					max, _ := convertToRuneString(n.Children()[1].Value[1:], 8)
 					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 				case nd.String:
 					if v := n.Value; len(v) == 1 {
