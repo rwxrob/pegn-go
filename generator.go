@@ -207,6 +207,7 @@ func (g *Generator) generateClassFile(parentDir string) error {
 
 	w, b := newBW()
 	w.c("Do not edit. This file is auto-generated.")
+	w.ln()
 	w.wlnf("package %s", strings.ToLower(pkg))
 	w.ln()
 	w.wln("import (")
@@ -254,6 +255,7 @@ func (g *Generator) generateTokenFile(parentDir string) error {
 
 	w, b := newBW()
 	w.c("Do not edit. This file is auto-generated.")
+	w.ln()
 	w.wlnf("package %s", strings.ToLower(pkg))
 	w.ln()
 	w.w(g.writers["tk"].String())
@@ -278,6 +280,7 @@ func (g *Generator) generateTypeFile(parentDir string) error {
 
 	w, b := newBW()
 	w.c("Do not edit. This file is auto-generated.")
+	w.ln()
 	w.wlnf("package %s", strings.ToLower(pkg))
 	w.ln()
 	w.w(g.writers["nd"].String())
@@ -484,5 +487,6 @@ func (g *Generator) generateHeader(w *writer) {
 		"Grammar: %s (v%s) %s",
 		g.meta.language, version, g.meta.url,
 	)
+	w.ln()
 	w.wlnf("package %s", strings.ToLower(g.meta.language))
 }
