@@ -373,6 +373,12 @@ func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
 		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
 	case nd.String:
 		if v := n.Value; len(v) == 1 {
+			switch v[0] { // escape runes
+			case '\\':
+				v = "\\\\"
+			case '\'':
+				v = "\\'"
+			}
 			w.wf("'%s'", v)
 		} else {
 			w.wf("%q", v)
