@@ -1,7 +1,7 @@
 // +build ignore
 
 // This program generates the pegn sub-package. It can be invoked by running the
-// go generate command.
+// `go generate` command.
 package main
 
 import (

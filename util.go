@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-func (g *Generator) longestTokenName() int {
+// longestTokenName returns the length of the longest token name.
+func (g *generator) longestTokenName() int {
 	var length int
 	for _, token := range g.tokens {
 		if l := len(token.name); length < l {
@@ -16,7 +17,9 @@ func (g *Generator) longestTokenName() int {
 	return length
 }
 
-func (g *Generator) longestTokenValueWithComment(idx int) int {
+// longestTokenValueWithComment returns the length of the longest token name
+// including the comment.
+func (g *generator) longestTokenValueWithComment(idx int) int {
 	var length int
 	for _, token := range g.tokens[idx:] {
 		if token.comment == "" {
@@ -32,7 +35,8 @@ func (g *Generator) longestTokenValueWithComment(idx int) int {
 	return length
 }
 
-func (g *Generator) longestTypeName() int {
+// longestTypeName returns the length of the longest type name.
+func (g *generator) longestTypeName() int {
 	var length int
 	for _, node := range g.nodes {
 		if !node.scan {
@@ -44,10 +48,13 @@ func (g *Generator) longestTypeName() int {
 	return length
 }
 
+// fillRight fills the given string on the right with spaces until it reaches
+// the requested size(/length).
 func fillRight(v string, size int) string {
 	return fmt.Sprintf("%s%s", v, strings.Repeat(" ", size-len(v)))
 }
 
+// singleNestedValue returns whether the given node is a single nested value.
 func singleNestedValue(n *ast.Node) bool {
 	if !n.IsParent() {
 		return true

@@ -4,37 +4,51 @@ import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
 	"github.com/pegn/pegn-go/pegn/nd"
-	"strconv"
 	"strings"
 )
 
+// class is a simplified representation of a ClassDef.
+//
+// PEGN:
+//	ClassDef <-- ClassId SP+ '<-' SP+ ClassExpr
 type class struct {
-	name       string
+	// name represents the ClassId.
+	name string
+	// expression contains the children of the ClassExpr contained within the
+	// definition.
 	expression []*ast.Node
 }
 
-func (g *Generator) classNameGenerated(s string) string {
-	s = g.className(s)
+// classNameGenerated returns a formatted className AND adds the prefix of the
+// sub package if present.
+func (g *generator) classNameGenerated(name string) string {
 	if pkg := g.config.ClassSubPackage; pkg != "" {
-		return fmt.Sprintf("%s.%s", pkg, s)
+		return fmt.Sprintf("%s.%s", pkg, g.className(name))
 	}
-	return s
+	return g.className(name)
 }
 
-func (g *Generator) className(s string) string {
-	// Check whether the class has an alias.
-	if c, ok := g.config.ClassAliases[s]; ok {
-		s = c
+// className returns a formatted class name. This includes the following:
+//	- Applying aliases.
+//	- Removing potential underscores.
+//	- Camel Case + Capitalizing.
+func (g *generator) className(name string) string {
+	if alias, ok := g.config.ClassAliases[name]; ok {
+		name = alias
 	}
-	parts := strings.Split(s, "_")
+	parts := strings.Split(name, "_")
 	for i, s := range parts {
 		parts[i] = strings.Title(s)
 	}
 	return strings.Join(parts, "")
 }
 
-// ClassDef <-- ClassId SP+ '<-' SP+ ClassExpr
-func (g *Generator) parseClass(n *ast.Node) error {
+// parseClass parses the given node as a class and adds it to the list of
+// classes within the generator.
+//
+// PEGN:
+//	ClassDef <-- ClassId SP+ '<-' SP+ ClassExpr
+func (g *generator) parseClass(n *ast.Node) error {
 	var class class
 	for _, n := range n.Children() {
 		switch n.Type {
@@ -57,11 +71,13 @@ func (g *Generator) parseClass(n *ast.Node) error {
 	return nil
 }
 
-func (g *Generator) generateClasses(w *writer) error {
+// generateClasses writes all the classes to the given writer.
+func (g *generator) generateClasses(w *writer) error {
 	for idx, class := range g.classes {
 		size := len(class.expression)
 		if size == 1 {
-			// Duplicate (alias) class definition.
+			// I chose to not generate alias class definitions.
+			// e.g. `cntrl <- control`
 			if c := class.expression[0]; c.Type == nd.ClassId {
 				continue
 			}
@@ -71,27 +87,30 @@ func (g *Generator) generateClasses(w *writer) error {
 		{
 			w := w.indent()
 			w.w("return p.Check(")
+
 			if 1 < size {
+				// Wrap the children in an or if the class has more than one
+				// child. e.g. `uphex <- [0-9] / [A-F]`
 				w.noIndent().w("op.Or{")
 				w.ln()
 				w = w.indent()
 			} else {
+				// Inline if the size is 1.
+				// e.g. `upper <- [A-Z]`
 				w = w.noIndent()
 			}
+
 			for _, n := range class.expression {
 				switch n.Type {
 				case nd.Comment, nd.EndLine:
 					// Ignore these.
 					continue
 				case nd.Unicode, nd.Hexadecimal:
-					v, _ := convertToRuneString(n.Value[1:], 16)
-					w.w(v)
+					writeUnicode(n.Value, w)
 				case nd.Binary:
-					v, _ := convertToRuneString(n.Value[1:], 2)
-					w.w(v)
+					writeBinary(n.Value, w)
 				case nd.Octal:
-					v, _ := convertToRuneString(n.Value[1:], 8)
-					w.w(v)
+					writeOctal(n.Value, w)
 				case nd.ClassId, nd.ResClassId:
 					id, err := g.getID(n)
 					if err != nil {
@@ -105,59 +124,35 @@ func (g *Generator) generateClasses(w *writer) error {
 					}
 					w.w(g.tokenNameGenerated(id))
 				case nd.AlphaRange:
-					// AlphaRange <-- '[' Letter '-' Letter ']'
-					min := n.Children()[0].Value
-					max := n.Children()[1].Value
-					w.wf("parser.CheckRuneRange('%s', '%s')", min, max)
+					writeAlphaRange(n, w)
 				case nd.IntRange:
-					// IntRange <-- '[' Integer '-' Integer ']'
-					min, _ := strconv.Atoi(n.Children()[0].Value)
-					max, _ := strconv.Atoi(n.Children()[1].Value)
-					if min < 0 {
-						return fmt.Errorf("int range is negative: [%v-%v]", min, max)
-					}
-					if max <= min {
-						return fmt.Errorf("int range is inverted: [%v-%v]", min, max)
-					}
-					if 10 <= max {
-						return fmt.Errorf("int range too large: [%v-%v]", min, max)
-					}
-					w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
+					writeIntRange(n, w)
 				case nd.UniRange, nd.HexRange:
-					// UniRange <-- '[' Unicode '-' Unicode ']'
-					// HexRange <-- '[' Hexadec '-' Hexadec ']'
-					min, _ := convertToRuneString(n.Children()[0].Value[1:], 16)
-					max, _ := convertToRuneString(n.Children()[1].Value[1:], 16)
-					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
+					writeUnicodeRange(n, w)
 				case nd.BinRange:
-					// BinRange <-- '[' Binary '-' Binary ']'
-					min, _ := convertToRuneString(n.Children()[0].Value[1:], 2)
-					max, _ := convertToRuneString(n.Children()[1].Value[1:], 2)
-					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
+					writeBinaryRange(n, w)
 				case nd.OctRange:
-					// OctRange <-- '[' Octal '-' Octal ']'
-					min, _ := convertToRuneString(n.Children()[0].Value[1:], 8)
-					max, _ := convertToRuneString(n.Children()[1].Value[1:], 8)
-					w.wf("parser.CheckRuneRange(%s, %s)", min, max)
+					writeOctalRange(n, w)
 				case nd.String:
-					if v := n.Value; len(v) == 1 {
-						w.wf("'%s'", v)
-					} else {
-						w.wf("%q", v)
-					}
+					writeString(n.Value, w)
 				default:
 					return fmt.Errorf("unknown class child: %v", nd.NodeTypes[n.Type])
 				}
+
+				// It should only be comma separated if wrapped in an op.Or,
+				// thus containing more than one child (see above).
 				if 1 < size {
 					w.noIndent().wln(",")
 				}
 			}
 		}
+
 		if 1 < size {
 			w.indent().wln("})")
 		} else {
 			w.wln(")")
 		}
+
 		w.wln("}")
 		if idx <= len(g.classes)-2 {
 			// All except the last one.

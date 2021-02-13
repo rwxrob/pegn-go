@@ -34,6 +34,8 @@ func convertToInt(v string, base int) (int, error) {
 	return int(i), err
 }
 
+// convertToRuneString changes the given string in the given base to a hex
+// value represented as a string.
 func convertToRuneString(v string, base int) (string, error) {
 	// Hex: (00)07
 	value, err := convertToHex(v, base)

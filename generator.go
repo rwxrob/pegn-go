@@ -59,31 +59,8 @@ type Config struct {
 	NodeAliases map[string]string
 }
 
-type Generator struct {
-	root    *ast.Node          // root node of the PEGN grammar.
-	config  Config             // config of the parser.
-	writers map[string]*writer // a map of writers to separate generated code.
-
-	dependencies   []Generator
-	dependencyURLs []string
-
-	// meta data of the grammar.
-	meta struct {
-		language string
-		version  struct {
-			major, minor, patch int
-			prerelease          string
-		}
-		url string
-	}
-	copyright string
-	license   string
-
-	nodes   nodes
-	classes []class
-	tokens  tokens
-}
-
+// GenerateFromURLs generates Go code to the given outputDir based on the given
+// configuration an urls.
 func GenerateFromURLs(outputDir string, config Config, urls ...string) error {
 	files := make([][]byte, len(urls))
 	for i, url := range urls {
@@ -100,6 +77,8 @@ func GenerateFromURLs(outputDir string, config Config, urls ...string) error {
 	return GenerateFromFiles(outputDir, config, files[0], files[1:]...)
 }
 
+// GenerateFromFiles generates Go code to the given outputDir based on the given
+// configuration an files.
 func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependencies ...[]byte) error {
 	parentDir := filepath.Dir(outputDir)
 	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
@@ -108,13 +87,13 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 		}
 	}
 
-	g, err := NewFromFiles(config, grammar, dependencies...)
+	g, err := newFromFiles(config, grammar, dependencies...)
 	if err != nil {
 		return err
 	}
 
 	// Make sure to do this after adding all the dependencies.
-	if err := g.GenerateBuffers(); err != nil {
+	if err := g.generateBuffers(); err != nil {
 		return err
 	}
 
@@ -197,137 +176,24 @@ func GenerateFromFiles(outputDir string, config Config, grammar []byte, dependen
 	)
 }
 
-func (g *Generator) generateClassFile(parentDir string) error {
-	pkg := strings.ToLower(g.config.ClassSubPackage)
-	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			return err
-		}
-	}
-
-	w, b := newBW()
-	w.c("Do not edit. This file is auto-generated.")
-	w.ln()
-	w.wlnf("package %s", strings.ToLower(pkg))
-	w.ln()
-	w.wln("import (")
-	{
-		w := w.indent()
-
-		imports := []string{
-			"github.com/di-wu/parser",
-			"github.com/di-wu/parser/op",
-		}
-
-		if g.config.TokenSubPackage != "" {
-			imports = append(imports, fmt.Sprintf(
-				"%s/%s/%s",
-				g.config.ModulePath, parentDir, g.config.TokenSubPackage,
-			))
-		}
-
-		sort.Strings(imports)
-		for _, i := range imports {
-			w.wlnf("%q", i)
-		}
-	}
-	w.wln(")")
-	w.ln()
-	w.w(g.writers["is"].String())
-
-	if err := ioutil.WriteFile(
-		fmt.Sprintf("%s/classes.go", dir),
-		b.Bytes(), os.ModePerm,
-	); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (g *Generator) generateTokenFile(parentDir string) error {
-	pkg := strings.ToLower(g.config.TokenSubPackage)
-	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			return err
-		}
-	}
-
-	w, b := newBW()
-	w.c("Do not edit. This file is auto-generated.")
-	w.ln()
-	w.wlnf("package %s", strings.ToLower(pkg))
-	w.ln()
-	w.w(g.writers["tk"].String())
-
-	if err := ioutil.WriteFile(
-		fmt.Sprintf("%s/tokens.go", dir),
-		b.Bytes(), os.ModePerm,
-	); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (g *Generator) generateTypeFile(parentDir string) error {
-	pkg := strings.ToLower(g.config.TypeSubPackage)
-	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			return err
-		}
-	}
-
-	w, b := newBW()
-	w.c("Do not edit. This file is auto-generated.")
-	w.ln()
-	w.wlnf("package %s", strings.ToLower(pkg))
-	w.ln()
-	w.w(g.writers["nd"].String())
-
-	if err := ioutil.WriteFile(
-		fmt.Sprintf("%s/types.go", dir),
-		b.Bytes(), os.ModePerm,
-	); err != nil {
-		return err
-	}
-	return nil
-}
-
-func NewFromURLs(config Config, mainURL string, depURLSs ...string) (Generator, error) {
-	files := make([][]byte, len(depURLSs)+1)
-	for i, url := range append([]string{mainURL}, depURLSs...) {
-		resp, err := http.Get(url)
-		if err != nil {
-			return Generator{}, err
-		}
-		raw, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return Generator{}, err
-		}
-		files[i] = raw
-	}
-	return NewFromFiles(config, files[0], files[1:]...)
-}
-
-func NewFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Generator, error) {
+// newFromFiles creates generator(s) based on the given configuration and files.
+func newFromFiles(config Config, grammar []byte, dependencies ...[]byte) (generator, error) {
 	g, err := newGenerator(grammar, config)
 	if err != nil {
-		return Generator{}, err
+		return generator{}, err
 	}
 
 	var (
-		generators []Generator
+		generators []generator
 		urls       = make(map[string]bool)
 	)
 	for _, file := range dependencies {
 		g, err := newGenerator(file, config)
 		if err != nil {
-			return Generator{}, err
+			return generator{}, err
 		}
-		if err := g.GenerateBuffers(); err != nil {
-			return Generator{}, err
+		if err := g.generateBuffers(); err != nil {
+			return generator{}, err
 		}
 		generators = append(generators, g)
 		urls[g.meta.url] = true
@@ -336,14 +202,14 @@ func NewFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Genera
 	// Check whether the grammar files has all its dependencies.
 	for _, dep := range g.dependencyURLs {
 		if _, ok := urls[dep]; !ok {
-			return Generator{}, fmt.Errorf("missing dependency: %s", dep)
+			return generator{}, fmt.Errorf("missing dependency: %s", dep)
 		}
 	}
 	// Check whether all the dependencies have all their dependencies.
 	for _, dep := range generators {
 		for _, url := range g.dependencyURLs {
 			if _, ok := urls[url]; !ok {
-				return Generator{}, fmt.Errorf("missing dependency: %s", url)
+				return generator{}, fmt.Errorf("missing dependency: %s", url)
 			}
 		}
 		g.dependencies = append(g.dependencies, dep)
@@ -352,35 +218,31 @@ func NewFromFiles(config Config, grammar []byte, dependencies ...[]byte) (Genera
 	return g, nil
 }
 
-func newGenerator(rawGrammar []byte, config Config) (Generator, error) {
-	// 1. Create a new PEGN parser.
-	p, err := ast.New(rawGrammar)
-	if err != nil {
-		return Generator{}, err
-	}
-	// 2. Parse the given grammar.
-	grammar, err := pegn.Spec(p)
-	if err != nil {
-		return Generator{}, err
-	}
-	// 3. Check whether the whole file is parsed correctly.
-	if _, err := p.Expect(parser.EOD); err != nil {
-		return Generator{}, fmt.Errorf("parser could not read the entire file: %s", err.Error())
+// generateBuffers writes the pre-parsed data to different buffers.
+func (g *generator) generateBuffers() error {
+	if err := g.prepare(); err != nil {
+		return err
 	}
 
-	return Generator{
-		root: grammar,
-		writers: map[string]*writer{
-			"tk":  newW(), // tokens
-			"nd":  newW(), // types
-			"is":  newW(), // classes
-			"ast": newW(), // ast nodes
-		},
-		config: config,
-	}, nil
+	// The order is important!
+	// g.generateNodes() for example relies on the (pre)generated tokens.
+	if err := g.generateTokens(); err != nil {
+		return err
+	}
+	if err := g.generateTypes(); err != nil {
+		return err
+	}
+	if err := g.generateClasses(g.writers["is"]); err != nil {
+		return err
+	}
+	if err := g.generateNodes(g.writers["ast"]); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (g *Generator) prepare() error {
+// prepare does all the pre-parsing.
+func (g *generator) prepare() error {
 	for _, n := range g.root.Children() {
 		switch n.Type {
 		case nd.Comment, nd.EndLine:
@@ -456,29 +318,63 @@ func (g *Generator) prepare() error {
 	return nil
 }
 
-func (g *Generator) GenerateBuffers() error {
-	if err := g.prepare(); err != nil {
-		return err
-	}
+// generator does all the file generation.
+type generator struct {
+	root    *ast.Node          // root node of the PEGN grammar.
+	config  Config             // config of the parser.
+	writers map[string]*writer // a map of writers to separate generated code.
 
-	// The order is important!
-	// g.generateNodes() for example relies on the (pre)generated tokens.
-	if err := g.generateTokens(); err != nil {
-		return err
+	dependencies   []generator
+	dependencyURLs []string
+
+	// meta data of the grammar.
+	meta struct {
+		language string
+		version  struct {
+			major, minor, patch int
+			prerelease          string
+		}
+		url string
 	}
-	if err := g.generateTypes(); err != nil {
-		return err
-	}
-	if err := g.generateClasses(g.writers["is"]); err != nil {
-		return err
-	}
-	if err := g.generateNodes(g.writers["ast"]); err != nil {
-		return err
-	}
-	return nil
+	copyright string
+	license   string
+
+	nodes   nodes
+	classes []class
+	tokens  tokens
 }
 
-func (g *Generator) generateHeader(w *writer) {
+// newGenerator returns a new configured generator.
+func newGenerator(rawGrammar []byte, config Config) (generator, error) {
+	// 1. Create a new PEGN parser.
+	p, err := ast.New(rawGrammar)
+	if err != nil {
+		return generator{}, err
+	}
+	// 2. Parse the given grammar.
+	grammar, err := pegn.Spec(p)
+	if err != nil {
+		return generator{}, err
+	}
+	// 3. Check whether the whole file is parsed correctly.
+	if _, err := p.Expect(parser.EOD); err != nil {
+		return generator{}, fmt.Errorf("parser could not read the entire file: %s", err.Error())
+	}
+
+	return generator{
+		root: grammar,
+		writers: map[string]*writer{
+			"tk":  newW(), // tokens
+			"nd":  newW(), // types
+			"is":  newW(), // classes
+			"ast": newW(), // ast nodes
+		},
+		config: config,
+	}, nil
+}
+
+// generateHeader writes the header of the main file.
+func (g *generator) generateHeader(w *writer) {
 	w.c("Do not edit. This file is auto-generated.")
 	version := fmt.Sprintf("%d.%d.%d", g.meta.version.major, g.meta.version.minor, g.meta.version.patch)
 	if pre := g.meta.version.prerelease; pre != "" {
@@ -490,4 +386,105 @@ func (g *Generator) generateHeader(w *writer) {
 	)
 	w.ln()
 	w.wlnf("package %s", strings.ToLower(g.meta.language))
+}
+
+// generateClassFile is responsible for generating a standalone class file.
+func (g *generator) generateClassFile(parentDir string) error {
+	pkg := strings.ToLower(g.config.ClassSubPackage)
+	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	w, b := newBW()
+	w.c("Do not edit. This file is auto-generated.")
+	w.ln()
+	w.wlnf("package %s", strings.ToLower(pkg))
+	w.ln()
+	w.wln("import (")
+	{
+		w := w.indent()
+
+		imports := []string{
+			"github.com/di-wu/parser",
+			"github.com/di-wu/parser/op",
+		}
+
+		if g.config.TokenSubPackage != "" {
+			imports = append(imports, fmt.Sprintf(
+				"%s/%s/%s",
+				g.config.ModulePath, parentDir, g.config.TokenSubPackage,
+			))
+		}
+
+		sort.Strings(imports)
+		for _, i := range imports {
+			w.wlnf("%q", i)
+		}
+	}
+	w.wln(")")
+	w.ln()
+	w.w(g.writers["is"].String())
+
+	if err := ioutil.WriteFile(
+		fmt.Sprintf("%s/classes.go", dir),
+		b.Bytes(), os.ModePerm,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// generateTokenFile is responsible for generating a standalone token file.
+func (g *generator) generateTokenFile(parentDir string) error {
+	pkg := strings.ToLower(g.config.TokenSubPackage)
+	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	w, b := newBW()
+	w.c("Do not edit. This file is auto-generated.")
+	w.ln()
+	w.wlnf("package %s", strings.ToLower(pkg))
+	w.ln()
+	w.w(g.writers["tk"].String())
+
+	if err := ioutil.WriteFile(
+		fmt.Sprintf("%s/tokens.go", dir),
+		b.Bytes(), os.ModePerm,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// generateTypeFile is responsible for generating a standalone types file.
+func (g *generator) generateTypeFile(parentDir string) error {
+	pkg := strings.ToLower(g.config.TypeSubPackage)
+	dir := fmt.Sprintf("%s/%s", parentDir, pkg)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	w, b := newBW()
+	w.c("Do not edit. This file is auto-generated.")
+	w.ln()
+	w.wlnf("package %s", strings.ToLower(pkg))
+	w.ln()
+	w.w(g.writers["nd"].String())
+
+	if err := ioutil.WriteFile(
+		fmt.Sprintf("%s/types.go", dir),
+		b.Bytes(), os.ModePerm,
+	); err != nil {
+		return err
+	}
+	return nil
 }

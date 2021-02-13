@@ -18,6 +18,7 @@ func (ts tokens) get(id string) token {
 	return token{}
 }
 
+// token is a simplified representation of a TokenDef.
 type token struct {
 	comment   string // comment after the token.
 	name      string // name of the token.
@@ -34,7 +35,9 @@ func (t *tokenValue) isString() bool {
 	return t.value != "" && t.hexValue == ""
 }
 
-func (g *Generator) tokenNameGenerated(s string) string {
+// tokenNameGenerated returns a formatted tokenName AND adds the prefix of the
+// sub package if present.
+func (g *generator) tokenNameGenerated(s string) string {
 	s = g.tokenName(s)
 	if pkg := g.config.TokenSubPackage; pkg != "" {
 		return fmt.Sprintf("%s.%s", pkg, s)
@@ -42,7 +45,8 @@ func (g *Generator) tokenNameGenerated(s string) string {
 	return s
 }
 
-func (g *Generator) tokenName(s string) string {
+// tokenName returns a formatted token name.
+func (g *generator) tokenName(s string) string {
 	if prefix := g.config.TokenPrefix; prefix != "" {
 		prefix := strings.ToUpper(prefix)
 		return fmt.Sprintf("%s_%s", prefix, s)
@@ -50,10 +54,12 @@ func (g *Generator) tokenName(s string) string {
 	return s
 }
 
-// TokenDef <-- TokenId SP+ '<-' SP+
-//              TokenVal (Spacing TokenVal)*
-//              ComEndLine
-func (g *Generator) parseToken(n *ast.Node) error {
+// parseToken parses the given node as a token and adds it to the list of
+// tokens within the generator.
+//
+// PEGN:
+//	TokenDef <-- TokenId SP+ '<-' SP+ TokenVal (Spacing TokenVal)* ComEndLine
+func (g *generator) parseToken(n *ast.Node) error {
 	var token token
 	var values []tokenValue
 	for _, n := range n.Children() {
@@ -132,7 +138,8 @@ func (g *Generator) parseToken(n *ast.Node) error {
 	return nil
 }
 
-func (g *Generator) generateTokens() error {
+// generateTokens writes all the tokens to the given writer.
+func (g *generator) generateTokens() error {
 	w := g.writers["tk"]
 
 	// Check whether the grammar has tokens.
@@ -172,7 +179,8 @@ func (g *Generator) generateTokens() error {
 	return nil
 }
 
-func (g *Generator) generateTokenValues(w *writer) {
+// generateTokenValues is responsible for generating token values.
+func (g *generator) generateTokenValues(w *writer) {
 	longestName := g.longestTokenName()
 	for idx, token := range g.tokens {
 		if token.comment != "" {

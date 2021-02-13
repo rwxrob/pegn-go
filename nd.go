@@ -2,14 +2,17 @@ package pegn
 
 import "fmt"
 
-func (g *Generator) typePrefix(s string) string {
+// typePrefix adds the package prefix without formatting the string.
+func (g *generator) typePrefix(s string) string {
 	if pkg := g.config.TypeSubPackage; pkg != "" {
 		return fmt.Sprintf("%s.%s", pkg, s)
 	}
 	return s
 }
 
-func (g *Generator) typeNameGenerated(s string) string {
+// typeNameGenerated returns a formatted typeName AND adds the prefix of the
+// sub package if present.
+func (g *generator) typeNameGenerated(s string) string {
 	s = g.typeName(s)
 	if pkg := g.config.TypeSubPackage; pkg != "" {
 		return fmt.Sprintf("%s.%s", pkg, s)
@@ -17,11 +20,14 @@ func (g *Generator) typeNameGenerated(s string) string {
 	return s
 }
 
-func (g *Generator) typeName(s string) string {
+// typeName returns a formatted type name with the (optionally) predefined
+// suffix.
+func (g *generator) typeName(s string) string {
 	return fmt.Sprintf("%s%s", s, g.config.TypeSuffix)
 }
 
-func (g *Generator) generateTypes() error {
+// generateTypes writes all the types to the 'nd' writer.
+func (g *generator) generateTypes() error {
 	w := g.writers["nd"]
 	var index int
 

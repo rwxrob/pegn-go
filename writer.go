@@ -35,7 +35,7 @@ func (w *writer) wf(format string, args ...interface{}) {
 }
 
 func (w *writer) ln() {
-	w.Write([]byte("\n"))
+	_, _ = w.Write([]byte("\n"))
 }
 
 func (w *writer) wln(p string) {

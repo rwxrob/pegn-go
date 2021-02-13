@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/di-wu/parser/ast"
 	"github.com/pegn/pegn-go/pegn/nd"
-	"strconv"
 )
 
 type nodes []node
@@ -19,13 +18,19 @@ func (ns nodes) get(id string) node {
 	return node{}
 }
 
+// node is a simplified representation of a NodeDef or ScanDef.
+//
+// PEGN:
+//	NodeDef <-- CheckId SP+ '<--' SP+ Expression
+//	ScanDef <-- CheckId SP+ '<-'  SP+ Expression
 type node struct {
 	name       string
 	scan       bool
 	expression []*ast.Node
 }
 
-func (g *Generator) nodeName(s string) string {
+// nodeName returns a formatted node name.
+func (g *generator) nodeName(s string) string {
 	// Check whether the node has an alias.
 	if c, ok := g.config.NodeAliases[s]; ok {
 		s = c
@@ -33,7 +38,9 @@ func (g *Generator) nodeName(s string) string {
 	return s
 }
 
-func (g *Generator) parseNode(n *ast.Node) error {
+// parseNode parses the given node as a significant node and adds it to the list
+// of nodes within the generator.
+func (g *generator) parseNode(n *ast.Node) error {
 	var node node
 	for _, n := range n.Children() {
 		switch n.Type {
@@ -54,7 +61,9 @@ func (g *Generator) parseNode(n *ast.Node) error {
 	return nil
 }
 
-func (g *Generator) parseScan(n *ast.Node) error {
+// parseScan parses the given node as a insignificant node and adds it to the
+// list of nodes within the generator.
+func (g *generator) parseScan(n *ast.Node) error {
 	scan := node{
 		scan: true,
 	}
@@ -76,7 +85,8 @@ func (g *Generator) parseScan(n *ast.Node) error {
 	return nil
 }
 
-func (g *Generator) generateNodes(w *writer) error {
+// generateNodes writes all the nodes to the given writer.
+func (g *generator) generateNodes(w *writer) error {
 	for idx, node := range g.nodes {
 		w.wlnf("func %s(p *ast.Parser) (*ast.Node, error) {", g.nodeName(node.name))
 		{
@@ -124,7 +134,8 @@ func (g *Generator) generateNodes(w *writer) error {
 	return nil
 }
 
-func (g *Generator) generateExpression(w *writer, expression []*ast.Node, indent bool) error {
+// generateExpression is responsible for generating expressions.
+func (g *generator) generateExpression(w *writer, expression []*ast.Node, indent bool) error {
 	size := len(expression)
 	if 1 < size {
 		if !indent {
@@ -165,7 +176,8 @@ func (g *Generator) generateExpression(w *writer, expression []*ast.Node, indent
 	return nil
 }
 
-func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent bool) error {
+// generateSequence is responsible for generating sequences.
+func (g *generator) generateSequence(w *writer, sequence []*ast.Node, indent bool) error {
 	size := len(sequence)
 	if 1 < size {
 		if !indent {
@@ -299,100 +311,6 @@ func (g *Generator) generateSequence(w *writer, sequence []*ast.Node, indent boo
 
 	if 1 < size {
 		w.wln("},")
-	}
-	return nil
-}
-
-// Primary <- Simple / CheckId / '(' Expression ')'
-func (g *Generator) generatePrimary(w *writer, n *ast.Node, indent bool) error {
-	if !indent {
-		w = w.noIndent()
-		indent = true
-	}
-
-	switch n.Type {
-	case nd.Comment, nd.EndLine:
-		// Ignore these.
-	case nd.Unicode, nd.Hexadecimal:
-		v, _ := convertToRuneString(n.Value[1:], 16)
-		w.w(v)
-	case nd.Binary:
-		v, _ := convertToRuneString(n.Value[1:], 2)
-		w.w(v)
-	case nd.Octal:
-		v, _ := convertToRuneString(n.Value[1:], 8)
-		w.w(v)
-	case nd.ClassId, nd.ResClassId:
-		w.w(g.classNameGenerated(n.Value))
-	case nd.CheckId:
-		id, err := g.getID(n)
-		if err != nil {
-			return err
-		}
-		w.w(id)
-	case nd.TokenId, nd.ResTokenId:
-		id, err := g.getID(n)
-		if err != nil {
-			return err
-		}
-		w.w(g.tokenNameGenerated(id))
-	case nd.AlphaRange:
-		// AlphaRange <-- '[' Letter '-' Letter ']'
-		min := n.Children()[0].Value
-		max := n.Children()[1].Value
-		w.wf("parser.CheckRuneRange('%s', '%s')", min, max)
-	case nd.IntRange:
-		// IntRange <-- '[' Integer '-' Integer ']'
-		min, _ := strconv.Atoi(n.Children()[0].Value)
-		max, _ := strconv.Atoi(n.Children()[1].Value)
-		if min < 0 {
-			return fmt.Errorf("int range is negative: [%v-%v]", min, max)
-		}
-		if max <= min {
-			return fmt.Errorf("int range is inverted: [%v-%v]", min, max)
-		}
-		if 10 <= max {
-			return fmt.Errorf("int range too large: [%v-%v]", min, max)
-		}
-		w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
-	case nd.UniRange, nd.HexRange:
-		// UniRange <-- '[' Unicode '-' Unicode ']'
-		// HexRange <-- '[' Hexadec '-' Hexadec ']'
-		min, _ := convertToRuneString(n.Children()[0].Value[1:], 16)
-		max, _ := convertToRuneString(n.Children()[1].Value[1:], 16)
-		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
-	case nd.BinRange:
-		// BinRange <-- '[' Binary '-' Binary ']'
-		min, _ := convertToRuneString(n.Children()[0].Value[1:], 2)
-		max, _ := convertToRuneString(n.Children()[1].Value[1:], 2)
-		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
-	case nd.OctRange:
-		// OctRange <-- '[' Octal '-' Octal ']'
-		min, _ := convertToRuneString(n.Children()[0].Value[1:], 8)
-		max, _ := convertToRuneString(n.Children()[1].Value[1:], 8)
-		w.wf("parser.CheckRuneRange(%s, %s)", min, max)
-	case nd.String:
-		if v := n.Value; len(v) == 1 {
-			switch v[0] { // escape runes
-			case '\\':
-				v = "\\\\"
-			case '\'':
-				v = "\\'"
-			}
-			w.wf("'%s'", v)
-		} else {
-			w.wf("%q", v)
-		}
-	case nd.Expression:
-		if err := g.generateExpression(w, n.Children(), indent); err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf("unknown plain child: %v", nd.NodeTypes[n.Type])
-	}
-
-	if n.Type != nd.Expression {
-		w.noIndent().wln(",")
 	}
 	return nil
 }

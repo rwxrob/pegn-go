@@ -12,7 +12,7 @@ import (
 	"sync"
 )
 
-// InMemoryParser is the in-memory equivalent of generated code of Generator.
+// InMemoryParser is the in-memory equivalent of generated code of generator.
 type InMemoryParser struct {
 	tokens  map[string]interface{}
 	classes map[string]interface{}
@@ -49,6 +49,8 @@ type internalParser struct {
 	InMemoryParser
 }
 
+// ParserFromURLs creates an in-memory parser based on the given configuration
+// and urls.
 func ParserFromURLs(config Config, urls ...string) (InMemoryParser, error) {
 	files := make([][]byte, len(urls))
 	for i, url := range urls {
@@ -65,8 +67,10 @@ func ParserFromURLs(config Config, urls ...string) (InMemoryParser, error) {
 	return ParserFromFiles(config, files[0], files[1:]...)
 }
 
+// ParserFromFiles creates an in-memory parser based on the given configuration
+// and files.
 func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (InMemoryParser, error) {
-	g, err := NewFromFiles(config, grammar, dependencies...)
+	g, err := newFromFiles(config, grammar, dependencies...)
 	if err != nil {
 		return InMemoryParser{}, err
 	}
@@ -96,7 +100,8 @@ func ParserFromFiles(config Config, grammar []byte, dependencies ...[]byte) (InM
 	return p.InMemoryParser, nil
 }
 
-func (p *internalParser) generateTokens(g Generator) error {
+// generateTokens is responsible for generation the tokens.
+func (p *internalParser) generateTokens(g generator) error {
 	for _, token := range g.tokens {
 		if _, ok := p.tokens[token.name]; ok {
 			return fmt.Errorf("duplicate token: %s", token.name)
@@ -127,10 +132,11 @@ func (p *internalParser) generateTokens(g Generator) error {
 	return nil
 }
 
-func (p *internalParser) generateClasses(g Generator) error {
+// generateClasses is responsible for generation the classes.
+func (p *internalParser) generateClasses(g generator) error {
 	var wg sync.WaitGroup
 	errChannel := make(chan error, 1)
-	generate := func(g Generator) {
+	generate := func(g generator) {
 		defer wg.Done()
 		for _, class := range g.classes {
 			var or op.Or
@@ -247,10 +253,11 @@ func (p *internalParser) generateClasses(g Generator) error {
 	return nil
 }
 
-func (p *internalParser) generateNodes(g Generator) error {
+// generateNodes is responsible for generation the nodes.
+func (p *internalParser) generateNodes(g generator) error {
 	var wg sync.WaitGroup
 	errChannel := make(chan error, 1)
-	generate := func(g Generator, node node) {
+	generate := func(g generator, node node) {
 		defer wg.Done()
 
 		i, err := p.generateExpression(g, node.expression)
@@ -289,7 +296,8 @@ func (p *internalParser) generateNodes(g Generator) error {
 	return nil
 }
 
-func (p *internalParser) generateExpression(g Generator, expression []*ast.Node) (interface{}, error) {
+// generateExpression is responsible for generation the expressions.
+func (p *internalParser) generateExpression(g generator, expression []*ast.Node) (interface{}, error) {
 	var or op.Or
 	for _, n := range expression {
 		switch n.Type {
@@ -314,7 +322,8 @@ func (p *internalParser) generateExpression(g Generator, expression []*ast.Node)
 	return or, nil
 }
 
-func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (interface{}, error) {
+// generateSequence is responsible for generation the sequences.
+func (p *internalParser) generateSequence(g generator, sequence []*ast.Node) (interface{}, error) {
 	var and op.And
 	for _, n := range sequence {
 		switch n.Type {
@@ -392,7 +401,8 @@ func (p *internalParser) generateSequence(g Generator, sequence []*ast.Node) (in
 	return and, nil
 }
 
-func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{}, error) {
+// generatePrimary is responsible for generation the primary values.
+func (p *internalParser) generatePrimary(g generator, n *ast.Node) (interface{}, error) {
 	switch n.Type {
 	case nd.Comment, nd.EndLine:
 		// Ignore these.
@@ -475,16 +485,16 @@ func (p *internalParser) generatePrimary(g Generator, n *ast.Node) (interface{},
 		max := rune(n.Children()[1].Value[0])
 		return parser.CheckRuneRange(min, max), nil
 	case nd.UniRange, nd.HexRange:
-		min, _ := convertToInt(n.Children()[0].Value[1:], 16)
-		max, _ := convertToInt(n.Children()[1].Value[1:], 16)
+		min, _ := convertToInt(removeUnicodePrefix(n.Children()[0].Value), 16)
+		max, _ := convertToInt(removeUnicodePrefix(n.Children()[1].Value), 16)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.BinRange:
-		min, _ := convertToInt(n.Children()[0].Value[1:], 2)
-		max, _ := convertToInt(n.Children()[1].Value[1:], 2)
+		min, _ := convertToInt(removeBinaryPrefix(n.Children()[0].Value), 2)
+		max, _ := convertToInt(removeBinaryPrefix(n.Children()[1].Value), 2)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.OctRange:
-		min, _ := convertToInt(n.Children()[0].Value[1:], 8)
-		max, _ := convertToInt(n.Children()[1].Value[1:], 8)
+		min, _ := convertToInt(removeOctalPrefix(n.Children()[0].Value), 8)
+		max, _ := convertToInt(removeOctalPrefix(n.Children()[1].Value), 8)
 		return parser.CheckRuneRange(rune(min), rune(max)), nil
 	case nd.String:
 		if v := n.Value; len(v) == 1 {
