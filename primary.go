@@ -135,20 +135,21 @@ func writeAlphaRange(n *ast.Node, w *writer) {
 // writeIntRange extracts the min and max runes and writes the integer range to
 // the writer. Given node must be an IntRange.
 //
-// !BUG: issue#2
-//
 // PEGN
 //	IntRange <-- '[' Integer '-' Integer ']'
 func writeIntRange(n *ast.Node, w *writer) {
 	min, _ := strconv.Atoi(n.Children()[0].Value)
 	max, _ := strconv.Atoi(n.Children()[1].Value)
-	w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
+	if max < 10 {
+		// Just need to check single runes.
+		w.wf("parser.CheckRuneRange('%d', '%d')", min, max)
+	} else {
+		w.wf("parser.CheckIntegerRange(%d, %d, false)", min, max)
+	}
 }
 
 // writeUnicodeRange extracts the min and max runes and writes the unicode/hex
 // range to the writer. Given node must be an UniRange or HexRange.
-//
-// !BUG: issue#2
 //
 // PEGN
 //	UniRange <-- '[' Unicode '-' Unicode ']'
@@ -162,8 +163,6 @@ func writeUnicodeRange(n *ast.Node, w *writer) {
 // writeBinaryRange extracts the min and max runes and writes the binary range
 // to the writer. Given node must be a BinRange.
 //
-// !BUG: issue#2
-//
 // PEGN
 //	BinRange <-- '[' Binary '-' Binary ']'
 func writeBinaryRange(n *ast.Node, w *writer) {
@@ -174,8 +173,6 @@ func writeBinaryRange(n *ast.Node, w *writer) {
 
 // writeOctalRange extracts the min and max runes and writes the octal range to
 // the writer. Given node must be a OctRange.
-//
-// !BUG: issue#2
 //
 // PEGN
 //	OctRange <-- '[' Octal '-' Octal ']'
