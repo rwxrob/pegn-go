@@ -39,7 +39,7 @@ func (g *generator) generateTypes() error {
 		w.ln()
 
 		if len(g.nodes) != 0 {
-			w.cf("%s (%s)", g.meta.language, g.meta.url)
+			w.cf("%s (%s)", g.languageFull(), g.meta.url)
 			indent := g.longestTypeName() + 1
 			for _, node := range g.nodes {
 				if !node.scan {
@@ -54,7 +54,7 @@ func (g *generator) generateTypes() error {
 			if len(dep.nodes) == 0 {
 				continue
 			}
-			w.cf("%s (%s)", dep.meta.language, dep.meta.url)
+			w.cf("%s (%s)", dep.languageFull(), dep.meta.url)
 			indent := g.longestTypeName() + 1
 			for _, node := range dep.nodes {
 				if !node.scan {
@@ -74,7 +74,7 @@ func (g *generator) generateTypes() error {
 		w.ln()
 
 		if len(g.nodes) != 0 {
-			w.cf("%s (%s)", g.meta.language, g.meta.url)
+			w.cf("%s (%s)", g.languageFull(), g.meta.url)
 			for _, node := range g.nodes {
 				if !node.scan {
 					w.wlnf("%q,", g.nodeName(node.name))
@@ -86,7 +86,7 @@ func (g *generator) generateTypes() error {
 			if len(dep.nodes) == 0 {
 				continue
 			}
-			w.cf("%s (%s)", dep.meta.language, dep.meta.url)
+			w.cf("%s (%s)", dep.languageFull(), dep.meta.url)
 			for _, node := range dep.nodes {
 				if !node.scan {
 					w.wlnf("%q,", dep.nodeName(node.name))

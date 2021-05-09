@@ -257,7 +257,7 @@ func (g *generator) prepare() error {
 				case nd.Name:
 					g.meta.language = n.Value
 				case nd.NameExt:
-					g.meta.language += fmt.Sprintf("-%s", n.Value)
+					g.meta.languageSuffix = n.Value
 				case nd.MajorVer:
 					g.meta.version.major, _ = strconv.Atoi(n.Value)
 				case nd.MinorVer:
@@ -329,8 +329,9 @@ type generator struct {
 
 	// meta data of the grammar.
 	meta struct {
-		language string
-		version  struct {
+		language       string
+		languageSuffix string
+		version        struct {
 			major, minor, patch int
 			prerelease          string
 		}
@@ -342,6 +343,13 @@ type generator struct {
 	nodes   nodes
 	classes []class
 	tokens  tokens
+}
+
+func (g generator) languageFull() string {
+	if g.meta.languageSuffix == "" {
+		return g.meta.language
+	}
+	return fmt.Sprintf("%s-%s", g.meta.language, g.meta.languageSuffix)
 }
 
 // newGenerator returns a new configured generator.
@@ -382,7 +390,7 @@ func (g *generator) generateHeader(w *writer) {
 	}
 	w.cf(
 		"Grammar: %s (v%s) %s",
-		g.meta.language, version, g.meta.url,
+		g.languageFull(), version, g.meta.url,
 	)
 	w.ln()
 	w.wlnf("package %s", strings.ToLower(g.meta.language))
