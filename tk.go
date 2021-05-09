@@ -162,7 +162,7 @@ func (g *generator) generateTokens() error {
 		w := w.indent()
 
 		if len(g.tokens) != 0 {
-			w.cf("%s (%s)", g.languageFull(), g.meta.url)
+			w.cf("%s (%s)\n", g.languageFull(), g.meta.url)
 			g.generateTokenValues(w)
 			w.ln()
 		}
@@ -171,7 +171,7 @@ func (g *generator) generateTokens() error {
 			if len(dep.tokens) == 0 {
 				continue
 			}
-			w.cf("%s (%s)", dep.languageFull(), dep.meta.url)
+			w.cf("%s (%s)\n", dep.languageFull(), dep.meta.url)
 			dep.generateTokenValues(w)
 		}
 	}

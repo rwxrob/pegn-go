@@ -5,6 +5,7 @@ package tk
 // Token Definitions
 const (
 	// PEGN-tokens (spec.pegn.dev/tokens)
+
 	TAB       = 0x0009 // "\t"
 	LF        = 0x000A // "\n" (line feed)
 	CR        = 0x000D // "\r" (carriage return)

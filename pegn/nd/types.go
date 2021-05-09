@@ -7,6 +7,7 @@ const (
 	Unknown = iota
 
 	// PEGN (spec.pegn.dev)
+
 	Spec        // 001
 	Meta        // 002
 	Copyright   // 003
@@ -63,6 +64,7 @@ var NodeTypes = []string{
 	"UNKNOWN",
 
 	// PEGN (spec.pegn.dev)
+
 	"Spec",
 	"Meta",
 	"Copyright",
