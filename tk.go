@@ -164,12 +164,21 @@ func (g *generator) generateTokens() error {
 		if len(g.tokens) != 0 {
 			w.cf("%s (%s)\n", g.languageFull(), g.meta.url)
 			g.generateTokenValues(w)
-			w.ln()
 		}
 
-		for _, dep := range g.dependencies {
+		for i, dep := range g.dependencies {
 			if len(dep.tokens) == 0 {
 				continue
+			}
+			switch i {
+			case 0:
+				if len(g.tokens) != 0 {
+					w.ln()
+				}
+			default:
+				if len(g.dependencies[i-1].tokens) != 0 {
+					w.ln()
+				}
 			}
 			w.cf("%s (%s)\n", dep.languageFull(), dep.meta.url)
 			dep.generateTokenValues(w)

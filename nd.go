@@ -82,9 +82,19 @@ func (g *generator) generateTypes() error {
 			}
 		}
 
-		for _, dep := range g.dependencies {
+		for i, dep := range g.dependencies {
 			if len(dep.nodes) == 0 {
 				continue
+			}
+			switch i {
+			case 0:
+				if len(g.nodes) != 0 {
+					w.ln()
+				}
+			default:
+				if len(g.dependencies[i-1].nodes) != 0 {
+					w.ln()
+				}
 			}
 			w.cf("%s (%s)\n", dep.languageFull(), dep.meta.url)
 			for _, node := range dep.nodes {
