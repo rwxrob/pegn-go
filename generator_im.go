@@ -364,7 +364,10 @@ func (p *internalParser) generateSequence(g generator, sequence []*ast.Node) (in
 					and = append(and, op.MinOne(i))
 				case nd.MinMax:
 					min, _ := strconv.Atoi(q.Children()[0].Value)
-					max, _ := strconv.Atoi(q.Children()[1].Value)
+					max := -1
+					if len(q.Children()) == 2 {
+						max, _ = strconv.Atoi(q.Children()[1].Value)
+					}
 					and = append(and, op.MinMax(min, max, i))
 				case nd.Count:
 					min, _ := strconv.Atoi(q.Value)

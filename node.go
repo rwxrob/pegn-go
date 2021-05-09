@@ -252,7 +252,10 @@ func (g *generator) generateSequence(w *writer, sequence []*ast.Node, indent boo
 						w.wln("),")
 					case nd.MinMax:
 						min := q.Children()[0].Value
-						max := q.Children()[1].Value
+						max := "-1"
+						if len(q.Children()) == 2 {
+							max = q.Children()[1].Value
+						}
 						if !indent {
 							w.noIndent().wlnf("op.MinMax(%s, %s,", min, max)
 							indent = true
