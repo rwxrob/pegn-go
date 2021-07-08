@@ -16,48 +16,50 @@ const (
 	Path        // 006
 	Home        // 007
 	Comment     // 008
-	NodeDef     // 009
+	StateDef    // 009
 	ScanDef     // 010
-	ClassDef    // 011
-	TokenDef    // 012
-	Name        // 013
-	NameExt     // 014
-	MajorVer    // 015
-	MinorVer    // 016
-	PatchVer    // 017
-	PreVer      // 018
-	CheckId     // 019
-	ClassId     // 020
-	TokenId     // 021
-	Expression  // 022
-	ClassExpr   // 023
-	Sequence    // 024
-	Plain       // 025
-	PosLook     // 026
-	NegLook     // 027
-	Optional    // 028
-	MinZero     // 029
-	MinOne      // 030
-	MinMax      // 031
-	Min         // 032
-	Max         // 033
-	Count       // 034
-	UniRange    // 035
-	AlphaRange  // 036
-	IntRange    // 037
-	BinRange    // 038
-	HexRange    // 039
-	OctRange    // 040
-	String      // 041
-	Letter      // 042
-	Unicode     // 043
-	Integer     // 044
-	Binary      // 045
-	Hexadecimal // 046
-	Octal       // 047
-	EndLine     // 048
-	ResClassId  // 049
-	ResTokenId  // 050
+	NodeDef     // 011
+	ClassDef    // 012
+	TokenDef    // 013
+	Name        // 014
+	NameExt     // 015
+	MajorVer    // 016
+	MinorVer    // 017
+	PatchVer    // 018
+	PreVer      // 019
+	CheckId     // 020
+	ClassId     // 021
+	TokenId     // 022
+	StateId     // 023
+	Expression  // 024
+	ClassExpr   // 025
+	Sequence    // 026
+	Plain       // 027
+	PosLook     // 028
+	NegLook     // 029
+	Optional    // 030
+	MinZero     // 031
+	MinOne      // 032
+	MinMax      // 033
+	Min         // 034
+	Max         // 035
+	Count       // 036
+	UniRange    // 037
+	AlphaRange  // 038
+	IntRange    // 039
+	BinRange    // 040
+	HexRange    // 041
+	OctRange    // 042
+	String      // 043
+	Letter      // 044
+	Unicode     // 045
+	Integer     // 046
+	Binary      // 047
+	Hexadecimal // 048
+	Octal       // 049
+	EndLine     // 050
+	ResClassId  // 051
+	ResTokenId  // 052
 )
 
 var NodeTypes = []string{
@@ -73,8 +75,9 @@ var NodeTypes = []string{
 	"Path",
 	"Home",
 	"Comment",
-	"NodeDef",
+	"StateDef",
 	"ScanDef",
+	"NodeDef",
 	"ClassDef",
 	"TokenDef",
 	"Name",
@@ -86,6 +89,7 @@ var NodeTypes = []string{
 	"CheckId",
 	"ClassId",
 	"TokenId",
+	"StateId",
 	"Expression",
 	"ClassExpr",
 	"Sequence",

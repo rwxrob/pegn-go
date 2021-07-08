@@ -1,5 +1,5 @@
 // Do not edit. This file is auto-generated.
-// Grammar: PEGN (v1.0.0-alpha) spec.pegn.dev
+// Grammar: PEGN (v1.1.0) spec.pegn.dev
 
 package pegn
 
@@ -142,6 +142,7 @@ func ComEndLine(p *ast.Parser) (*ast.Node, error) {
 func Definition(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		op.Or{
+			StateDef,
 			NodeDef,
 			ScanDef,
 			ClassDef,
@@ -217,21 +218,22 @@ func Comment(p *ast.Parser) (*ast.Node, error) {
 	)
 }
 
-func NodeDef(p *ast.Parser) (*ast.Node, error) {
+func StateDef(p *ast.Parser) (*ast.Node, error) {
 	return p.Expect(
 		ast.Capture{
-			Type:        nd.NodeDef,
+			Type:        nd.StateDef,
 			TypeStrings: nd.NodeTypes,
 			Value: op.And{
-				CheckId,
+				StateId,
 				op.MinOne(
 					tk.SP,
 				),
-				"<--",
+				"<-",
 				op.MinOne(
 					tk.SP,
 				),
-				Expression,
+				"# ",
+				Comment,
 			},
 		},
 	)
@@ -248,6 +250,26 @@ func ScanDef(p *ast.Parser) (*ast.Node, error) {
 					tk.SP,
 				),
 				"<-",
+				op.MinOne(
+					tk.SP,
+				),
+				Expression,
+			},
+		},
+	)
+}
+
+func NodeDef(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		ast.Capture{
+			Type:        nd.NodeDef,
+			TypeStrings: nd.NodeTypes,
+			Value: op.And{
+				CheckId,
+				op.MinOne(
+					tk.SP,
+				),
+				"<--",
 				op.MinOne(
 					tk.SP,
 				),
@@ -310,6 +332,7 @@ func Identifier(p *ast.Parser) (*ast.Node, error) {
 			CheckId,
 			ClassId,
 			TokenId,
+			StateId,
 		},
 	)
 }
@@ -478,6 +501,21 @@ func TokenId(p *ast.Parser) (*ast.Node, error) {
 						},
 					),
 				},
+			},
+		},
+	)
+}
+
+func StateId(p *ast.Parser) (*ast.Node, error) {
+	return p.Expect(
+		ast.Capture{
+			Type:        nd.StateId,
+			TypeStrings: nd.NodeTypes,
+			Value: op.And{
+				tk.UNDER,
+				op.MinOne(
+					is.Upper,
+				),
 			},
 		},
 	)
