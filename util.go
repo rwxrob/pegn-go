@@ -2,9 +2,17 @@ package pegn
 
 import (
 	"fmt"
-	"github.com/di-wu/parser/ast"
 	"strings"
+
+	"github.com/di-wu/parser/ast"
 )
+
+func (g generator) moduleName() string {
+	if g.config.ModuleName != "" {
+		return g.config.ModuleName
+	}
+	return g.meta.language
+}
 
 // longestTokenName returns the length of the longest token name.
 func (g *generator) longestTokenName() int {

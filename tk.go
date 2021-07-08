@@ -2,9 +2,10 @@ package pegn
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/di-wu/parser/ast"
 	"github.com/pegn/pegn-go/pegn/nd"
-	"strings"
 )
 
 type tokens []token

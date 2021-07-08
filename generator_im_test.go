@@ -1,9 +1,10 @@
 package pegn
 
 import (
+	"testing"
+
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
-	"testing"
 )
 
 func TestParserFromURLs(t *testing.T) {

@@ -2,10 +2,6 @@ package pegn
 
 import (
 	"fmt"
-	"github.com/di-wu/parser"
-	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn"
-	"github.com/pegn/pegn-go/pegn/nd"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -13,6 +9,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/di-wu/parser"
+	"github.com/di-wu/parser/ast"
+	"github.com/pegn/pegn-go/pegn"
+	"github.com/pegn/pegn-go/pegn/nd"
 )
 
 //go:generate go run gen.go
@@ -21,6 +22,8 @@ import (
 type Config struct {
 	// ModulePath is the path to the module. REQUIRED!
 	ModulePath string
+	// MuduleName is the name of the module. Uses the meta.language field by default.
+	ModuleName string
 
 	// GrammarLocations are aliases to the grammar locations.
 	// e.g. 'spec.pegn.dev': 'https://raw.githubusercontent.com/pegn/spec/master/grammar.pegn'
@@ -393,7 +396,7 @@ func (g *generator) generateHeader(w *writer) {
 		g.languageFull(), version, g.meta.url,
 	)
 	w.ln()
-	w.wlnf("package %s", strings.ToLower(g.meta.language))
+	w.wlnf("package %s", strings.ToLower(g.moduleName()))
 }
 
 // generateClassFile is responsible for generating a standalone class file.
