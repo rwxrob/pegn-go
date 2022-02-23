@@ -1,5 +1,5 @@
-module github.com/pegn/pegn-go
+module github.com/rwxrob/pegn-go
 
 go 1.16
 
-require github.com/di-wu/parser v0.2.2
+require github.com/di-wu/parser v0.3.0
