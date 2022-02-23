@@ -10,7 +10,7 @@ import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
 	"github.com/di-wu/parser/op"
-	"github.com/pegn/pegn-go/pegn/nd"
+	"github.com/rwxrob/pegn-go/pegn/nd"
 )
 
 // InMemoryParser is the in-memory equivalent of generated code of generator.

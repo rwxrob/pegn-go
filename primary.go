@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn/nd"
+	"github.com/rwxrob/pegn-go/pegn/nd"
 )
 
 // generatePrimary writes the given primary node to the writer. The parameter

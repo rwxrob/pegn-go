@@ -12,8 +12,8 @@ import (
 
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn"
-	"github.com/pegn/pegn-go/pegn/nd"
+	"github.com/rwxrob/pegn-go/pegn"
+	"github.com/rwxrob/pegn-go/pegn/nd"
 )
 
 //go:generate go run gen.go

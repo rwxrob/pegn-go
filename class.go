@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn/nd"
+	"github.com/rwxrob/pegn-go/pegn/nd"
 )
 
 // class is a simplified representation of a ClassDef.

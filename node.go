@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/di-wu/parser/ast"
-	"github.com/pegn/pegn-go/pegn/nd"
+	"github.com/rwxrob/pegn-go/pegn/nd"
 )
 
 type nodes []node
