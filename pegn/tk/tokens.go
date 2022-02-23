@@ -4,7 +4,7 @@ package tk
 
 // Token Definitions
 const (
-	// PEGN-tokens (spec.pegn.dev/tokens)
+	// PEGN-tokens (pegn.dev/spec/tokens.pegn)
 
 	TAB       = 0x0009 // "\t"
 	LF        = 0x000A // "\n" (line feed)

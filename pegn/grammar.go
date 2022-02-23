@@ -1,14 +1,14 @@
 // Do not edit. This file is auto-generated.
-// Grammar: PEGN (v1.1.0) spec.pegn.dev
+// Grammar: PEGN (v1.1.1) pegn.dev/spec/nodes.pegn
 
 package pegn
 
 import (
 	"github.com/di-wu/parser/ast"
 	"github.com/di-wu/parser/op"
-	"github.com/pegn/pegn-go/pegn/is"
-	"github.com/pegn/pegn-go/pegn/nd"
-	"github.com/pegn/pegn-go/pegn/tk"
+	"github.com/rwxrob/pegn-go/pegn/is"
+	"github.com/rwxrob/pegn-go/pegn/nd"
+	"github.com/rwxrob/pegn-go/pegn/tk"
 )
 
 func Spec(p *ast.Parser) (*ast.Node, error) {

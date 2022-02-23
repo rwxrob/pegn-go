@@ -6,7 +6,7 @@ package nd
 const (
 	Unknown = iota
 
-	// PEGN (spec.pegn.dev)
+	// PEGN (pegn.dev/spec/nodes.pegn)
 
 	Spec        // 001
 	Meta        // 002
@@ -65,7 +65,7 @@ const (
 var NodeTypes = []string{
 	"UNKNOWN",
 
-	// PEGN (spec.pegn.dev)
+	// PEGN (pegn.dev/spec/nodes.pegn)
 
 	"Spec",
 	"Meta",

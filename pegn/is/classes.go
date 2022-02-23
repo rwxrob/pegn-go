@@ -5,7 +5,7 @@ package is
 import (
 	"github.com/di-wu/parser"
 	"github.com/di-wu/parser/op"
-	"github.com/pegn/pegn-go/pegn/tk"
+	"github.com/rwxrob/pegn-go/pegn/tk"
 )
 
 func Alpha(p *parser.Parser) (*parser.Cursor, bool) {

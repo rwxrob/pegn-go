@@ -33,7 +33,7 @@ func main() {
 			"Hexadec": "Hexadecimal",
 		},
 	}, []string{
-		"https://pegn.dev/spec/types.pegn",
+		"https://pegn.dev/spec/nodes.pegn",
 		"https://pegn.dev/spec/classes.pegn",
 		"https://pegn.dev/spec/tokens.pegn",
 	}...); err != nil {
