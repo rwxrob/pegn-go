@@ -1,17 +1,19 @@
+//go:build ignore
 // +build ignore
 
-// This program generates the pegn sub-package. It can be invoked by running the
-// `go generate` command.
+// This program generates the pegn sub-package. It can be invoked by
+// running the `go generate` command.
 package main
 
 import (
-	"github.com/pegn/pegn-go"
 	"log"
+
+	"github.com/rwxrob/pegn-go"
 )
 
 func main() {
 	if err := pegn.GenerateFromURLs("pegn/", pegn.Config{
-		ModulePath:      "github.com/pegn/pegn-go",
+		ModulePath:      "github.com/rwxrob/pegn-go",
 		IgnoreReserved:  true,
 		ClassSubPackage: "is",
 		TokenSubPackage: "tk",
@@ -31,9 +33,9 @@ func main() {
 			"Hexadec": "Hexadecimal",
 		},
 	}, []string{
-		"https://raw.githubusercontent.com/pegn/spec/master/grammar.pegn",
-		"https://raw.githubusercontent.com/pegn/spec/master/classes/grammar.pegn",
-		"https://raw.githubusercontent.com/pegn/spec/master/tokens/grammar.pegn",
+		"https://pegn.dev/spec/types.pegn",
+		"https://pegn.dev/spec/classes.pegn",
+		"https://pegn.dev/spec/tokens.pegn",
 	}...); err != nil {
 		log.Fatal(err)
 	}
