@@ -1,19 +1,20 @@
-# PEGN Parser Generator
+# 🌑 PEGN library in Go
 
-This generator was built by [di-wu](https://github.com/di-wu) and is
-based on the original functional AST parser created by
-[rwxrob](https://github.com/rwxrob) using a unique, Go-friendly
-types-as-operators approach to facilitate the early stages of parser
-design and development. The plan is to rewrite this generator with two
-modes, the more understandable but less efficient current functional
-method, and a more performant single, recursive-descent parser upon
-which future regex-like functions will be created.
+This repo contains high-level functions and types for working with Parsing Expression Grammar Notation (PEGN) as defined in the [2023-04 specification](https://github.com/rwxrob/pegn-spec). 
 
-## Installation
+## Difference from previous versions
 
-Run the following to generate the `pegn` parser subpackage from the
-canonical specification sources:
+The 2023-04 version of PEGN specification differs significantly from previous versions primarily by introducing the following changes which greatly simplify the specification and implementations of it:
 
-```shell
-go generate
-```
+* `.` - default rune set rule
+* `..` - "to" rules
+* `p{}` - dynamic unicode support (no need to static class generation)
+* `<-` - all rules are named (`<--` operator dropped)
+* no formal AST format requirements
+* only 14 tokens
+* only `Unicode` and `Hexadec` (drop `Binary`)
+
+Related
+
+* <https://pegn.dev>
+* <https://github.com/rwxrob/pegn-spec>

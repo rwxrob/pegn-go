@@ -1,0 +1,3 @@
+[submodule "pegn-spec"]
+	path = pegn-spec
+	url = git@github.com:rwxrob/pegn-spec.git
